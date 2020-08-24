@@ -24,6 +24,8 @@
 
 package com.github.chainmailstudios.astromine.registry;
 
+import com.github.chainmailstudios.astromine.common.world.feature.*;
+import net.minecraft.datafixer.fix.BiomeRenameFix;
 import net.minecraft.structure.StructurePieceType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -39,10 +41,6 @@ import net.minecraft.world.gen.feature.FeatureConfig;
 import net.minecraft.world.gen.feature.StructureFeature;
 
 import com.github.chainmailstudios.astromine.AstromineCommon;
-import com.github.chainmailstudios.astromine.common.world.feature.AsteroidOreFeature;
-import com.github.chainmailstudios.astromine.common.world.feature.MeteorFeature;
-import com.github.chainmailstudios.astromine.common.world.feature.MeteorGenerator;
-import com.github.chainmailstudios.astromine.common.world.feature.MoonCraterFeature;
 import me.shedaniel.cloth.api.dynamic.registry.v1.BiomesRegistry;
 import me.shedaniel.cloth.api.dynamic.registry.v1.DynamicRegistryCallback;
 import net.earthcomputer.libstructure.LibStructure;
@@ -61,9 +59,8 @@ public class AstromineFeatures {
 	public static final RegistryKey<ConfiguredStructureFeature<?, ?>> METEOR_KEY = RegistryKey.of(Registry.CONFIGURED_STRUCTURE_FEATURE_WORLDGEN, METEOR_ID);
 
 	public static final Identifier VOLCANO_ID = AstromineCommon.identifier("volcano");
-	public static final Feature<DefaultFeatureConfig> VOLCANO = register(new MoonCraterFeature(DefaultFeatureConfig.CODEC), VOLCANO_ID);
-	public static final RegistryKey<ConfiguredFeature<?, ?>> VOLCANO_KEY = RegistryKey.of(Registry.CONFIGURED_FEATURE_WORLDGEN, VOLCANO_ID);
-
+	public static final StructurePieceType VOLCANO_STRUCTURE = register(VolcanoGenerator::new, VOLCANO_ID);
+	public static final RegistryKey<ConfiguredStructureFeature<?, ?>> VOLCANO_KEY = RegistryKey.of(Registry.CONFIGURED_STRUCTURE_FEATURE_WORLDGEN, VOLCANO_ID);
 
 	public static <T extends FeatureConfig> Feature<T> register(Feature<T> feature, Identifier id) {
 		return Registry.register(Registry.FEATURE, id, feature);
@@ -79,9 +76,17 @@ public class AstromineFeatures {
 		ConfiguredStructureFeature<DefaultFeatureConfig, ? extends StructureFeature<DefaultFeatureConfig>> meteorStructure = meteor.configure(new DefaultFeatureConfig());
 		LibStructure.registerStructure(METEOR_ID, meteor, GenerationStep.Feature.RAW_GENERATION, new StructureConfig(32, 8, 12345), meteorStructure);
 
+		VolcanoFeature volcano = new VolcanoFeature(DefaultFeatureConfig.CODEC);
+		ConfiguredStructureFeature<DefaultFeatureConfig, ? extends StructureFeature<DefaultFeatureConfig>> volcanoStructure = volcano.configure(new DefaultFeatureConfig());
+		LibStructure.registerStructure(VOLCANO_ID, volcano, GenerationStep.Feature.RAW_GENERATION, new StructureConfig(0, 0, 0), volcanoStructure);
+
 		DynamicRegistryCallback.callback(Registry.BIOME_KEY).register((manager, key, biome) -> {
 			if (biome.getCategory() != Biome.Category.NETHER && biome.getCategory() != Biome.Category.THEEND) {
 				BiomesRegistry.registerStructure(manager, biome, () -> meteorStructure);
+
+				if (key.equals(AstromineBiomes.VULCAN_PLAINS)) {
+					BiomesRegistry.registerStructure(manager, biome, () -> volcanoStructure);
+				}
 			}
 		});
 	}
