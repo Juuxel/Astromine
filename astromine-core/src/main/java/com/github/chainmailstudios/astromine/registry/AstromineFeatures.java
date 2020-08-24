@@ -60,6 +60,11 @@ public class AstromineFeatures {
 	public static final StructurePieceType METEOR_STRUCTURE = register(MeteorGenerator::new, METEOR_ID);
 	public static final RegistryKey<ConfiguredStructureFeature<?, ?>> METEOR_KEY = RegistryKey.of(Registry.CONFIGURED_STRUCTURE_FEATURE_WORLDGEN, METEOR_ID);
 
+	public static final Identifier VOLCANO_ID = AstromineCommon.identifier("volcano");
+	public static final Feature<DefaultFeatureConfig> VOLCANO = register(new MoonCraterFeature(DefaultFeatureConfig.CODEC), VOLCANO_ID);
+	public static final RegistryKey<ConfiguredFeature<?, ?>> VOLCANO_KEY = RegistryKey.of(Registry.CONFIGURED_FEATURE_WORLDGEN, VOLCANO_ID);
+
+
 	public static <T extends FeatureConfig> Feature<T> register(Feature<T> feature, Identifier id) {
 		return Registry.register(Registry.FEATURE, id, feature);
 	}
