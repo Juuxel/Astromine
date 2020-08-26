@@ -78,15 +78,12 @@ public class AstromineFeatures {
 
 		VolcanoFeature volcano = new VolcanoFeature(DefaultFeatureConfig.CODEC);
 		ConfiguredStructureFeature<DefaultFeatureConfig, ? extends StructureFeature<DefaultFeatureConfig>> volcanoStructure = volcano.configure(new DefaultFeatureConfig());
-		LibStructure.registerStructure(VOLCANO_ID, volcano, GenerationStep.Feature.RAW_GENERATION, new StructureConfig(0, 0, 0), volcanoStructure);
+		LibStructure.registerStructure(VOLCANO_ID, volcano, GenerationStep.Feature.RAW_GENERATION, new StructureConfig(16, 4, 54321), volcanoStructure);
 
 		DynamicRegistryCallback.callback(Registry.BIOME_KEY).register((manager, key, biome) -> {
 			if (biome.getCategory() != Biome.Category.NETHER && biome.getCategory() != Biome.Category.THEEND) {
 				BiomesRegistry.registerStructure(manager, biome, () -> meteorStructure);
-
-				if (key.equals(AstromineBiomes.VULCAN_PLAINS)) {
-					BiomesRegistry.registerStructure(manager, biome, () -> volcanoStructure);
-				}
+				BiomesRegistry.registerStructure(manager, biome, () -> volcanoStructure);
 			}
 		});
 	}
