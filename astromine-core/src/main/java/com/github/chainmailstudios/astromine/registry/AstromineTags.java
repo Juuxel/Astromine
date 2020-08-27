@@ -26,6 +26,7 @@ package com.github.chainmailstudios.astromine.registry;
 
 import net.fabricmc.fabric.api.tag.TagRegistry;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.EntityType;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
@@ -34,6 +35,8 @@ import net.minecraft.tag.Tag;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 
 public class AstromineTags {
+	public static final Tag<Block> GAS_TRAVERSABLE = TagRegistry.block(AstromineCommon.identifier("gas_traversable"));
+
 	public static final Tag<Item> TRICKS_PIGLINS = TagRegistry.item(AstromineCommon.identifier("tricks_piglins"));
 	public static final Tag<Item> PIGLIN_LOVED_NUGGETS = TagRegistry.item(AstromineCommon.identifier("piglin_loved_nuggets"));
 	public static final Tag<Item> PIGLIN_BARTERING_ITEMS = TagRegistry.item(AstromineCommon.identifier("piglin_bartering_items"));

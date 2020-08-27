@@ -26,6 +26,7 @@ package com.github.chainmailstudios.astromine.technologies.common.block.entity;
 
 import com.github.chainmailstudios.astromine.common.component.world.ChunkAtmosphereComponent;
 import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
+import com.github.chainmailstudios.astromine.registry.AstromineTags;
 import net.minecraft.block.FacingBlock;
 import net.minecraft.util.Tickable;
 import net.minecraft.util.math.BlockPos;
@@ -72,7 +73,7 @@ public class VentBlockEntity extends ComponentEnergyFluidBlockEntity implements 
 
 			BlockPos output = position.offset(direction);
 
-			if (asEnergy().use(AstromineConfig.get().ventEnergyConsumed) && world.getBlockState(output).isAir()) {
+			if (asEnergy().use(AstromineConfig.get().ventEnergyConsumed) && (world.getBlockState(output).isAir() || world.getBlockState(output).isIn(AstromineTags.GAS_TRAVERSABLE) || !world.getBlockState(output).isAir() && !world.getBlockState(output).isFullCube(world, output))) {
 				ComponentProvider componentProvider = ComponentProvider.fromChunk(world.getChunk(getPos()));
 
 				ChunkAtmosphereComponent atmosphereComponent = componentProvider.getComponent(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT);

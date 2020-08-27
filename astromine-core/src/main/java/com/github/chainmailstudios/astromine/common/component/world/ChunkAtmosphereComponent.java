@@ -27,6 +27,7 @@ package com.github.chainmailstudios.astromine.common.component.world;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import com.github.chainmailstudios.astromine.registry.AstromineConfig;
+import com.github.chainmailstudios.astromine.registry.AstromineTags;
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
 import nerdhub.cardinal.components.api.component.extension.CopyableComponent;
@@ -121,7 +122,7 @@ public class ChunkAtmosphereComponent implements CopyableComponent, Tickable {
 				if (isInChunk(sidePos)) {
 					FluidVolume sideVolume = get(sidePos);
 
-					if (world.getBlockState(sidePos).isAir() && (sideVolume.isEmpty() || sideVolume.equalsFluid(centerVolume)) && (centerVolume.hasStored(Fraction.bottle()) || !world.isAir(centerPos)) && sideVolume.isSmallerThan(centerVolume)) {
+					if ((world.getBlockState(sidePos).isAir() || world.getBlockState(sidePos).isIn(AstromineTags.GAS_TRAVERSABLE) || !world.getBlockState(sidePos).isAir() && !world.getBlockState(sidePos).isFullCube(world, sidePos)) && (world.isAir(centerPos) || world.getBlockState(sidePos).isIn(AstromineTags.GAS_TRAVERSABLE) || world.getBlockState(centerPos).isFullCube(world, centerPos) || !world.getBlockState(centerPos).isFullCube(world, centerPos) && world.getBlockState(centerPos).isIn(AstromineTags.GAS_TRAVERSABLE)) && (sideVolume.isEmpty() || sideVolume.equalsFluid(centerVolume)) && (centerVolume.hasStored(Fraction.bottle()) || !world.isAir(centerPos) && world.getBlockState(centerPos).isFullCube(world, centerPos)) && !world.getBlockState(sidePos).isIn(AstromineTags.GAS_TRAVERSABLE) && sideVolume.isSmallerThan(centerVolume)) {
 						if (world.isAir(centerPos)) {
 							centerVolume.pushVolume(sideVolume, Fraction.bottle());
 						} else {
@@ -137,7 +138,7 @@ public class ChunkAtmosphereComponent implements CopyableComponent, Tickable {
 
 					FluidVolume sideVolume = chunkAtmosphereComponent.get(sidePos);
 
-					if (world.getBlockState(sidePos).isAir() && (sideVolume.isEmpty() || sideVolume.equalsFluid(centerVolume)) && (centerVolume.hasStored(Fraction.bottle()) || !world.isAir(centerPos)) && sideVolume.isSmallerThan(centerVolume)) {
+					if ((world.getBlockState(sidePos).isAir() || world.getBlockState(sidePos).isIn(AstromineTags.GAS_TRAVERSABLE) || !world.getBlockState(sidePos).isAir() && !world.getBlockState(sidePos).isFullCube(world, sidePos)) && (world.isAir(centerPos) || world.getBlockState(sidePos).isIn(AstromineTags.GAS_TRAVERSABLE) || world.getBlockState(centerPos).isFullCube(world, centerPos) || !world.getBlockState(centerPos).isFullCube(world, centerPos) && world.getBlockState(centerPos).isIn(AstromineTags.GAS_TRAVERSABLE)) && (sideVolume.isEmpty() || sideVolume.equalsFluid(centerVolume)) && (centerVolume.hasStored(Fraction.bottle()) || !world.isAir(centerPos) && world.getBlockState(centerPos).isFullCube(world, centerPos)) && !world.getBlockState(sidePos).isIn(AstromineTags.GAS_TRAVERSABLE) && sideVolume.isSmallerThan(centerVolume)) {
 						// Keeping these here just in case I need them for debugging in the future.
 						// AstromineCommon.LOGGER.info("Step 1: Moving from ChunkPos(" + chunk.getPos().x + "," + chunk.getPos().z + ") to ChunkPos(" + neighborPos.x + "," + neighborPos.z + ")");
 						// AstromineCommon.LOGGER.info("Step 2: Moving from " + centerPos + " to " + sidePos);

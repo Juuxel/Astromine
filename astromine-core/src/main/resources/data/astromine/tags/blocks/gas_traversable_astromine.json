@@ -1,0 +1,25 @@
+{
+	"replace": false,
+	"values": [
+		"astromine:inserter",
+		"astromine:fast_inserter",
+		"astromine:basic_conveyor",
+		"astromine:basic_vertical_conveyor",
+		"astromine:basic_downward_vertical_conveyor",
+		"astromine:advanced_conveyor",
+		"astromine:advanced_vertical_conveyor",
+		"astromine:advanced_downward_vertical_conveyor",
+		"astromine:elite_conveyor",
+		"astromine:elite_vertical_conveyor",
+		"astromine:elite_downward_vertical_conveyor",
+		"astromine:catwalk",
+		"astromine:catwalk_stairs",
+		"astromine:fluid_cable",
+		"astromine:primitive_energy_cable",
+		"astromine:basic_energy_cable",
+		"astromine:advanced_energy_cable",
+		"astromine:elite_energy_cable",
+		"astromine:item_displayer",
+		"astromine:altar"
+	]
+}
