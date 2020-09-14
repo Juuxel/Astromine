@@ -28,21 +28,26 @@ import com.github.chainmailstudios.astromine.AstromineCommon;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.function.Supplier;
 
 public class AstromineEntityTypes {
+	private static final DeferredRegister<EntityType<?>> ENTITY_TYPE_DEFERRED_REGISTER = DeferredRegister.create(ForgeRegistries.ENTITIES, AstromineCommon.MOD_ID);
 
-
-	public static void initialize() {
-
+	public static void initialize(IEventBus modBus) {
+		ENTITY_TYPE_DEFERRED_REGISTER.register(modBus);
 	}
 
-	public static <T extends Entity> EntityType<T> register(String id, EntityType.Builder<T> builder) {
-		return register(AstromineCommon.identifier(id), builder);
+	public static <T extends Entity> RegistryObject<EntityType<T>> register(String id, Supplier<EntityType.Builder<T>> builder) {
+		return registerType(id, () -> builder.get().build(id));
 	}
 
-	public static <T extends Entity> EntityType<T> register(ResourceLocation id, EntityType.Builder<T> builder) {
-		return Registry.register(Registry.ENTITY_TYPE, id, builder.build(id.getPath()));
+	public static <T extends Entity> RegistryObject<EntityType<T>> register(ResourceLocation id, Supplier<EntityType.Builder<T>> builder) {
+		return register(id.getPath(), builder);
 	}
 
 	/**
@@ -53,11 +58,11 @@ public class AstromineEntityTypes {
 	 *
 	 * @return Registered EntityType
 	 */
-	public static <T extends Entity> EntityType<T> register(String id, EntityType<T> type) {
-		return register(AstromineCommon.identifier(id), type);
+	public static <T extends Entity> RegistryObject<EntityType<T>> registerType(String id, Supplier<EntityType<T>> type) {
+		return ENTITY_TYPE_DEFERRED_REGISTER.register(id, type);
 	}
 
-	public static <T extends Entity> EntityType<T> register(ResourceLocation id, EntityType<T> type) {
-		return Registry.register(Registry.ENTITY_TYPE, id, type);
+	public static <T extends Entity> RegistryObject<EntityType<T>> registerType(ResourceLocation id, Supplier<EntityType<T>> type) {
+		return registerType(id.getPath(), type);
 	}
 }
