@@ -38,7 +38,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class BlockBreakerBlock extends WrenchableHorizontalFacingBlockWithEntity {
-	public BlockBreakerBlock(Settings settings) {
+	public BlockBreakerBlock(Properties settings) {
 		super(settings);
 	}
 

@@ -39,7 +39,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class VentBlock extends WrenchableFacingEnergyBlockWithEntity {
-	public VentBlock(Settings settings) {
+	public VentBlock(Properties settings) {
 		super(settings);
 	}
 

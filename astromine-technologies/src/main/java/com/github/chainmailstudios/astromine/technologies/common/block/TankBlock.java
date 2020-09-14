@@ -38,12 +38,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public abstract class TankBlock extends WrenchableHorizontalFacingTieredBlockWithEntity {
-	public TankBlock(Settings settings) {
+	public TankBlock(Properties settings) {
 		super(settings);
 	}
 
 	public abstract static class Base extends TankBlock {
-		public Base(Settings settings) {
+		public Base(Properties settings) {
 			super(settings);
 		}
 
@@ -64,7 +64,7 @@ public abstract class TankBlock extends WrenchableHorizontalFacingTieredBlockWit
 	}
 
 	public static class Primitive extends TankBlock.Base {
-		public Primitive(Settings settings) {
+		public Primitive(Properties settings) {
 			super(settings);
 		}
 
@@ -75,7 +75,7 @@ public abstract class TankBlock extends WrenchableHorizontalFacingTieredBlockWit
 	}
 
 	public static class Basic extends TankBlock.Base {
-		public Basic(Settings settings) {
+		public Basic(Properties settings) {
 			super(settings);
 		}
 
@@ -86,7 +86,7 @@ public abstract class TankBlock extends WrenchableHorizontalFacingTieredBlockWit
 	}
 
 	public static class Advanced extends TankBlock.Base {
-		public Advanced(Settings settings) {
+		public Advanced(Properties settings) {
 			super(settings);
 		}
 
@@ -97,7 +97,7 @@ public abstract class TankBlock extends WrenchableHorizontalFacingTieredBlockWit
 	}
 
 	public static class Elite extends TankBlock.Base {
-		public Elite(Settings settings) {
+		public Elite(Properties settings) {
 			super(settings);
 		}
 
@@ -108,7 +108,7 @@ public abstract class TankBlock extends WrenchableHorizontalFacingTieredBlockWit
 	}
 
 	public static class Creative extends TankBlock.Base {
-		public Creative(Settings settings) {
+		public Creative(Properties settings) {
 			super(settings);
 		}
 

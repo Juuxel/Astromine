@@ -38,12 +38,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public abstract class AlloySmelterBlock extends WrenchableHorizontalFacingTieredBlockWithEntity {
-	public AlloySmelterBlock(Settings settings) {
+	public AlloySmelterBlock(Properties settings) {
 		super(settings);
 	}
 
 	public abstract static class Base extends AlloySmelterBlock {
-		public Base(Settings settings) {
+		public Base(Properties settings) {
 			super(settings);
 		}
 
@@ -64,7 +64,7 @@ public abstract class AlloySmelterBlock extends WrenchableHorizontalFacingTiered
 	}
 
 	public static class Primitive extends AlloySmelterBlock.Base {
-		public Primitive(Settings settings) {
+		public Primitive(Properties settings) {
 			super(settings);
 		}
 
@@ -75,7 +75,7 @@ public abstract class AlloySmelterBlock extends WrenchableHorizontalFacingTiered
 	}
 
 	public static class Basic extends AlloySmelterBlock.Base {
-		public Basic(Settings settings) {
+		public Basic(Properties settings) {
 			super(settings);
 		}
 
@@ -86,7 +86,7 @@ public abstract class AlloySmelterBlock extends WrenchableHorizontalFacingTiered
 	}
 
 	public static class Advanced extends AlloySmelterBlock.Base {
-		public Advanced(Settings settings) {
+		public Advanced(Properties settings) {
 			super(settings);
 		}
 
@@ -97,7 +97,7 @@ public abstract class AlloySmelterBlock extends WrenchableHorizontalFacingTiered
 	}
 
 	public static class Elite extends AlloySmelterBlock.Base {
-		public Elite(Settings settings) {
+		public Elite(Properties settings) {
 			super(settings);
 		}
 

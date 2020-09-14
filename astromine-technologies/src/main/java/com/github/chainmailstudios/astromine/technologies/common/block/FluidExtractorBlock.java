@@ -38,7 +38,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class FluidExtractorBlock extends WrenchableHorizontalFacingBlockWithEntity {
-	public FluidExtractorBlock(Settings settings) {
+	public FluidExtractorBlock(Properties settings) {
 		super(settings);
 	}
 

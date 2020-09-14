@@ -38,12 +38,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public abstract class BufferBlock extends WrenchableHorizontalFacingTieredBlockWithEntity {
-	public BufferBlock(Settings settings) {
+	public BufferBlock(Properties settings) {
 		super(settings);
 	}
 
 	public abstract static class Base extends BufferBlock {
-		public Base(Settings settings) {
+		public Base(Properties settings) {
 			super(settings);
 		}
 
@@ -64,7 +64,7 @@ public abstract class BufferBlock extends WrenchableHorizontalFacingTieredBlockW
 	}
 
 	public static class Primitive extends BufferBlock.Base {
-		public Primitive(Settings settings) {
+		public Primitive(Properties settings) {
 			super(settings);
 		}
 
@@ -75,7 +75,7 @@ public abstract class BufferBlock extends WrenchableHorizontalFacingTieredBlockW
 	}
 
 	public static class Basic extends BufferBlock.Base {
-		public Basic(Settings settings) {
+		public Basic(Properties settings) {
 			super(settings);
 		}
 
@@ -86,7 +86,7 @@ public abstract class BufferBlock extends WrenchableHorizontalFacingTieredBlockW
 	}
 
 	public static class Advanced extends BufferBlock.Base {
-		public Advanced(Settings settings) {
+		public Advanced(Properties settings) {
 			super(settings);
 		}
 
@@ -97,7 +97,7 @@ public abstract class BufferBlock extends WrenchableHorizontalFacingTieredBlockW
 	}
 
 	public static class Elite extends BufferBlock.Base {
-		public Elite(Settings settings) {
+		public Elite(Properties settings) {
 			super(settings);
 		}
 
@@ -108,7 +108,7 @@ public abstract class BufferBlock extends WrenchableHorizontalFacingTieredBlockW
 	}
 
 	public static class Creative extends BufferBlock.Base {
-		public Creative(Settings settings) {
+		public Creative(Properties settings) {
 			super(settings);
 		}
 

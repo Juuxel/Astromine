@@ -38,12 +38,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public abstract class CapacitorBlock extends WrenchableHorizontalFacingTieredBlockWithEntity {
-	public CapacitorBlock(Settings settings) {
+	public CapacitorBlock(Properties settings) {
 		super(settings);
 	}
 
 	public abstract static class Base extends CapacitorBlock {
-		public Base(Settings settings) {
+		public Base(Properties settings) {
 			super(settings);
 		}
 
@@ -64,7 +64,7 @@ public abstract class CapacitorBlock extends WrenchableHorizontalFacingTieredBlo
 	}
 
 	public static class Primitive extends CapacitorBlock.Base {
-		public Primitive(Settings settings) {
+		public Primitive(Properties settings) {
 			super(settings);
 		}
 
@@ -75,7 +75,7 @@ public abstract class CapacitorBlock extends WrenchableHorizontalFacingTieredBlo
 	}
 
 	public static class Basic extends CapacitorBlock.Base {
-		public Basic(Settings settings) {
+		public Basic(Properties settings) {
 			super(settings);
 		}
 
@@ -86,7 +86,7 @@ public abstract class CapacitorBlock extends WrenchableHorizontalFacingTieredBlo
 	}
 
 	public static class Advanced extends CapacitorBlock.Base {
-		public Advanced(Settings settings) {
+		public Advanced(Properties settings) {
 			super(settings);
 		}
 
@@ -97,7 +97,7 @@ public abstract class CapacitorBlock extends WrenchableHorizontalFacingTieredBlo
 	}
 
 	public static class Elite extends CapacitorBlock.Base {
-		public Elite(Settings settings) {
+		public Elite(Properties settings) {
 			super(settings);
 		}
 
@@ -108,7 +108,7 @@ public abstract class CapacitorBlock extends WrenchableHorizontalFacingTieredBlo
 	}
 
 	public static class Creative extends CapacitorBlock.Base {
-		public Creative(Settings settings) {
+		public Creative(Properties settings) {
 			super(settings);
 		}
 

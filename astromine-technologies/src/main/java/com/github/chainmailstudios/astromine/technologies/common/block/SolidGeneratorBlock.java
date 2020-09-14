@@ -38,12 +38,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public abstract class SolidGeneratorBlock extends WrenchableHorizontalFacingTieredBlockWithEntity {
-	public SolidGeneratorBlock(Settings settings) {
+	public SolidGeneratorBlock(Properties settings) {
 		super(settings);
 	}
 
 	public abstract static class Base extends SolidGeneratorBlock {
-		public Base(Settings settings) {
+		public Base(Properties settings) {
 			super(settings);
 		}
 
@@ -64,7 +64,7 @@ public abstract class SolidGeneratorBlock extends WrenchableHorizontalFacingTier
 	}
 
 	public static class Primitive extends Base {
-		public Primitive(Settings settings) {
+		public Primitive(Properties settings) {
 			super(settings);
 		}
 
@@ -75,7 +75,7 @@ public abstract class SolidGeneratorBlock extends WrenchableHorizontalFacingTier
 	}
 
 	public static class Basic extends Base {
-		public Basic(Settings settings) {
+		public Basic(Properties settings) {
 			super(settings);
 		}
 
@@ -86,7 +86,7 @@ public abstract class SolidGeneratorBlock extends WrenchableHorizontalFacingTier
 	}
 
 	public static class Advanced extends Base {
-		public Advanced(Settings settings) {
+		public Advanced(Properties settings) {
 			super(settings);
 		}
 
@@ -97,7 +97,7 @@ public abstract class SolidGeneratorBlock extends WrenchableHorizontalFacingTier
 	}
 
 	public static class Elite extends Base {
-		public Elite(Settings settings) {
+		public Elite(Properties settings) {
 			super(settings);
 		}
 

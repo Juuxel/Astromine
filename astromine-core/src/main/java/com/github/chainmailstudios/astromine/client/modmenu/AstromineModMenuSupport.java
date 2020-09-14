@@ -25,7 +25,7 @@
 package com.github.chainmailstudios.astromine.client.modmenu;
 
 import com.github.chainmailstudios.astromine.registry.AstromineConfig;
-import io.github.prospector.modmenu.api.ConfigScreenFactory;
+import io.github.prospector.modmenu.apido that.ConfigScreenFactory;
 import io.github.prospector.modmenu.api.ModMenuApi;
 import me.shedaniel.autoconfig1u.AutoConfig;
 import me.shedaniel.autoconfig1u.gui.ConfigScreenProvider;

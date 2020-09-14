@@ -38,12 +38,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public abstract class ElectricSmelterBlock extends WrenchableHorizontalFacingTieredBlockWithEntity {
-	public ElectricSmelterBlock(Settings settings) {
+	public ElectricSmelterBlock(Properties settings) {
 		super(settings);
 	}
 
 	public abstract static class Base extends ElectricSmelterBlock {
-		public Base(Settings settings) {
+		public Base(Properties settings) {
 			super(settings);
 		}
 
@@ -64,7 +64,7 @@ public abstract class ElectricSmelterBlock extends WrenchableHorizontalFacingTie
 	}
 
 	public static class Primitive extends ElectricSmelterBlock.Base {
-		public Primitive(Settings settings) {
+		public Primitive(Properties settings) {
 			super(settings);
 		}
 
@@ -75,7 +75,7 @@ public abstract class ElectricSmelterBlock extends WrenchableHorizontalFacingTie
 	}
 
 	public static class Basic extends ElectricSmelterBlock.Base {
-		public Basic(Settings settings) {
+		public Basic(Properties settings) {
 			super(settings);
 		}
 
@@ -86,7 +86,7 @@ public abstract class ElectricSmelterBlock extends WrenchableHorizontalFacingTie
 	}
 
 	public static class Advanced extends ElectricSmelterBlock.Base {
-		public Advanced(Settings settings) {
+		public Advanced(Properties settings) {
 			super(settings);
 		}
 
@@ -97,7 +97,7 @@ public abstract class ElectricSmelterBlock extends WrenchableHorizontalFacingTie
 	}
 
 	public static class Elite extends ElectricSmelterBlock.Base {
-		public Elite(Settings settings) {
+		public Elite(Properties settings) {
 			super(settings);
 		}
 

@@ -38,12 +38,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public abstract class LiquidGeneratorBlock extends WrenchableHorizontalFacingTieredBlockWithEntity {
-	public LiquidGeneratorBlock(Settings settings) {
+	public LiquidGeneratorBlock(Properties settings) {
 		super(settings);
 	}
 
 	public abstract static class Base extends LiquidGeneratorBlock {
-		public Base(Settings settings) {
+		public Base(Properties settings) {
 			super(settings);
 		}
 
@@ -64,7 +64,7 @@ public abstract class LiquidGeneratorBlock extends WrenchableHorizontalFacingTie
 	}
 
 	public static class Primitive extends LiquidGeneratorBlock.Base {
-		public Primitive(Settings settings) {
+		public Primitive(Properties settings) {
 			super(settings);
 		}
 
@@ -75,7 +75,7 @@ public abstract class LiquidGeneratorBlock extends WrenchableHorizontalFacingTie
 	}
 
 	public static class Basic extends LiquidGeneratorBlock.Base {
-		public Basic(Settings settings) {
+		public Basic(Properties settings) {
 			super(settings);
 		}
 
@@ -86,7 +86,7 @@ public abstract class LiquidGeneratorBlock extends WrenchableHorizontalFacingTie
 	}
 
 	public static class Advanced extends LiquidGeneratorBlock.Base {
-		public Advanced(Settings settings) {
+		public Advanced(Properties settings) {
 			super(settings);
 		}
 
@@ -97,7 +97,7 @@ public abstract class LiquidGeneratorBlock extends WrenchableHorizontalFacingTie
 	}
 
 	public static class Elite extends LiquidGeneratorBlock.Base {
-		public Elite(Settings settings) {
+		public Elite(Properties settings) {
 			super(settings);
 		}
 

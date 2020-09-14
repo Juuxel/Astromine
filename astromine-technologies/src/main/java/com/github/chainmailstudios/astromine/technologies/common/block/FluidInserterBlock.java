@@ -38,7 +38,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class FluidInserterBlock extends WrenchableHorizontalFacingBlockWithEntity {
-	public FluidInserterBlock(Settings settings) {
+	public FluidInserterBlock(Properties settings) {
 		super(settings);
 	}
 
