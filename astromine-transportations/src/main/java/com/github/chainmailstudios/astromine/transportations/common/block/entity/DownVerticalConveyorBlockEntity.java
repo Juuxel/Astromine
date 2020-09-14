@@ -164,19 +164,9 @@ public class DownVerticalConveyorBlockEntity extends ConveyorBlockEntity {
 	}
 
 	@Override
-	public void fromClientTag(CompoundNBT compoundTag) {
-		load(getBlockState(), compoundTag);
-	}
-
-	@Override
 	public CompoundNBT save(CompoundNBT compoundTag) {
 		compoundTag.putBoolean("down_vertical", down);
 		compoundTag.putInt("horizontalPosition", horizontalPosition);
 		return super.save(compoundTag);
-	}
-
-	@Override
-	public CompoundNBT toClientTag(CompoundNBT compoundTag) {
-		return save(compoundTag);
 	}
 }

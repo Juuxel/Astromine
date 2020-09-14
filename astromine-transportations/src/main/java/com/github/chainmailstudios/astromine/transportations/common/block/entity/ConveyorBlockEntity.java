@@ -24,8 +24,6 @@
 
 package com.github.chainmailstudios.astromine.transportations.common.block.entity;
 
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachmentBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalBlock;
 import net.minecraft.client.Minecraft;
@@ -47,7 +45,7 @@ import com.github.chainmailstudios.astromine.transportations.common.conveyor.Con
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.ConveyorTypes;
 import com.github.chainmailstudios.astromine.transportations.registry.AstromineTransportationsBlockEntityTypes;
 
-public class ConveyorBlockEntity extends TileEntity implements ConveyorConveyable, SingularStackInventory, BlockEntityClientSerializable, RenderAttachmentBlockEntity, ITickableTileEntity {
+public class ConveyorBlockEntity extends TileEntity implements ConveyorConveyable, SingularStackInventory, ITickableTileEntity {
 	protected boolean front = false;
 	protected boolean down = false;
 	protected boolean across = false;
@@ -201,20 +199,20 @@ public class ConveyorBlockEntity extends TileEntity implements ConveyorConveyabl
 	}
 
 	@Override
-	public int size() {
+	public int getContainerSize() {
 		return 1;
 	}
 
 	@Override
-	public void setStack(int slot, ItemStack stack) {
-		SingularStackInventory.super.setStack(slot, stack);
+	public void setItem(int slot, ItemStack stack) {
+		SingularStackInventory.super.setItem(slot, stack);
 		if (!level.isClientSide())
 			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 	}
 
 	@Override
-	public ItemStack removeStack(int slot) {
-		ItemStack stack = SingularStackInventory.super.removeStack(slot);
+	public ItemStack removeItemNoUpdate(int slot) {
+		ItemStack stack = SingularStackInventory.super.removeItemNoUpdate(slot);
 		position = 0;
 		prevPosition = 0;
 		if (!level.isClientSide())
@@ -223,13 +221,12 @@ public class ConveyorBlockEntity extends TileEntity implements ConveyorConveyabl
 	}
 
 	@Override
-	public void clear() {
-		SingularStackInventory.super.clear();
+	public void clearContent() {
+		SingularStackInventory.super.clearContent();
 		if (!level.isClientSide())
 			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 	}
 
-	@Override
 	public int[] getRenderAttachmentData() {
 		return new int[]{ position, prevPosition };
 	}
@@ -310,13 +307,8 @@ public class ConveyorBlockEntity extends TileEntity implements ConveyorConveyabl
 	}
 
 	@Override
-	public void fromClientTag(CompoundNBT compoundTag) {
-		load(getBlockState(), compoundTag);
-	}
-
-	@Override
 	public CompoundNBT save(CompoundNBT compoundTag) {
-		compoundTag.put("stack", getStack().toTag(new CompoundNBT()));
+		compoundTag.put("stack", getStack().save(new CompoundNBT()));
 		compoundTag.putBoolean("front", front);
 		compoundTag.putBoolean("down", down);
 		compoundTag.putBoolean("across", across);
@@ -328,10 +320,5 @@ public class ConveyorBlockEntity extends TileEntity implements ConveyorConveyabl
 	@Override
 	public CompoundNBT getUpdateTag() {
 		return save(new CompoundNBT());
-	}
-
-	@Override
-	public CompoundNBT toClientTag(CompoundNBT compoundTag) {
-		return save(compoundTag);
 	}
 }

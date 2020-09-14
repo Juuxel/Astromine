@@ -24,8 +24,10 @@
 
 package com.github.chainmailstudios.astromine.transportations.common.block.entity.base;
 
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachmentBlockEntity;
+import com.github.chainmailstudios.astromine.common.inventory.DoubleStackInventory;
+import com.github.chainmailstudios.astromine.transportations.common.conveyor.Conveyable;
+import com.github.chainmailstudios.astromine.transportations.common.conveyor.ConveyorConveyable;
+import com.github.chainmailstudios.astromine.transportations.common.conveyor.ConveyorTypes;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalBlock;
 import net.minecraft.client.Minecraft;
@@ -40,12 +42,8 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.server.ServerWorld;
-import com.github.chainmailstudios.astromine.common.inventory.DoubleStackInventory;
-import com.github.chainmailstudios.astromine.transportations.common.conveyor.Conveyable;
-import com.github.chainmailstudios.astromine.transportations.common.conveyor.ConveyorConveyable;
-import com.github.chainmailstudios.astromine.transportations.common.conveyor.ConveyorTypes;
 
-public class AbstractConveyableBlockEntity extends TileEntity implements Conveyable, DoubleStackInventory, BlockEntityClientSerializable, RenderAttachmentBlockEntity, ITickableTileEntity {
+public class AbstractConveyableBlockEntity extends TileEntity implements Conveyable, DoubleStackInventory, ITickableTileEntity {
 	int leftPosition = 0;
 	int prevLeftPosition = 0;
 	int rightPosition = 0;
@@ -147,15 +145,15 @@ public class AbstractConveyableBlockEntity extends TileEntity implements Conveya
 	}
 
 	@Override
-	public void setStack(int slot, ItemStack stack) {
-		DoubleStackInventory.super.setStack(slot, stack);
+	public void setItem(int slot, ItemStack stack) {
+		DoubleStackInventory.super.setItem(slot, stack);
 		if (!level.isClientSide())
 			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 	}
 
 	@Override
-	public ItemStack removeStack(int slot) {
-		ItemStack stack = DoubleStackInventory.super.removeStack(slot);
+	public ItemStack removeItemNoUpdate(int slot) {
+		ItemStack stack = DoubleStackInventory.super.removeItemNoUpdate(slot);
 		leftPosition = 0;
 		rightPosition = 0;
 		prevLeftPosition = 0;
@@ -166,8 +164,8 @@ public class AbstractConveyableBlockEntity extends TileEntity implements Conveya
 	}
 
 	@Override
-	public void clear() {
-		DoubleStackInventory.super.clear();
+	public void clearContent() {
+		DoubleStackInventory.super.clearContent();
 		if (!level.isClientSide())
 			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 	}
@@ -246,9 +244,8 @@ public class AbstractConveyableBlockEntity extends TileEntity implements Conveya
 
 	}
 
-	@Override
 	public int[] getRenderAttachmentData() {
-		return new int[]{ leftPosition, prevLeftPosition, rightPosition, prevRightPosition };
+		return new int[]{leftPosition, prevLeftPosition, rightPosition, prevRightPosition};
 	}
 
 	protected void sendPacket(ServerWorld w, CompoundNBT tag) {
@@ -279,14 +276,9 @@ public class AbstractConveyableBlockEntity extends TileEntity implements Conveya
 	}
 
 	@Override
-	public void fromClientTag(CompoundNBT compoundTag) {
-		load(getBlockState(), compoundTag);
-	}
-
-	@Override
 	public CompoundNBT save(CompoundNBT compoundTag) {
-		compoundTag.put("leftStack", getLeftStack().toTag(new CompoundNBT()));
-		compoundTag.put("rightStack", getRightStack().toTag(new CompoundNBT()));
+		compoundTag.put("leftStack", getLeftStack().save(new CompoundNBT()));
+		compoundTag.put("rightStack", getRightStack().save(new CompoundNBT()));
 		compoundTag.putBoolean("left", left);
 		compoundTag.putBoolean("right", right);
 		compoundTag.putInt("leftPosition", leftPosition);
@@ -299,10 +291,5 @@ public class AbstractConveyableBlockEntity extends TileEntity implements Conveya
 	@Override
 	public CompoundNBT getUpdateTag() {
 		return save(new CompoundNBT());
-	}
-
-	@Override
-	public CompoundNBT toClientTag(CompoundNBT compoundTag) {
-		return save(compoundTag);
 	}
 }

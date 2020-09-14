@@ -63,7 +63,7 @@ import com.github.chainmailstudios.astromine.transportations.registry.AstromineT
 import java.util.List;
 import java.util.stream.IntStream;
 
-public class InserterBlockEntity extends TileEntity implements SingularStackInventory, BlockEntityClientSerializable, RenderAttachmentBlockEntity, ITickableTileEntity {
+public class InserterBlockEntity extends TileEntity implements SingularStackInventory, RenderAttachmentBlockEntity, ITickableTileEntity {
 	protected int position = 0;
 	protected int prevPosition = 0;
 	private NonNullList<ItemStack> stacks = NonNullList.withSize(1, ItemStack.EMPTY);
@@ -265,20 +265,20 @@ public class InserterBlockEntity extends TileEntity implements SingularStackInve
 	}
 
 	@Override
-	public int size() {
+	public int getContainerSize() {
 		return 1;
 	}
 
 	@Override
-	public void setStack(int slot, ItemStack stack) {
-		SingularStackInventory.super.setStack(slot, stack);
+	public void setItem(int slot, ItemStack stack) {
+		SingularStackInventory.super.setItem(slot, stack);
 		if (!level.isClientSide())
 			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 	}
 
 	@Override
-	public ItemStack removeStack(int slot) {
-		ItemStack stack = SingularStackInventory.super.removeStack(slot);
+	public ItemStack removeItemNoUpdate(int slot) {
+		ItemStack stack = SingularStackInventory.super.removeItemNoUpdate(slot);
 		position = 15;
 		prevPosition = 15;
 		if (!level.isClientSide())
@@ -287,8 +287,8 @@ public class InserterBlockEntity extends TileEntity implements SingularStackInve
 	}
 
 	@Override
-	public void clear() {
-		SingularStackInventory.super.clear();
+	public void clearContent() {
+		SingularStackInventory.super.clearContent();
 		if (!level.isClientSide())
 			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 	}
@@ -335,13 +335,8 @@ public class InserterBlockEntity extends TileEntity implements SingularStackInve
 	}
 
 	@Override
-	public void fromClientTag(CompoundNBT compoundTag) {
-		load(getBlockState(), compoundTag);
-	}
-
-	@Override
 	public CompoundNBT save(CompoundNBT compoundTag) {
-		compoundTag.put("stack", getStack().toTag(new CompoundNBT()));
+		compoundTag.put("stack", getStack().save(new CompoundNBT()));
 		compoundTag.putInt("position", position);
 		return super.save(compoundTag);
 	}
@@ -349,10 +344,5 @@ public class InserterBlockEntity extends TileEntity implements SingularStackInve
 	@Override
 	public CompoundNBT getUpdateTag() {
 		return save(new CompoundNBT());
-	}
-
-	@Override
-	public CompoundNBT toClientTag(CompoundNBT compoundTag) {
-		return save(compoundTag);
 	}
 }
