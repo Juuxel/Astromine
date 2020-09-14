@@ -24,22 +24,28 @@
 
 package com.github.chainmailstudios.astromine.registry;
 
-import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IItemProvider;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 
+import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 public class AstromineItemGroups {
-	public static final ItemGroup CORE = register("core", () -> AstromineItems.ITEM);
+	public static final ItemGroup CORE = register("core", AstromineItems.ITEM);
 
 	public static void initialize() {
 
 	}
 
-	public static ItemGroup register(String id, Supplier<IItemProvider> icon) {
-		return FabricItemGroupBuilder.build(AstromineCommon.identifier(id), () -> new ItemStack(icon.get()));
+	public static ItemGroup register(String id, Supplier<? extends IItemProvider> icon) {
+		return new ItemGroup(AstromineCommon.identifier(id).toString()) {
+			@Nonnull
+			@Override
+			public ItemStack makeIcon() {
+				return new ItemStack(icon.get());
+			}
+		};
 	}
 }
