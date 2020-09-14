@@ -25,60 +25,61 @@
 package com.github.chainmailstudios.astromine.common.network.type;
 
 import com.github.chainmailstudios.astromine.common.block.transfer.TransferType;
-import com.github.chainmailstudios.astromine.common.component.SidedComponentProvider;
 import com.github.chainmailstudios.astromine.common.component.block.entity.BlockEntityTransferComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
-import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
 import com.github.chainmailstudios.astromine.common.network.NetworkInstance;
 import com.github.chainmailstudios.astromine.common.network.NetworkMember;
 import com.github.chainmailstudios.astromine.common.network.NetworkMemberNode;
 import com.github.chainmailstudios.astromine.common.network.type.base.NetworkType;
 import com.github.chainmailstudios.astromine.common.registry.NetworkMemberRegistry;
 import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
+import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
-
 import com.google.common.collect.Lists;
-import java.util.List;
 import net.minecraft.block.DirectionalBlock;
 import net.minecraft.block.HorizontalBlock;
 import net.minecraft.state.Property;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Tuple;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+
+import java.util.List;
 
 public class FluidNetworkType extends NetworkType {
 	@Override
 	public void tick(NetworkInstance instance) {
 		List<FluidVolume> inputs = Lists.newArrayList();
-		List<Tuple<FluidInventoryComponent, Direction>> outputs = Lists.newArrayList();
+		List<Tuple<IFluidHandler, Direction>> outputs = Lists.newArrayList();
 
 		for (NetworkMemberNode memberNode : instance.members) {
 			TileEntity blockEntity = instance.getWorld().getBlockEntity(memberNode.getBlockPos());
 			NetworkMember networkMember = NetworkMemberRegistry.get(blockEntity);
 
-			if (blockEntity instanceof SidedComponentProvider && networkMember.acceptsType(this)) {
-				SidedComponentProvider provider = SidedComponentProvider.fromBlockEntity(blockEntity);
+			if (networkMember.acceptsType(this)) {
+				IFluidHandler fluidComponent = blockEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, memberNode.getDirection()).orElse(null);
+				if (fluidComponent != null) {
+					BlockEntityTransferComponent transferComponent = blockEntity.getCapability(AstromineComponentTypes.BLOCK_ENTITY_TRANSFER_COMPONENT).orElse(null);
 
-				FluidInventoryComponent fluidComponent = provider.getSidedComponent(memberNode.getDirection(), AstromineComponentTypes.FLUID_INVENTORY_COMPONENT);
+					before:
+					if (fluidComponent != null && transferComponent != null) {
+						Property<Direction> property = blockEntity.getBlockState().hasProperty(HorizontalBlock.FACING) ? HorizontalBlock.FACING : blockEntity.getBlockState().hasProperty(DirectionalBlock.FACING) ? DirectionalBlock.FACING : null;
 
-				BlockEntityTransferComponent transferComponent = provider.getComponent(AstromineComponentTypes.BLOCK_ENTITY_TRANSFER_COMPONENT);
+						if (!blockEntity.getBlockState().hasProperty(property))
+							break before;
 
-				before:
-				if (fluidComponent != null && transferComponent != null) {
-					Property<Direction> property = blockEntity.getBlockState().hasProperty(HorizontalBlock.FACING) ? HorizontalBlock.FACING : blockEntity.getBlockState().hasProperty(DirectionalBlock.FACING) ? DirectionalBlock.FACING : null;
+						TransferType type = transferComponent.get(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).get(memberNode.getDirection());
 
-					if (!blockEntity.getBlockState().hasProperty(property))
-						break before;
+						if (!type.isDisabled()) {
+							if (type.canExtract() || networkMember.isProvider(this)) {
+								inputs.addAll(fluidComponent.getExtractableContentsMatching(memberNode.getDirection(), (volume -> !volume.isEmpty())));
+							}
 
-					TransferType type = transferComponent.get(AstromineComponentTypes.FLUID_INVENTORY_COMPONENT).get(memberNode.getDirection());
-
-					if (!type.isDisabled()) {
-						if (type.canExtract() || networkMember.isProvider(this)) {
-							inputs.addAll(fluidComponent.getExtractableContentsMatching(memberNode.getDirection(), (volume -> !volume.isEmpty())));
-						}
-
-						if (type.canInsert() || networkMember.isRequester(this)) {
-							outputs.add(new Tuple<>(fluidComponent, memberNode.getDirection()));
+							if (type.canInsert() || networkMember.isRequester(this)) {
+								outputs.add(new Tuple<>(fluidComponent, memberNode.getDirection()));
+							}
 						}
 					}
 				}
@@ -86,17 +87,18 @@ public class FluidNetworkType extends NetworkType {
 		}
 
 		for (FluidVolume input : inputs) {
-			for (Tuple<FluidInventoryComponent, Direction> outputPair : outputs) {
-				FluidInventoryComponent component = outputPair.getA();
+			for (Tuple<IFluidHandler, Direction> outputPair : outputs) {
+				IFluidHandler component = outputPair.getA();
 				Direction direction = outputPair.getB();
 
-				component.getContents().forEach((slot, output) -> {
-					if (!input.isEmpty() && !output.isFull() && (output.canAccept(input.getFluid()))) {
+				for (int i = 0; i < component.getTanks(); i++) {
+					FluidStack output = component.getFluidInTank(i);
+					if (!input.isEmpty() && !output.isFull() && (output.getFluid().isSame(input.getFluid()))) {
 						if (component.canInsert(direction, input, slot)) {
 							output.moveFrom(input, Fraction.bottle());
 						}
 					}
-				});
+				}
 			}
 		}
 	}

@@ -26,51 +26,56 @@ package com.github.chainmailstudios.astromine.common.component.block.entity;
 
 import com.github.chainmailstudios.astromine.common.block.transfer.TransferType;
 import com.github.chainmailstudios.astromine.common.utilities.DirectionUtilities;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import nerdhub.cardinal.components.api.ComponentRegistry;
-import nerdhub.cardinal.components.api.ComponentType;
-import nerdhub.cardinal.components.api.component.Component;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.capabilities.Capability;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-public class BlockEntityTransferComponent implements Component {
-	private final Reference2ReferenceMap<ComponentType<?>, TransferEntry> components = new Reference2ReferenceOpenHashMap<>();
+public class BlockEntityTransferComponent {
+	private final Object2ReferenceMap<String, TransferEntry> components = new Object2ReferenceOpenHashMap<>();
 
-	public TransferEntry get(ComponentType<?> type) {
+	public TransferEntry get(Capability<?> type) {
+		return get(type.getName());
+	}
+
+	public TransferEntry get(String type) {
 		return components.computeIfAbsent(type, t -> new TransferEntry());
 	}
 
-	public Map<ComponentType<?>, TransferEntry> get() {
+	public Map<String, TransferEntry> get() {
 		return components;
 	}
 
-	public void add(ComponentType<?> type) {
+	public void add(Capability<?> type) {
+		add(type.getName());
+	}
+
+	public void add(String type) {
 		components.put(type, new TransferEntry());
 	}
 
-	@Override
 	public void fromTag(CompoundNBT tag) {
 		CompoundNBT dataTag = tag.getCompound("data");
 
 		for (String key : dataTag.getAllKeys()) {
-			ResourceLocation keyId = new ResourceLocation(key);
 			TransferEntry entry = new TransferEntry();
 			entry.fromTag(dataTag.getCompound(key));
-			components.put(ComponentRegistry.INSTANCE.get(keyId), entry);
+			components.put(key, entry);
 		}
 	}
 
-	@Override
-	public @NotNull CompoundNBT toTag(CompoundNBT tag) {
+	@NotNull
+	public CompoundNBT toTag(CompoundNBT tag) {
 		CompoundNBT dataTag = new CompoundNBT();
 
-		for (Map.Entry<ComponentType<?>, TransferEntry> entry : components.entrySet()) {
-			dataTag.put(entry.getKey().getId().toString(), entry.getValue().toTag(new CompoundNBT()));
+		for (Map.Entry<String, TransferEntry> entry : components.entrySet()) {
+			dataTag.put(entry.getKey(), entry.getValue().toTag(new CompoundNBT()));
 		}
 
 		tag.put("data", dataTag);

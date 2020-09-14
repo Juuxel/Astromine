@@ -35,19 +35,35 @@ import com.github.chainmailstudios.astromine.common.component.world.WorldBridgeC
 import com.github.chainmailstudios.astromine.common.component.world.WorldNetworkComponent;
 import nerdhub.cardinal.components.api.ComponentRegistry;
 import nerdhub.cardinal.components.api.ComponentType;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.util.Direction;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import org.jetbrains.annotations.Nullable;
 
 public class AstromineComponentTypes {
 	public static final ComponentType<WorldNetworkComponent> WORLD_NETWORK_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(AstromineCommon.identifier("world_network_component"), WorldNetworkComponent.class);
 	public static final ComponentType<ChunkAtmosphereComponent> CHUNK_ATMOSPHERE_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(AstromineCommon.identifier("chunk_atmosphere_component"), ChunkAtmosphereComponent.class);
 	public static final ComponentType<WorldBridgeComponent> WORLD_BRIDGE_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(AstromineCommon.identifier("world_bridge_component"), WorldBridgeComponent.class);
 
-	public static final ComponentType<ItemInventoryComponent> ITEM_INVENTORY_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(AstromineCommon.identifier("item_inventory_component"), ItemInventoryComponent.class);
-	public static final ComponentType<FluidInventoryComponent> FLUID_INVENTORY_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(AstromineCommon.identifier("fluid_inventory_component"), FluidInventoryComponent.class);
-	public static final ComponentType<EnergyInventoryComponent> ENERGY_INVENTORY_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(AstromineCommon.identifier("energy_inventory_component"), EnergyInventoryComponent.class);
-
-	public static final ComponentType<BlockEntityTransferComponent> BLOCK_ENTITY_TRANSFER_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(AstromineCommon.identifier("block_entity_transfer_component"), BlockEntityTransferComponent.class);
-
+	@CapabilityInject(BlockEntityTransferComponent.class)
+	public static Capability<BlockEntityTransferComponent> BLOCK_ENTITY_TRANSFER_COMPONENT = null;
 	public static final ComponentType<EntityOxygenComponent> ENTITY_OXYGEN_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(AstromineCommon.identifier("entity_oxygen_component"), EntityOxygenComponent.class);
 
-	public static void initialize() {}
+	public static void initialize() {
+		CapabilityManager.INSTANCE.register(BlockEntityTransferComponent.class, new Capability.IStorage<BlockEntityTransferComponent>() {
+			@Nullable
+			@Override
+			public INBT writeNBT(Capability<BlockEntityTransferComponent> capability, BlockEntityTransferComponent instance, Direction side) {
+				return instance.toTag(new CompoundNBT());
+			}
+
+			@Override
+			public void readNBT(Capability<BlockEntityTransferComponent> capability, BlockEntityTransferComponent instance, Direction side, INBT nbt) {
+				instance.fromTag((CompoundNBT) nbt);
+			}
+		}, BlockEntityTransferComponent::new);
+	}
 }

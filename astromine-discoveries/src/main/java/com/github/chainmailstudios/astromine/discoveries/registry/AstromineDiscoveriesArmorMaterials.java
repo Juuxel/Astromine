@@ -24,12 +24,14 @@
 
 package com.github.chainmailstudios.astromine.discoveries.registry;
 
-import net.fabricmc.fabric.api.tag.TagRegistry;
-import net.minecraft.item.IArmorMaterial;
 import com.github.chainmailstudios.astromine.registry.AstromineArmorMaterials;
+import net.minecraft.item.IArmorMaterial;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.util.ResourceLocation;
 
 public class AstromineDiscoveriesArmorMaterials extends AstromineArmorMaterials {
-	public static final IArmorMaterial SPACE_SUIT = register("space_suit", 50, new int[]{ 1, 2, 3, 1 }, 2, AstromineDiscoveriesSoundEvents.SPACE_SUIT_EQUIPPED, 0.0f, 0.0f, () -> Ingredient.fromTag(TagRegistry.item(Identifier.tryParse("c:metite_ingots"))));
+	public static final IArmorMaterial SPACE_SUIT = register("space_suit", 50, new int[]{1, 2, 3, 1}, 2, AstromineDiscoveriesSoundEvents.SPACE_SUIT_EQUIPPED, 0.0f, 0.0f, () -> Ingredient.of(ItemTags.createOptional(ResourceLocation.tryParse("c:metite_ingots"))));
 
 	public static void initialize() {
 
