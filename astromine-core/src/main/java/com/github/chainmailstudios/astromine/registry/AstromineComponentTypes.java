@@ -27,6 +27,7 @@ package com.github.chainmailstudios.astromine.registry;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.component.block.entity.BlockEntityTransferComponent;
 import com.github.chainmailstudios.astromine.common.component.entity.EntityOxygenComponent;
+import com.github.chainmailstudios.astromine.common.component.entity.OxygenComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.EnergyInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
@@ -41,6 +42,7 @@ import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityProvider;
 import org.jetbrains.annotations.Nullable;
 
 public class AstromineComponentTypes {
@@ -50,7 +52,8 @@ public class AstromineComponentTypes {
 
 	@CapabilityInject(BlockEntityTransferComponent.class)
 	public static Capability<BlockEntityTransferComponent> BLOCK_ENTITY_TRANSFER_COMPONENT = null;
-	public static final ComponentType<EntityOxygenComponent> ENTITY_OXYGEN_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(AstromineCommon.identifier("entity_oxygen_component"), EntityOxygenComponent.class);
+	@CapabilityInject(OxygenComponent.class)
+	public static Capability<OxygenComponent> ENTITY_OXYGEN_COMPONENT = null;
 
 	public static void initialize() {
 		CapabilityManager.INSTANCE.register(BlockEntityTransferComponent.class, new Capability.IStorage<BlockEntityTransferComponent>() {
@@ -65,5 +68,17 @@ public class AstromineComponentTypes {
 				instance.fromTag((CompoundNBT) nbt);
 			}
 		}, BlockEntityTransferComponent::new);
+		CapabilityManager.INSTANCE.register(OxygenComponent.class, new Capability.IStorage<OxygenComponent>() {
+			@Nullable
+			@Override
+			public INBT writeNBT(Capability<OxygenComponent> capability, OxygenComponent instance, Direction side) {
+				return instance.toTag(new CompoundNBT());
+			}
+
+			@Override
+			public void readNBT(Capability<OxygenComponent> capability, OxygenComponent instance, Direction side, INBT nbt) {
+				instance.fromTag((CompoundNBT) nbt);
+			}
+		}, OxygenComponent::new);
 	}
 }

@@ -24,22 +24,13 @@
 
 package com.github.chainmailstudios.astromine.common.component.entity;
 
-import nerdhub.cardinal.components.api.component.Component;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.DamageSource;
 
-public class EntityOxygenComponent implements Component {
-	int oxygen;
-
-	int minimumOxygen = -20;
-	int maximumOxygen = -180;
-
+public class EntityOxygenComponent extends OxygenComponent {
 	Entity entity;
 
 	public EntityOxygenComponent(int oxygen, Entity entity) {
-		this.oxygen = oxygen;
+		super(oxygen);
 		this.entity = entity;
 	}
 	
@@ -48,64 +39,11 @@ public class EntityOxygenComponent implements Component {
 	}
 
 	@Override
-	public void fromTag(CompoundNBT tag) {
-		this.oxygen = tag.getInt("oxygen");
-	}
-
-	@Override
-	public CompoundNBT toTag(CompoundNBT tag) {
-		tag.putInt("oxygen", oxygen);
-		return tag;
-	}
-
-	public void simulate(boolean isBreathing) {
-		if (entity instanceof PlayerEntity) {
-			PlayerEntity player = (PlayerEntity) entity;
-
-			if (player.isCreative() || player.isSpectator()) {
-				return;
-			}
-		}
-
-		oxygen = nextOxygen(isBreathing, oxygen);
-
-		if (oxygen == getMinimumOxygen()) {
-			entity.hurt(DamageSource.GENERIC, 1.0F);
-		}
-	}
-
-	private int nextOxygen(boolean isPositive, int oxygen) {
-		return isPositive ? oxygen < getMaximumOxygen() ? oxygen + 1 : getMaximumOxygen() : oxygen > getMinimumOxygen() ? oxygen - 1 : getMinimumOxygen();
-	}
-
-	public int getOxygen() {
-		return oxygen;
-	}
-
-	public void setOxygen(int oxygen) {
-		this.oxygen = oxygen;
-	}
-
-	public int getMinimumOxygen() {
-		return minimumOxygen;
-	}
-
-	public void setMinimumOxygen(int minimumOxygen) {
-		this.minimumOxygen = minimumOxygen;
-	}
-
-	public int getMaximumOxygen() {
-		return maximumOxygen;
-	}
-
-	public void setMaximumOxygen(int maximumOxygen) {
-		this.maximumOxygen = maximumOxygen;
-	}
-
 	public Entity getEntity() {
 		return entity;
 	}
 
+	@Override
 	public void setEntity(Entity entity) {
 		this.entity = entity;
 	}
