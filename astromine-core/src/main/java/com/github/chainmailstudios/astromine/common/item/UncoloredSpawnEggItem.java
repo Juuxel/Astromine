@@ -28,7 +28,15 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.SpawnEggItem;
 
+import java.util.function.Supplier;
+
 public class UncoloredSpawnEggItem extends SpawnEggItem {
+	public UncoloredSpawnEggItem(Supplier<EntityType<?>> type, Item.Properties settings) {
+		// TODO Actually reimplement SpawnEggItem to account for this fucking supplier
+		this(type.get(), settings);
+	}
+
+	@Deprecated // TODO We need the Supplier version due to Forge, but I just care about not getting an error in the item right now. I'll come to this later
 	public UncoloredSpawnEggItem(EntityType<?> type, Item.Properties settings) {
 		super(type, 0xFFFFFFFF, 0xFFFFFFFF, settings);
 	}

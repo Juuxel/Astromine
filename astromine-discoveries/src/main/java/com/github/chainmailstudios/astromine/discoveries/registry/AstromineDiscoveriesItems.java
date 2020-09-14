@@ -29,47 +29,48 @@ import com.github.chainmailstudios.astromine.discoveries.common.item.SpaceSuitIt
 import com.github.chainmailstudios.astromine.registry.AstromineItems;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
+import net.minecraftforge.fml.RegistryObject;
 
 public class AstromineDiscoveriesItems extends AstromineItems {
-	public static final Item SPACE_SLIME_SPAWN_EGG = register("space_slime_spawn_egg", new UncoloredSpawnEggItem(AstromineDiscoveriesEntityTypes.SPACE_SLIME, AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> SPACE_SLIME_SPAWN_EGG = register("space_slime_spawn_egg", () -> new UncoloredSpawnEggItem(AstromineDiscoveriesEntityTypes.SPACE_SLIME, AstromineDiscoveriesItems.getBasicSettings()));
 
-	public static final Item SPACE_SLIME_BALL = register("space_slime_ball", new Item(AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> SPACE_SLIME_BALL = register("space_slime_ball", () -> new Item(AstromineDiscoveriesItems.getBasicSettings()));
 
-	public static final Item ASTEROID_METITE_CLUSTER = register("asteroid_metite_cluster", new Item(AstromineDiscoveriesItems.getBasicSettings()));
-	public static final Item ASTEROID_ASTERITE_CLUSTER = register("asteroid_asterite_cluster", new Item(AstromineDiscoveriesItems.getBasicSettings()));
-	public static final Item ASTEROID_STELLUM_CLUSTER = register("asteroid_stellum_cluster", new Item(AstromineDiscoveriesItems.getBasicSettings().fireResistant()));
-	public static final Item ASTEROID_GALAXIUM_CLUSTER = register("asteroid_galaxium_cluster", new Item(AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> ASTEROID_METITE_CLUSTER = register("asteroid_metite_cluster", () -> new Item(AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> ASTEROID_ASTERITE_CLUSTER = register("asteroid_asterite_cluster", () -> new Item(AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> ASTEROID_STELLUM_CLUSTER = register("asteroid_stellum_cluster", () -> new Item(AstromineDiscoveriesItems.getBasicSettings().fireResistant()));
+	public static final RegistryObject<Item> ASTEROID_GALAXIUM_CLUSTER = register("asteroid_galaxium_cluster", () -> new Item(AstromineDiscoveriesItems.getBasicSettings()));
 
-	public static final Item ASTEROID_COPPER_CLUSTER = register("asteroid_copper_cluster", new Item(AstromineDiscoveriesItems.getBasicSettings()));
-	public static final Item ASTEROID_TIN_CLUSTER = register("asteroid_tin_cluster", new Item(AstromineDiscoveriesItems.getBasicSettings()));
-	public static final Item ASTEROID_SILVER_CLUSTER = register("asteroid_silver_cluster", new Item(AstromineDiscoveriesItems.getBasicSettings()));
-	public static final Item ASTEROID_LEAD_CLUSTER = register("asteroid_lead_cluster", new Item(AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> ASTEROID_COPPER_CLUSTER = register("asteroid_copper_cluster", () -> new Item(AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> ASTEROID_TIN_CLUSTER = register("asteroid_tin_cluster", () -> new Item(AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> ASTEROID_SILVER_CLUSTER = register("asteroid_silver_cluster", () -> new Item(AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> ASTEROID_LEAD_CLUSTER = register("asteroid_lead_cluster", () -> new Item(AstromineDiscoveriesItems.getBasicSettings()));
 
-	public static final Item ASTEROID_COAL_CLUSTER = register("asteroid_coal_cluster", new Item(AstromineDiscoveriesItems.getBasicSettings()));
-	public static final Item ASTEROID_IRON_CLUSTER = register("asteroid_iron_cluster", new Item(AstromineDiscoveriesItems.getBasicSettings()));
-	public static final Item ASTEROID_GOLD_CLUSTER = register("asteroid_gold_cluster", new Item(AstromineDiscoveriesItems.getBasicSettings()));
-	public static final Item ASTEROID_REDSTONE_CLUSTER = register("asteroid_redstone_cluster", new Item(AstromineDiscoveriesItems.getBasicSettings()));
-	public static final Item ASTEROID_LAPIS_CLUSTER = register("asteroid_lapis_cluster", new Item(AstromineDiscoveriesItems.getBasicSettings()));
-	public static final Item ASTEROID_DIAMOND_CLUSTER = register("asteroid_diamond_cluster", new Item(AstromineDiscoveriesItems.getBasicSettings()));
-	public static final Item ASTEROID_EMERALD_CLUSTER = register("asteroid_emerald_cluster", new Item(AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> ASTEROID_COAL_CLUSTER = register("asteroid_coal_cluster", () -> new Item(AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> ASTEROID_IRON_CLUSTER = register("asteroid_iron_cluster", () -> new Item(AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> ASTEROID_GOLD_CLUSTER = register("asteroid_gold_cluster", () -> new Item(AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> ASTEROID_REDSTONE_CLUSTER = register("asteroid_redstone_cluster",() ->  new Item(AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> ASTEROID_LAPIS_CLUSTER = register("asteroid_lapis_cluster", () -> new Item(AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> ASTEROID_DIAMOND_CLUSTER = register("asteroid_diamond_cluster", () -> new Item(AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> ASTEROID_EMERALD_CLUSTER = register("asteroid_emerald_cluster", () -> new Item(AstromineDiscoveriesItems.getBasicSettings()));
 
-	public static final Item PRIMITIVE_ROCKET_FUEL_TANK = register("primitive_rocket_fuel_tank", new Item(AstromineDiscoveriesItems.getBasicSettings().stacksTo(1)));
-	public static final Item PRIMITIVE_ROCKET_PLATING = register("primitive_rocket_plating", new Item(AstromineDiscoveriesItems.getBasicSettings().stacksTo(1)));
-	public static final Item PRIMITIVE_ROCKET_HULL = register("primitive_rocket_hull", new Item(AstromineDiscoveriesItems.getBasicSettings().stacksTo(1)));
-	public static final Item PRIMITIVE_ROCKET_BOOSTER = register("primitive_rocket_booster", new Item(AstromineDiscoveriesItems.getBasicSettings().stacksTo(1)));
+	public static final RegistryObject<Item> PRIMITIVE_ROCKET_FUEL_TANK = register("primitive_rocket_fuel_tank", () -> new Item(AstromineDiscoveriesItems.getBasicSettings().stacksTo(1)));
+	public static final RegistryObject<Item> PRIMITIVE_ROCKET_PLATING = register("primitive_rocket_plating", () -> new Item(AstromineDiscoveriesItems.getBasicSettings().stacksTo(1)));
+	public static final RegistryObject<Item> PRIMITIVE_ROCKET_HULL = register("primitive_rocket_hull", () -> new Item(AstromineDiscoveriesItems.getBasicSettings().stacksTo(1)));
+	public static final RegistryObject<Item> PRIMITIVE_ROCKET_BOOSTER = register("primitive_rocket_booster", () -> new Item(AstromineDiscoveriesItems.getBasicSettings().stacksTo(1)));
 
-	public static final Item SPACE_SUIT_HELMET = register("space_suit_helmet", new SpaceSuitItem(AstromineDiscoveriesArmorMaterials.SPACE_SUIT, EquipmentSlotType.HEAD, AstromineDiscoveriesItems.getBasicSettings()));
-	public static final Item SPACE_SUIT_CHESTPLATE = register("space_suit_chestplate", new SpaceSuitItem(AstromineDiscoveriesArmorMaterials.SPACE_SUIT, EquipmentSlotType.CHEST, AstromineDiscoveriesItems.getBasicSettings()));
-	public static final Item SPACE_SUIT_LEGGINGS = register("space_suit_leggings", new SpaceSuitItem(AstromineDiscoveriesArmorMaterials.SPACE_SUIT, EquipmentSlotType.LEGS, AstromineDiscoveriesItems.getBasicSettings()));
-	public static final Item SPACE_SUIT_BOOTS = register("space_suit_boots", new SpaceSuitItem(AstromineDiscoveriesArmorMaterials.SPACE_SUIT, EquipmentSlotType.FEET, AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> SPACE_SUIT_HELMET = register("space_suit_helmet", () -> new SpaceSuitItem(AstromineDiscoveriesArmorMaterials.SPACE_SUIT, EquipmentSlotType.HEAD, AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> SPACE_SUIT_CHESTPLATE = register("space_suit_chestplate", () -> new SpaceSuitItem(AstromineDiscoveriesArmorMaterials.SPACE_SUIT, EquipmentSlotType.CHEST, AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> SPACE_SUIT_LEGGINGS = register("space_suit_leggings", () -> new SpaceSuitItem(AstromineDiscoveriesArmorMaterials.SPACE_SUIT, EquipmentSlotType.LEGS, AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> SPACE_SUIT_BOOTS = register("space_suit_boots", () -> new SpaceSuitItem(AstromineDiscoveriesArmorMaterials.SPACE_SUIT, EquipmentSlotType.FEET, AstromineDiscoveriesItems.getBasicSettings()));
 
-	public static final Item PRIMITIVE_ROCKET = register("rocket", new UncoloredSpawnEggItem(AstromineDiscoveriesEntityTypes.PRIMITIVE_ROCKET, AstromineDiscoveriesItems.getBasicSettings()));
+	public static final RegistryObject<Item> PRIMITIVE_ROCKET = register("rocket", () -> new UncoloredSpawnEggItem(AstromineDiscoveriesEntityTypes.PRIMITIVE_ROCKET, AstromineDiscoveriesItems.getBasicSettings()));
 
 	public static void initialize() {
 
 	}
 
 	public static Item.Properties getBasicSettings() {
-		return AstromineItems.getBasicSettings().group(AstromineDiscoveriesItemGroups.DISCOVERIES);
+		return AstromineItems.getBasicSettings().tab(AstromineDiscoveriesItemGroups.DISCOVERIES);
 	}
 }

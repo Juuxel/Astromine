@@ -25,8 +25,6 @@
 package com.github.chainmailstudios.astromine.registry;
 
 import com.github.chainmailstudios.astromine.AstromineCommon;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
@@ -35,11 +33,20 @@ import net.minecraft.block.material.MaterialColor;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
+import net.minecraftforge.common.ToolType;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class AstromineBlocks {
-	public static void initialize() {
+	private static final DeferredRegister<Block> BLOCK_DEFERRED_REGISTER = DeferredRegister.create(ForgeRegistries.BLOCKS, AstromineCommon.MOD_ID);
 
+	public static void initialize(IEventBus modBus) {
+		BLOCK_DEFERRED_REGISTER.register(modBus);
 	}
 
 	/**
@@ -52,8 +59,8 @@ public class AstromineBlocks {
 	 *
 	 * @return Block instance registered
 	 */
-	public static <T extends Block> T register(String name, T block, Item.Properties settings) {
-		return register(name, block, new BlockItem(block, settings));
+	public static <T extends Block> RegistryObject<T> register(String name, Supplier<T> block, Item.Properties settings) {
+		return register(name, block, blockObj -> () -> new BlockItem(blockObj.get(), settings));
 	}
 
 	/**
@@ -66,11 +73,20 @@ public class AstromineBlocks {
 	 *
 	 * @return Block instance registered
 	 */
-	public static <T extends Block> T register(String name, T block, BlockItem item) {
-		T b = register(AstromineCommon.identifier(name), block);
-		if (item != null) {
-			Item.BY_BLOCK.put(block, item);
-			AstromineItems.register(name, item);
+	public static <T extends Block> RegistryObject<T> register(String name, Supplier<T> block, Supplier<BlockItem> item) {
+		return register(name, block, ignore -> item);
+	}
+
+	/**
+	 * @param name Name of block instance to be registered
+	 * @param block Block instance to be registered
+	 * @param itemFunction Function that creates block item based on Block to be registered
+	 * @return Block instance registered
+	 */
+	public static <T extends Block> RegistryObject<T> register(String name, Supplier<T> block, Function<RegistryObject<T>, Supplier<? extends BlockItem>> itemFunction) {
+		RegistryObject<T> b = register(AstromineCommon.identifier(name), block);
+		if (itemFunction != null) {
+			AstromineItems.register(name, () -> itemFunction.apply(b).get());
 		}
 		return b;
 	}
@@ -83,8 +99,8 @@ public class AstromineBlocks {
 	 *
 	 * @return Block instance registered
 	 */
-	public static <T extends Block> T register(String name, T block) {
-		return register(AstromineCommon.identifier(name), block);
+	public static <T extends Block> RegistryObject<T> register(String name, Supplier<T> block) {
+		return BLOCK_DEFERRED_REGISTER.register(name, block);
 	}
 
 	/**
@@ -95,27 +111,39 @@ public class AstromineBlocks {
 	 *
 	 * @return Block instance registered
 	 */
-	public static <T extends Block> T register(ResourceLocation name, T block) {
-		return Registry.register(Registry.BLOCK, name, block);
+	public static <T extends Block> RegistryObject<T> register(ResourceLocation name, Supplier<T> block) {
+		return register(name.getPath(), block);
 	}
 
 	public static AbstractBlock.Properties getPrimitiveSettings() {
-		return FabricBlockSettings.of(Material.METAL, MaterialColor.COLOR_ORANGE).requiresCorrectToolForDrops().breakByTool(FabricToolTags.PICKAXES, 1).strength(4, 6).sound(SoundType.METAL);
+		return buildProperties(Material.METAL, MaterialColor.COLOR_ORANGE, ToolType.PICKAXE, 1, 4, 6).sound(SoundType.METAL);
 	}
 
 	public static AbstractBlock.Properties getBasicSettings() {
-		return FabricBlockSettings.of(Material.METAL, MaterialColor.TERRACOTTA_ORANGE).requiresCorrectToolForDrops().breakByTool(FabricToolTags.PICKAXES, 2).strength(6, 6).sound(SoundType.METAL);
+		return buildProperties(Material.METAL, MaterialColor.TERRACOTTA_ORANGE, ToolType.PICKAXE, 2, 6, 6).sound(SoundType.METAL);
 	}
 
 	public static AbstractBlock.Properties getAdvancedSettings() {
-		return FabricBlockSettings.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().breakByTool(FabricToolTags.PICKAXES, 2).strength(8, 6).sound(SoundType.METAL);
+		return buildProperties(Material.METAL, MaterialColor.COLOR_GRAY, ToolType.PICKAXE, 2, 8, 6).sound(SoundType.METAL);
 	}
 
 	public static AbstractBlock.Properties getEliteSettings() {
-		return FabricBlockSettings.of(Material.METAL, MaterialColor.COLOR_PINK).requiresCorrectToolForDrops().breakByTool(FabricToolTags.PICKAXES, 4).strength(8, 100).sound(SoundType.METAL);
+		return buildProperties(Material.METAL, MaterialColor.TERRACOTTA_ORANGE, ToolType.PICKAXE, 4, 8, 100).sound(SoundType.METAL);
 	}
 
 	public static AbstractBlock.Properties getCreativeSettings() {
-		return FabricBlockSettings.of(Material.METAL, MaterialColor.COLOR_LIGHT_GREEN).noDrops().strength(-1.0F, 3600000.8F).sound(SoundType.METAL);
+		return AbstractBlock.Properties.of(Material.METAL, MaterialColor.COLOR_LIGHT_GREEN)
+				.noDrops()
+				.strength(-1.0F, 3600000.8F)
+				.sound(SoundType.METAL);
+	}
+
+	public static AbstractBlock.Properties buildProperties(Material material, MaterialColor color, ToolType harvestToolType, int harvestLevel,
+														   float destroyTime, float explosionResistance) {
+		return AbstractBlock.Properties.of(material, color != null? color : material.getColor())
+				.requiresCorrectToolForDrops()
+				.harvestTool(harvestToolType)
+				.harvestLevel(harvestLevel)
+				.strength(destroyTime, explosionResistance);
 	}
 }
