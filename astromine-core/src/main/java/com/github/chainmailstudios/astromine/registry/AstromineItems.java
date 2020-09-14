@@ -28,34 +28,42 @@ import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.item.ManualItem;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.function.Supplier;
 
 public class AstromineItems {
-	public static final Item ENERGY = register("energy", new Item(new Item.Properties()));
-	public static final Item FLUID = register("fluid", new Item(new Item.Properties()));
-	public static final Item ITEM = register("item", new Item(new Item.Properties()));
+	private static final DeferredRegister<Item> ITEM_DEFERRED_REGISTER = DeferredRegister.create(ForgeRegistries.ITEMS, AstromineCommon.MOD_ID);
 
-	public static final Item MANUAL = register("manual", new ManualItem(getBasicSettings().stacksTo(1)));
+	public static final RegistryObject<Item> ENERGY = register("energy", () -> new Item(new Item.Properties()));
+	public static final RegistryObject<Item> FLUID = register("fluid", () -> new Item(new Item.Properties()));
+	public static final RegistryObject<Item> ITEM = register("item", () -> new Item(new Item.Properties()));
 
-	public static void initialize() {
+	public static final RegistryObject<Item> MANUAL = register("manual", () -> new ManualItem(getBasicSettings().stacksTo(1)));
+
+	public static void initialize(IEventBus modBus) {
+		ITEM_DEFERRED_REGISTER.register(modBus);
 	}
 
 	/**
 	 * @param name Name of item instance to be registered
-	 * @param item Item instance to be registered
-	 * @return Item instance registered
+	 * @param item RegistryObject<Item> instance to be registered
+	 * @return RegistryObject<Item> instance registered
 	 */
-	public static <T extends Item> T register(String name, T item) {
-		return register(AstromineCommon.identifier(name), item);
+	public static <T extends Item> RegistryObject<T> register(String name, Supplier<T> item) {
+		return ITEM_DEFERRED_REGISTER.register(name, item);
 	}
 
 	/**
 	 * @param name Identifier of item instance to be registered
-	 * @param item Item instance to be registered
-	 * @return Item instance registered
+	 * @param item RegistryObject<Item> instance to be registered
+	 * @return RegistryObject<Item> instance registered
 	 */
-	public static <T extends Item> T register(ResourceLocation name, T item) {
-		return Registry.register(Registry.ITEM, name, item);
+	public static <T extends Item> RegistryObject<T> register(ResourceLocation name, Supplier<T> item) {
+		return register(name.getPath(), item);
 	}
 
 	public static Item.Properties getBasicSettings() {
