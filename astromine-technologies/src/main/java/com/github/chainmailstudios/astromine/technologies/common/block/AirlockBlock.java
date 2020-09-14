@@ -25,8 +25,9 @@
 package com.github.chainmailstudios.astromine.technologies.common.block;
 
 import com.github.chainmailstudios.astromine.common.utilities.VoxelShapeUtilities;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.block.*;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.LivingEntity;
@@ -248,7 +249,7 @@ public class AirlockBlock extends Block implements IWaterLoggable {
 		return mirror == Mirror.NONE ? state : state.rotate(mirror.getRotation(state.getValue(FACING)));
 	}
 
-	@Environment(EnvType.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	@Override
 	public long getSeed(BlockState state, BlockPos pos) {
 		return MathHelper.getSeed(pos.getX(), pos.below(state.getValue(HALF) == DoubleBlockHalf.LOWER ? 0 : 1).getY(), pos.getZ());

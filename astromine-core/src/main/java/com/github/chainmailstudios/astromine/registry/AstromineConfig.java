@@ -24,13 +24,13 @@
 
 package com.github.chainmailstudios.astromine.registry;
 
-import me.sargunvohra.mcmods.autoconfig1u.AutoConfig;
-import me.sargunvohra.mcmods.autoconfig1u.ConfigData;
-import me.sargunvohra.mcmods.autoconfig1u.ConfigManager;
-import me.sargunvohra.mcmods.autoconfig1u.annotation.Config;
-import me.sargunvohra.mcmods.autoconfig1u.annotation.ConfigEntry;
-import me.sargunvohra.mcmods.autoconfig1u.serializer.JanksonConfigSerializer;
-import me.sargunvohra.mcmods.autoconfig1u.shadowed.blue.endless.jankson.Comment;
+import me.shedaniel.autoconfig1u.AutoConfig;
+import me.shedaniel.autoconfig1u.ConfigData;
+import me.shedaniel.autoconfig1u.ConfigManager;
+import me.shedaniel.autoconfig1u.annotation.Config;
+import me.shedaniel.autoconfig1u.annotation.ConfigEntry;
+import me.shedaniel.autoconfig1u.serializer.JanksonConfigSerializer;
+import me.shedaniel.autoconfig1u.shadowed.blue.endless.jankson.Comment;
 
 @Config(name = "astromine/config")
 public class AstromineConfig implements ConfigData {
@@ -406,7 +406,8 @@ public class AstromineConfig implements ConfigData {
 	@Comment("Delay for the Fire Extinguisher standing actions.")
 	public int fireExtinguisherStandingDelay = 10;
 
-	@Comment("Tick rate for gas movement in the atmosphere. This is inversely correlated to gas movement speed, higher means slower. Lower numbers are also less performant, so choose wisely.")
+	@Comment(
+			"Tick rate for gas movement in the atmosphere. This is inversely correlated to gas movement speed, higher means slower. Lower numbers are also less performant, so choose wisely.")
 	public int gasTickRate = 10;
 
 	@Comment("Numerator for the gas decay rate fraction. It will decay gas by this fraction every gas tick.")

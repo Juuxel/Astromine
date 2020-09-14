@@ -24,15 +24,16 @@
 
 package com.github.chainmailstudios.astromine.registry.client;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 
 import com.github.chainmailstudios.astromine.client.cca.ClientAtmosphereManager;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class AstromineClientPackets {
-	@Environment(EnvType.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public static void initialize() {
 		// TODO: 08/08/2020 - 11:00:51
 		// TODO: 27/08/2020 - 21:15:05

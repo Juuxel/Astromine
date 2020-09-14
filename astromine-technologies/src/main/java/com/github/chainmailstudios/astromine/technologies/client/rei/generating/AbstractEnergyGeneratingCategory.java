@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.technologies.client.rei.generating;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 
 import com.github.chainmailstudios.astromine.client.rei.AstromineRoughlyEnoughItemsPlugin;
 import me.shedaniel.math.Rectangle;
@@ -36,7 +37,7 @@ import me.shedaniel.rei.gui.widget.Widget;
 import com.google.common.collect.Lists;
 import java.util.List;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public abstract class AbstractEnergyGeneratingCategory<T extends AbstractEnergyGeneratingDisplay> implements RecipeCategory<T> {
 	@Override
 	public List<Widget> setupDisplay(T recipeDisplay, Rectangle bounds) {

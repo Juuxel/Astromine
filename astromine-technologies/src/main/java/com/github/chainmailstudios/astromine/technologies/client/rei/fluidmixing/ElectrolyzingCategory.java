@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.technologies.client.rei.fluidmixing;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import com.github.chainmailstudios.astromine.client.rei.AstromineRoughlyEnoughItemsPlugin;
@@ -39,7 +40,7 @@ import me.shedaniel.rei.gui.widget.Widget;
 import com.google.common.collect.Lists;
 import java.util.List;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class ElectrolyzingCategory implements RecipeCategory<ElectrolyzingDisplay> {
 	private final ResourceLocation id;
 	private final String translationKey;

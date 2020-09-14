@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.common.widget.blade;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
@@ -69,7 +70,7 @@ public class HorizontalArrowWidget extends AbstractWidget {
 		this.limitSupplier = limitSupplier;
 	}
 
-	@Environment(EnvType.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void drawWidget(MatrixStack matrices, IRenderTypeBuffer provider) {
 		if (getHidden()) {

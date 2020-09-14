@@ -24,12 +24,13 @@
 
 package com.github.chainmailstudios.astromine.discoveries.client.render.sky;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.client.world.DimensionRenderInfo;
 import net.minecraft.util.math.vector.Vector3d;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class MoonSkyProperties extends DimensionRenderInfo {
 	public MoonSkyProperties() {
 		super(Float.NaN, false, FogType.NONE, true, true);

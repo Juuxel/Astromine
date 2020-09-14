@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.mixin;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.GameRenderer;
@@ -54,7 +55,7 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 
 @Mixin(WorldRenderer.class)
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public abstract class WorldRendererMixin {
 	@Shadow
 	@Final

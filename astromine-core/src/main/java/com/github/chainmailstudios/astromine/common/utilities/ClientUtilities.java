@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.common.utilities;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
@@ -52,7 +53,7 @@ public class ClientUtilities {
 		Minecraft.getInstance().level.playSound(Minecraft.getInstance().player, Minecraft.getInstance().player, sound, category, volume, pitch);
 	}
 
-	@Environment(EnvType.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public static void buildClient(String name, int tint, Fluid still, Fluid flowing) {
 		final ResourceLocation stillSpriteIdentifier = new ResourceLocation("block/water_still");
 		final ResourceLocation flowingSpriteIdentifier = new ResourceLocation("block/water_flow");

@@ -26,12 +26,13 @@ package com.github.chainmailstudios.astromine.technologies.client.rei.electricsm
 
 import com.github.chainmailstudios.astromine.technologies.client.rei.AstromineTechnologiesRoughlyEnoughItemsPlugin;
 import me.shedaniel.rei.plugin.cooking.DefaultCookingDisplay;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.item.crafting.AbstractCookingRecipe;
 import net.minecraft.util.ResourceLocation;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class ElectricSmeltingDisplay extends DefaultCookingDisplay {
 	private final double energyRequired;
 

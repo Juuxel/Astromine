@@ -24,15 +24,16 @@
 
 package com.github.chainmailstudios.astromine.transportations;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 
 import com.github.chainmailstudios.astromine.AstromineClient;
 import com.github.chainmailstudios.astromine.transportations.registry.client.AstromineTransportationsBlockEntityRenderers;
 import com.github.chainmailstudios.astromine.transportations.registry.client.AstromineTransportationsClientCallbacks;
 import com.github.chainmailstudios.astromine.transportations.registry.client.AstromineTransportationsRenderLayers;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class AstromineTransportationsClient extends AstromineClient {
 	@Override
 	public void onInitializeClient() {

@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.common.utilities;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
@@ -38,7 +39,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class InventoryUtilities {
-	@Environment(EnvType.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public static List<ItemStack> toList(Ingredient ingredient) {
 		return new ArrayList<ItemStack>() {
 			{

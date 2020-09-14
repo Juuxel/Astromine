@@ -24,13 +24,14 @@
 
 package com.github.chainmailstudios.astromine.discoveries.client.render.sky;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.client.world.DimensionRenderInfo;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class MarsSkyProperties extends DimensionRenderInfo {
 	private final float[] rgba = new float[4];
 

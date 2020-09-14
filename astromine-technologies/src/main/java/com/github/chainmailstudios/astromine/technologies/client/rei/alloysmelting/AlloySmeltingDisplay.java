@@ -29,8 +29,9 @@ import com.github.chainmailstudios.astromine.technologies.client.rei.SimpleTrans
 import com.github.chainmailstudios.astromine.technologies.common.recipe.AlloySmeltingRecipe;
 import com.google.common.collect.Lists;
 import me.shedaniel.rei.api.EntryStack;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,7 +40,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class AlloySmeltingDisplay extends SimpleTransferRecipeDisplay {
 	private final List<List<EntryStack>> inputs;
 	private final List<EntryStack> outputs;

@@ -1,15 +1,43 @@
-import net.fabricmc.loom.task.RemapJarTask
-import net.fabricmc.loom.task.RunClientTask
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+    }
+}
 
 plugins {
     id 'maven-publish'
-    id 'com.diffplug.spotless' version '5.1.0' apply false
-    id 'fabric-loom' version '0.5.22'
+    id("java")
+    id("java-library")
+//    id 'com.diffplug.spotless' version '5.1.0' apply false
     id 'com.matthewprenger.cursegradle' version '1.4.0'
-    id("net.corda.plugins.jar-filter") version("5.0.8") apply false
+    id("net.corda.plugins.jar-filter") version("4.0.48") apply false
 }
 
 apply from: 'dependencies.gradle'
+
+sourceSets {
+    main {
+        java {
+            srcDir 'astromine-core/src/main/java'
+            srcDir 'astromine-discoveries/src/main/java'
+            srcDir 'astromine-foundations/src/main/java'
+            srcDir 'astromine-technologies/src/main/java'
+            srcDir 'astromine-transportations/src/main/java'
+        }
+        resources {
+            srcDir 'astromine-core/src/main/resources'
+            srcDir 'astromine-discoveries/src/main/resources'
+            srcDir 'astromine-foundations/src/main/resources'
+            srcDir 'astromine-technologies/src/main/resources'
+            srcDir 'astromine-transportations/src/main/resources'
+        }
+    }
+}
 
 allprojects {
     gradle.projectsEvaluated {
@@ -18,11 +46,15 @@ allprojects {
         }
     }
 
+    apply plugin: 'net.minecraftforge.gradle'
     apply plugin: 'maven-publish'
-    apply plugin: 'fabric-loom'
-    apply plugin: 'com.diffplug.spotless'
+//    apply plugin: 'com.diffplug.spotless'
     apply plugin: 'com.matthewprenger.cursegradle'
     apply plugin: 'net.corda.plugins.jar-filter'
+    apply plugin: 'java'
+    apply plugin: 'java-library'
+
+    sourceCompatibility = targetCompatibility = 1.8
 
     archivesBaseName = project.mod_name
     group = rootProject.mod_group
@@ -34,11 +66,34 @@ allprojects {
         isRunningGenerateDataTask = path == ":astromine-datagen-initializer"
     }
 
-    loom {
-        shareCaches = true
+    minecraft {
+        mappings channel: 'official', version: rootProject.minecraft_version
+        accessTransformer = rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
+
+        runs {
+            client {
+                workingDirectory project.file('run')
+
+                mods {
+                    create(project.name) {
+                        source sourceSets.main
+                    }
+                }
+            }
+
+            server {
+                workingDirectory project.file('run')
+
+                mods {
+                    create(project.name) {
+                        source sourceSets.main
+                    }
+                }
+            }
+        }
     }
 
-    spotless {
+    /*spotless {
         encoding 'UTF-8'
         enforceCheck(false)
 
@@ -47,108 +102,64 @@ allprojects {
             removeUnusedImports()
             eclipse().configFile(rootProject.file('spotless/formatter-settings.xml'))
         }
-    }
-
-    java {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
+    }*/
 
     repositories {
         mavenLocal()
         maven {
-            name = "JitPack"
-            url = "https://jitpack.io"
-            content {
-                includeGroupByRegex "com.github.\\w+"
-            }
-        }
-        maven {
-            name = "BuildCraft"
-            url = "https://mod-buildcraft.com/maven"
-            content {
-                includeGroup "alexiil.mc.lib"
-            }
-        }
-        maven {
-            name = "Ladysnake Libs"
-            url = 'https://dl.bintray.com/ladysnake/libs'
-            content {
-                includeGroup "io.github.onyxstudios.Cardinal-Components-API"
-            }
-        }
-        maven {
-            name = "Wrenchable"
-            url = "https://dl.bintray.com/zundrel/wrenchable"
-            content {
-                includeGroup "com.zundrel"
-            }
-        }
-        maven {
             name = "Cloth"
             url = "https://dl.bintray.com/shedaniel/cloth"
-            content {
-                includeGroup "me.shedaniel.cloth.api"
-            }
-        }
-        maven {
-            name = "Earthcomputer"
-            url = "https://dl.bintray.com/earthcomputer/mods"
-            content {
-                includeGroup "net.earthcomputer"
-            }
         }
         maven {
             name = "Modmaven"
             url = "https://modmaven.k-4u.nl"
         }
+        maven { url "https://dl.bintray.com/shedaniel/autoconfig1u" }
     }
 
     dependencies {
-        dependencies.ext.useAsApiOptionally = { dep ->
-            modApi(dep) {
-                if (!dep.contains("net.fabricmc.fabric-api")) {
-                    exclude group: "net.fabricmc.fabric-api"
-                }
-                exclude group: "net.fabricmc"
-                if (!dep.contains("me.shedaniel")) {
-                    exclude group: "me.shedaniel"
-                }
-            }
-        }
-        dependencies.ext.useAsApi = { dep ->
-            useAsApiOptionally(dep)
-            if (project.name == "astromine-core")
-                include(dep)
-        }
-        dependencies.ext.useAsRuntime = { dep ->
-            modRuntime(dep) {
-                if (!dep.contains("net.fabricmc.fabric-api")) {
-                    exclude group: "net.fabricmc.fabric-api"
-                }
-                exclude group: "net.fabricmc"
-                if (!dep.contains("me.shedaniel")) {
-                    exclude group: "me.shedaniel"
-                }
-            }
-        }
+//        dependencies.ext.useAsApiOptionally = { dep ->
+//            modApi(dep) {
+//                if (!dep.contains("net.fabricmc.fabric-api")) {
+//                    exclude group: "net.fabricmc.fabric-api"
+//                }
+//                exclude group: "net.fabricmc"
+//                if (!dep.contains("me.shedaniel")) {
+//                    exclude group: "me.shedaniel"
+//                }
+//            }
+//        }
+//        dependencies.ext.useAsApi = { dep ->
+//            useAsApiOptionally(dep)
+//            if (project.name == "astromine-core")
+//                include(dep)
+//        }
+//        dependencies.ext.useAsRuntime = { dep ->
+//            modRuntime(dep) {
+//                if (!dep.contains("net.fabricmc.fabric-api")) {
+//                    exclude group: "net.fabricmc.fabric-api"
+//                }
+//                exclude group: "net.fabricmc"
+//                if (!dep.contains("me.shedaniel")) {
+//                    exclude group: "me.shedaniel"
+//                }
+//            }
+//        }
 
-        minecraft group: 'com.mojang', name: 'minecraft', version: minecraft_version
-        mappings loom.officialMojangMappings()
-        modImplementation "net.fabricmc:fabric-loader:$loader_version"
-        useAsApiOptionally "net.fabricmc.fabric-api:fabric-api:$api_version"
-        modImplementation "com.google.code.findbugs:jsr305:3.0.2"
+        minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
+        compile("org.jetbrains:annotations:19.0.0")
 
-        tap(rootProject.ext.setDefaultApis)
-    }
-
-    afterEvaluate {
-        processResources {
-            filesMatching('fabric.mod.json') {
-                expand 'version': project.version
-            }
-            inputs.property "version", project.version
+        runtimeOnly(fg.deobf("me.shedaniel:autoconfig1u-forge:${auto_config_version}")) {
+            transitive = false
         }
+        compileOnly("me.shedaniel:autoconfig1u-forge:${auto_config_version}") {
+            transitive = false
+        }
+        compile(fg.deobf("me.shedaniel.cloth:cloth-config-forge:${cloth_config_version}"))
+        compile("org.jetbrains.kotlin:kotlin-stdlib:${project.kotlin_version}")
+        compile("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${project.kotlin_version}")
+        compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${project.kotlin_version}")
+        compile(fg.deobf("vazkii.patchouli:Patchouli:${patchouli_version}"))
     }
 
     tasks.withType(JavaCompile) {
@@ -185,14 +196,8 @@ subprojects {
         classifier("dev")
     }
 
-    remapJar {
-        input.set(file("${project.buildDir}/filtered-libs/$archivesBaseName-${version}-dev-filtered.jar"))
-        classifier(null)
-    }
-
     artifacts {
         dev file: file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar"), type: "jar", builtBy: jar
-        remapped file: file("${project.buildDir}/libs/$archivesBaseName-${version}.jar"), type: "jar", builtBy: remapJar
     }
 
     task jarFilter(type: net.corda.gradle.jarfilter.JarFilterTask) {
@@ -246,12 +251,12 @@ subprojects {
             }
 
             if (isRunningGenerateDataTask) {
-                task generateData(type: RunClientTask, dependsOn: downloadAssets) {
-                    classpath = configurations.runtimeClasspath
-                    classpath sourceSets.datagen.runtimeClasspath
-                    classpath sourceSets.main.output
-                    classpath sourceSets.datagen.output
-                }
+//                task generateData(type: RunClientTask, dependsOn: downloadAssets) {
+//                    classpath = configurations.runtimeClasspath
+//                    classpath sourceSets.datagen.runtimeClasspath
+//                    classpath sourceSets.main.output
+//                    classpath sourceSets.datagen.output
+//                }
             }
         }
 
@@ -326,16 +331,16 @@ build.mustRunAfter(deleteBuildFolderAll)
 task releaseOnCf
 releaseOnCf.dependsOn(":curseforge")
 subprojects { releaseOnCf.dependsOn("${it.path}:curseforge") }
-subprojects { rootProject.remapJar.dependsOn("${it.path}:remapJar") }
-subprojects { rootProject.spotlessApply.dependsOn("${it.path}:spotlessApply") }
+//subprojects { rootProject.remapJar.dependsOn("${it.path}:remapJar") }
+//subprojects { rootProject.spotlessApply.dependsOn("${it.path}:spotlessApply") }
 
-task remapMavenJar(type: RemapJarTask, dependsOn: jar) {
-    afterEvaluate {
-        input.set(file("${project.buildDir}/libs/${archivesBaseName}-${version}-dev.jar"))
-        archiveName = "${archivesBaseName}-${version}-maven.jar"
-        addNestedDependencies.set(false)
-    }
-}
+//task remapMavenJar(type: RemapJarTask, dependsOn: jar) {
+//    afterEvaluate {
+//        input.set(file("${project.buildDir}/libs/${archivesBaseName}-${version}-dev.jar"))
+//        archiveName = "${archivesBaseName}-${version}-maven.jar"
+//        addNestedDependencies.set(false)
+//    }
+//}
 
 sourceSets {
     datagen
@@ -350,20 +355,17 @@ dependencies {
             }
         }
     }
-
-    modRuntime "net.fabricmc:dev-launch-injector:+"
-    tap(rootProject.ext.setRuntimeTestMods)
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifact(file("${project.buildDir}/libs/$archivesBaseName-${project.version}-maven.jar")) {
-                builtBy remapMavenJar
-            }
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
+//            artifact(file("${project.buildDir}/libs/$archivesBaseName-${project.version}-maven.jar")) {
+//                builtBy remapMavenJar
+//            }
+//            artifact(sourcesJar) {
+//                builtBy remapSourcesJar
+//            }
             pom.withXml {
                 def depsNode = asNode().appendNode("dependencies")
                 subprojects.each {

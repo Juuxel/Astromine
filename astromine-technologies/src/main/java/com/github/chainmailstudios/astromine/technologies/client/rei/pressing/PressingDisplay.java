@@ -25,8 +25,9 @@
 package com.github.chainmailstudios.astromine.technologies.client.rei.pressing;
 
 import com.github.chainmailstudios.astromine.technologies.client.rei.AstromineTechnologiesRoughlyEnoughItemsPlugin;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.util.ResourceLocation;
 import com.github.chainmailstudios.astromine.technologies.common.recipe.PressingRecipe;import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.api.RecipeDisplay;
@@ -35,7 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class PressingDisplay implements RecipeDisplay {
 	private final List<List<EntryStack>> inputs;
 	private final List<EntryStack> outputs;

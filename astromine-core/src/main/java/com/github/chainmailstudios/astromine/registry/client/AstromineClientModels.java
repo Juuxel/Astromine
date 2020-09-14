@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.registry.client;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.BlockModel;
@@ -40,7 +41,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class AstromineClientModels {
 	public static final LazyValue<ItemCameraTransforms> ITEM_HANDHELD = new LazyValue<>(() -> {
 		try {

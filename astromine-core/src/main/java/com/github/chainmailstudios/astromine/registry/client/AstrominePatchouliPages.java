@@ -24,12 +24,13 @@
 
 package com.github.chainmailstudios.astromine.registry.client;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-@Environment(EnvType.CLIENT)
+
+@OnlyIn(Dist.CLIENT)
 public class AstrominePatchouliPages {
-	@Environment(EnvType.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public static void initialize() {
 
 	}

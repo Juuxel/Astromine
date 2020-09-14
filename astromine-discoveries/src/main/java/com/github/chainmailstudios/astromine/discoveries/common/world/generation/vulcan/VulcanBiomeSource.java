@@ -50,7 +50,7 @@ public class VulcanBiomeSource extends BiomeProvider {
 
 	@Override
 	protected Codec<? extends BiomeProvider> codec() {
-		return withSeed(long);
+		return CODEC;
 	}
 
 	@Override

@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.technologies.client.rei.generating;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -40,7 +41,7 @@ import me.shedaniel.rei.gui.widget.Widget;
 import java.text.DecimalFormat;
 import java.util.List;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class SolidGeneratingCategory extends AbstractEnergyGeneratingCategory<SolidGeneratingDisplay> {
 	@Override
 	public ResourceLocation getIdentifier() {

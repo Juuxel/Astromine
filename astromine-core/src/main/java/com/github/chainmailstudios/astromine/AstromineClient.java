@@ -25,13 +25,14 @@
 package com.github.chainmailstudios.astromine;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 
 import com.github.chainmailstudios.astromine.registry.AstromineKeybinds;
 import com.github.chainmailstudios.astromine.registry.client.*;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class AstromineClient implements ClientModInitializer {
 
 	@Override

@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.common.widget.blade;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.network.PacketBuffer;
@@ -144,14 +145,14 @@ public class TransferTypeSelectorButtonWidget extends AbstractWidget {
 		super.onMouseReleased(mouseX, mouseY, mouseButton);
 	}
 
-	@Environment(EnvType.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	@Override
 	public @NotNull List<ITextComponent> getTooltip() {
 		Direction offset = MirrorUtilities.rotate(direction, rotation);
 		return Arrays.asList(new TranslationTextComponent("text.astromine.siding." + offset.getName()), new TranslationTextComponent("text.astromine.siding." + getSideName()));
 	}
 
-	@Environment(EnvType.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void drawWidget(@NotNull MatrixStack matrices, @NotNull IRenderTypeBuffer provider) {
 		if (getHidden())

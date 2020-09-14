@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.technologies.client.rei.generating;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 
 import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.api.RecipeDisplay;
@@ -33,7 +34,7 @@ import me.shedaniel.rei.api.RecipeDisplay;
 import java.util.Collections;
 import java.util.List;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public abstract class AbstractEnergyGeneratingDisplay implements RecipeDisplay {
 	private final double energyGenerated;
 

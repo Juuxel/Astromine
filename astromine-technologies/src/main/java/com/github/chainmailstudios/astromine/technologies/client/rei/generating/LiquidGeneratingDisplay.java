@@ -26,8 +26,9 @@ package com.github.chainmailstudios.astromine.technologies.client.rei.generating
 
 import com.github.chainmailstudios.astromine.technologies.client.rei.AstromineTechnologiesRoughlyEnoughItemsPlugin;
 import com.github.chainmailstudios.astromine.technologies.common.recipe.LiquidGeneratingRecipe;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.fluid.Fluid;
 import net.minecraft.util.ResourceLocation;
 import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
@@ -37,7 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class LiquidGeneratingDisplay extends AbstractEnergyGeneratingDisplay {
 	private final Fluid fluid;
 	private final Fraction amount;

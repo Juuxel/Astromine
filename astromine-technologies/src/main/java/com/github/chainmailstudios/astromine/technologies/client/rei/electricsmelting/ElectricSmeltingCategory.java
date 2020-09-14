@@ -25,8 +25,9 @@
 package com.github.chainmailstudios.astromine.technologies.client.rei.electricsmelting;
 
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.util.text.TranslationTextComponent;
 import com.github.chainmailstudios.astromine.client.rei.AstromineRoughlyEnoughItemsPlugin;
 import com.github.chainmailstudios.astromine.technologies.client.rei.AstromineTechnologiesRoughlyEnoughItemsPlugin;
@@ -44,7 +45,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import java.text.DecimalFormat;
 import java.util.List;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class ElectricSmeltingCategory extends DefaultCookingCategory {
 	public ElectricSmeltingCategory() {
 		super(AstromineTechnologiesRoughlyEnoughItemsPlugin.ELECTRIC_SMELTING, EntryStack.create(AstromineTechnologiesBlocks.ADVANCED_ELECTRIC_SMELTER), "category.astromine.electric_smelting");

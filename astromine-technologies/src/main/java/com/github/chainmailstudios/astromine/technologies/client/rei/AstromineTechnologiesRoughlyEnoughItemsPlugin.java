@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.technologies.client.rei;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.item.BucketItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.FurnaceRecipe;
@@ -58,7 +59,7 @@ import me.shedaniel.rei.api.RecipeHelper;
 import java.util.Collections;
 import java.util.Map;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class AstromineTechnologiesRoughlyEnoughItemsPlugin extends AstromineRoughlyEnoughItemsPlugin {
 	public static final ResourceLocation TRITURATING = AstromineCommon.identifier("triturating");
 	public static final ResourceLocation ELECTRIC_SMELTING = AstromineCommon.identifier("electric_smelting");

@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.technologies;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 
 import com.github.chainmailstudios.astromine.AstromineClient;
 import com.github.chainmailstudios.astromine.technologies.registry.client.AstromineTechnologiesBlockEntityRenderers;
@@ -34,7 +35,7 @@ import com.github.chainmailstudios.astromine.technologies.registry.client.Astrom
 import com.github.chainmailstudios.astromine.technologies.registry.client.AstromineTechnologiesRenderLayers;
 import com.github.chainmailstudios.astromine.technologies.registry.client.AstromineTechnologiesScreens;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class AstromineTechnologiesClient extends AstromineClient {
 	@Override
 	public void onInitializeClient() {

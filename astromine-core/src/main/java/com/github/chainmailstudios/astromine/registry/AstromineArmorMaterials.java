@@ -24,12 +24,13 @@
 
 package com.github.chainmailstudios.astromine.registry;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.IArmorMaterial;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.SoundEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import java.util.function.Supplier;
 
 public class AstromineArmorMaterials {
@@ -38,7 +39,7 @@ public class AstromineArmorMaterials {
 	}
 
 	public static class AstromineArmorMaterial implements IArmorMaterial {
-		private static final int[] BASE_DURABILITY = new int[]{ 13, 15, 16, 11 };
+		private static final int[] BASE_DURABILITY = new int[]{13, 15, 16, 11};
 		private final String name;
 		private final int durabilityMultiplier;
 		private final int[] protectionAmounts;
@@ -85,7 +86,7 @@ public class AstromineArmorMaterials {
 		}
 
 		@Override
-		@Environment(EnvType.CLIENT)
+		@OnlyIn(Dist.CLIENT)
 		public String getName() {
 			return this.name;
 		}

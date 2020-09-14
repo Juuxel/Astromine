@@ -79,9 +79,9 @@ public class VoxelShapeUtilities {
 		VoxelShape collision = VoxelShapes.empty();
 
 		for (AxisAlignedBB box : shape.toAabbs()) {
-			Pair<Double, Double> min = axis == Direction.Axis.choose(double,double,double) ? rotatePoint(box.minY, box.minZ, radians) : (axis == Direction.Axis.Z ? rotatePoint(box.minX, box.minY, radians) : rotatePoint(box.minX, box.minZ, radians));
-			Pair<Double, Double> max = axis == Direction.Axis.choose(double,double,double) ? rotatePoint(box.maxY, box.maxZ, radians) : (axis == Direction.Axis.Z ? rotatePoint(box.maxX, box.maxY, radians) : rotatePoint(box.maxX, box.maxZ, radians));
-			collision = VoxelShapes.or(collision, axis == Direction.Axis.choose(double,double,double) ? VoxelShapes.box(box.minX, min.getFirst(), min.getSecond(), box.maxX, max.getFirst(), max.getSecond()) : (axis == Direction.Axis.Z ? VoxelShapes.box(min.getFirst(), min.getSecond(), box.minZ, max
+			Pair<Double, Double> min = axis == Direction.Axis.X ? rotatePoint(box.minY, box.minZ, radians) : (axis == Direction.Axis.Z ? rotatePoint(box.minX, box.minY, radians) : rotatePoint(box.minX, box.minZ, radians));
+			Pair<Double, Double> max = axis == Direction.Axis.X ? rotatePoint(box.maxY, box.maxZ, radians) : (axis == Direction.Axis.Z ? rotatePoint(box.maxX, box.maxY, radians) : rotatePoint(box.maxX, box.maxZ, radians));
+			collision = VoxelShapes.or(collision, axis == Direction.Axis.X ? VoxelShapes.box(box.minX, min.getFirst(), min.getSecond(), box.maxX, max.getFirst(), max.getSecond()) : (axis == Direction.Axis.Z ? VoxelShapes.box(min.getFirst(), min.getSecond(), box.minZ, max
 				.getFirst(), max.getSecond(), box.maxZ) : VoxelShapes.box(min.getFirst(), box.minY, min.getSecond(), max.getFirst(), box.maxY, max.getSecond())));
 		}
 		return collision;

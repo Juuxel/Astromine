@@ -49,7 +49,7 @@ import com.google.common.collect.Multimap;
 public class GravityGauntletItem extends EnergyVolumeItem implements DynamicAttributeTool {
 	private static final Multimap<Attribute, AttributeModifier> EAMS = HashMultimap.create();
 
-	public GravityGauntletItem(Settings settings, double size) {
+	public GravityGauntletItem(Properties settings, double size) {
 		super(settings, size);
 	}
 

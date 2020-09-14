@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.common.widget.blade;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -50,7 +51,7 @@ public class EnergyVerticalBarWidget extends AbstractWidget {
 
 	private Supplier<EnergyVolume> volumeSupplier;
 
-	@Environment(EnvType.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	@Override
 	public @NotNull List<ITextComponent> getTooltip() {
 		return Lists.newArrayList(EnergyUtilities.compoundDisplay(volumeSupplier.get().getAmount(), volumeSupplier.get().getSize()));
@@ -60,7 +61,7 @@ public class EnergyVerticalBarWidget extends AbstractWidget {
 		this.volumeSupplier = volumeSupplier;
 	}
 
-	@Environment(EnvType.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void drawWidget(@NotNull MatrixStack matrices, @NotNull IRenderTypeBuffer provider) {
 		if (getHidden())

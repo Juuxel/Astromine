@@ -33,10 +33,10 @@ import com.github.chainmailstudios.astromine.registry.AstromineChunkGenerators;
 
 public class AstromineDiscoveriesChunkGenerators extends AstromineChunkGenerators {
 	public static void initialize() {
-		register(AstromineDiscoveriesDimensions.EARTH_SPACE_ID, EarthSpaceChunkGenerator.getBaseColumn(int,int));
-		register(AstromineDiscoveriesDimensions.MOON_ID, MoonChunkGenerator.getBaseColumn(int,int));
-		register(AstromineDiscoveriesDimensions.MARS_ID, MarsChunkGenerator.getBaseColumn(int,int));
-		register(AstromineDiscoveriesDimensions.VULCAN_ID, VulcanChunkGenerator.getBaseColumn(int,int));
-		register(AstromineDiscoveriesDimensions.GLACIOS_ID, GlaciosChunkGenerator.getBaseColumn(int,int));
+		register(AstromineDiscoveriesDimensions.EARTH_SPACE_ID, EarthSpaceChunkGenerator.CODEC);
+		register(AstromineDiscoveriesDimensions.MOON_ID, MoonChunkGenerator.CODEC);
+		register(AstromineDiscoveriesDimensions.MARS_ID, MarsChunkGenerator.CODEC);
+		register(AstromineDiscoveriesDimensions.VULCAN_ID, VulcanChunkGenerator.CODEC);
+		register(AstromineDiscoveriesDimensions.GLACIOS_ID, GlaciosChunkGenerator.CODEC);
 	}
 }

@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.transportations.client.render.block;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -55,7 +56,7 @@ import com.github.chainmailstudios.astromine.transportations.common.conveyor.Pos
 import com.mojang.blaze3d.matrix.MatrixStack;
 import java.util.Random;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public interface ConveyorRenderer<T extends TileEntity> {
 	default void renderSupport(T blockEntity, ConveyorTypes type, float position, float speed, float horizontalPosition, MatrixStack matrixStack, IRenderTypeBuffer vertexConsumerProvider) {
 		PositionalConveyable conveyor = (PositionalConveyable) blockEntity;

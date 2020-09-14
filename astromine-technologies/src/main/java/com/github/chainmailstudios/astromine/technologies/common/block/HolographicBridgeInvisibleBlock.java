@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.technologies.common.block;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -61,7 +62,7 @@ public class HolographicBridgeInvisibleBlock extends Block {
 	}
 
 	@Override
-	@Environment(EnvType.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public float getShadeBrightness(BlockState state, IBlockReader world, BlockPos pos) {
 		return 1.0F;
 	}

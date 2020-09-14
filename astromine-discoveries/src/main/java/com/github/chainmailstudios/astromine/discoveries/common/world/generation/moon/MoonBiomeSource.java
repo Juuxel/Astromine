@@ -58,7 +58,7 @@ public class MoonBiomeSource extends BiomeProvider {
 
 	@Override
 	protected Codec<? extends BiomeProvider> codec() {
-		return withSeed(long);
+		return CODEC;
 	}
 
 	@Override

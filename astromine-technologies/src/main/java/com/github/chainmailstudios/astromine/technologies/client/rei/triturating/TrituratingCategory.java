@@ -34,15 +34,16 @@ import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.api.RecipeCategory;
 import me.shedaniel.rei.api.widgets.Widgets;
 import me.shedaniel.rei.gui.widget.Widget;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TranslationTextComponent;
 import java.text.DecimalFormat;
 import java.util.List;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public class TrituratingCategory implements RecipeCategory<TrituratingDisplay> {
 	@Override
 	public ResourceLocation getIdentifier() {

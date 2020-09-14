@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.technologies.client.rei.fluidmixing;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.util.ResourceLocation;
 import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
 import me.shedaniel.rei.api.EntryStack;
@@ -35,7 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public abstract class AbstractFluidRecipeDisplay implements RecipeDisplay {
 	private final double energy;
 	private final FluidVolume input;

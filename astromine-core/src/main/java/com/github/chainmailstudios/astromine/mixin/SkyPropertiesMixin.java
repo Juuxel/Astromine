@@ -24,8 +24,9 @@
 
 package com.github.chainmailstudios.astromine.mixin;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import net.minecraft.client.world.DimensionRenderInfo;
 import net.minecraft.util.ResourceLocation;
 import org.spongepowered.asm.mixin.Final;
@@ -37,7 +38,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.chainmailstudios.astromine.common.callback.SkyPropertiesCallback;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 
-@Environment(EnvType.CLIENT)
+@OnlyIn(Dist.CLIENT)
 @Mixin(DimensionRenderInfo.class)
 public class SkyPropertiesMixin {
 

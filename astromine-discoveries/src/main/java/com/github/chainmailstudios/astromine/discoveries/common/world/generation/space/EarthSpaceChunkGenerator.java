@@ -69,7 +69,7 @@ public class EarthSpaceChunkGenerator extends ChunkGenerator {
 
 	@Override
 	protected Codec<? extends ChunkGenerator> codec() {
-		return getBaseColumn(int,int);
+		return CODEC;
 	}
 
 	@Override
