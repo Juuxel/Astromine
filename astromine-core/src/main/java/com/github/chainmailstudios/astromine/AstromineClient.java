@@ -24,6 +24,9 @@
 
 package com.github.chainmailstudios.astromine;
 
+import com.github.chainmailstudios.astromine.registry.AstromineConfig;
+import me.shedaniel.autoconfig1u.AutoConfig;
+import me.shedaniel.autoconfig1u.gui.ConfigScreenProvider;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -31,6 +34,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import com.github.chainmailstudios.astromine.registry.AstromineKeybinds;
 import com.github.chainmailstudios.astromine.registry.client.*;
+import net.minecraftforge.fml.ExtensionPoint;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @OnlyIn(Dist.CLIENT)
 public class AstromineClient implements ClientModInitializer {
@@ -48,5 +54,11 @@ public class AstromineClient implements ClientModInitializer {
 		AstromineRenderLayers.initialize();
 		AstrominePatchouliPages.initialize();
 		AstromineKeybinds.initialize();
+
+		ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.CONFIGGUIFACTORY, () -> (minecraft, screen) -> {
+			ConfigScreenProvider<AstromineConfig> configScreen = (ConfigScreenProvider<AstromineConfig>) AutoConfig.getConfigScreen(AstromineConfig.class, screen);
+			configScreen.setOptionFunction((s, field) -> field.getName());
+			return configScreen.get();
+		});
 	}
 }
