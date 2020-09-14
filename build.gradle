@@ -114,9 +114,9 @@ allprojects {
             name = "Modmaven"
             url = "https://modmaven.k-4u.nl"
         }
-        maven { url 'https://jitpack.io' }
         maven { url "https://dl.bintray.com/shedaniel/autoconfig1u" }
         maven { url "https://dl.bintray.com/shedaniel/cloth-config-2" }
+        maven { url "https://dl.bintray.com/shedaniel/cloth" }
     }
 
     dependencies {
@@ -162,7 +162,7 @@ allprojects {
         compile("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${project.kotlin_version}")
         compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${project.kotlin_version}")
         compile(fg.deobf("vazkii.patchouli:Patchouli:${patchouli_version}"))
-        compile(fg.deobf("vazkii.patchouli:Patchouli:${patchouli_version}"))
+        compile(fg.deobf("me.shedaniel:RoughlyEnoughItems:${rei_version}"))
     }
 
     tasks.withType(JavaCompile) {
