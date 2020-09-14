@@ -53,7 +53,7 @@ public class AltarBlock extends WrenchableBlockWithEntity {
 	protected static final VoxelShape SHAPE_TOP = Block.box(0.0D, 14.0D, 0.0D, 16.0D, 16.0D, 16.0D);
 	protected static final VoxelShape SHAPE_BOTTOM = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 14.0D, 15.0D);
 
-	public AltarBlock(Settings settings) {
+	public AltarBlock(Properties settings) {
 		super(settings);
 	}
 

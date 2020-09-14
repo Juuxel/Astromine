@@ -51,7 +51,7 @@ import net.minecraft.world.World;
 public class AltarPedestalBlock extends WrenchableBlockWithEntity {
 	protected static final VoxelShape SHAPE = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 16.0D, 14.0D);
 
-	public AltarPedestalBlock(Settings settings) {
+	public AltarPedestalBlock(Properties settings) {
 		super(settings);
 	}
 
