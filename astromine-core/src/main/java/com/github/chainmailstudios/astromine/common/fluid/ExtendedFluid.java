@@ -26,26 +26,26 @@ package com.github.chainmailstudios.astromine.common.fluid;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.LiquidBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.material.FlowingFluid;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.FlowingFluidBlock;
+import net.minecraft.block.material.Material;
+import net.minecraft.fluid.FlowingFluid;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.item.BucketItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.Items;
+import net.minecraft.state.StateContainer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.IWorldReader;
 import com.github.chainmailstudios.astromine.common.utilities.ClientUtilities;
 import com.github.chainmailstudios.astromine.registry.AstromineBlocks;
 import com.github.chainmailstudios.astromine.registry.AstromineFluids;
@@ -111,8 +111,8 @@ public abstract class ExtendedFluid extends FlowingFluid {
 	}
 
 	@Override
-	protected void beforeDestroyingBlock(LevelAccessor world, BlockPos position, BlockState state) {
-		BlockEntity blockEntity = state.getBlock().isEntityBlock() ? world.getBlockEntity(position) : null;
+	protected void beforeDestroyingBlock(IWorld world, BlockPos position, BlockState state) {
+		TileEntity blockEntity = state.getBlock().isEntityBlock() ? world.getBlockEntity(position) : null;
 		Block.dropResources(state, world, position, blockEntity);
 	}
 
@@ -122,12 +122,12 @@ public abstract class ExtendedFluid extends FlowingFluid {
 	}
 
 	@Override
-	protected int getSlopeFindDistance(LevelReader world) {
+	protected int getSlopeFindDistance(IWorldReader world) {
 		return 4;
 	}
 
 	@Override
-	protected int getDropOff(LevelReader world) {
+	protected int getDropOff(IWorldReader world) {
 		return 1;
 	}
 
@@ -137,12 +137,12 @@ public abstract class ExtendedFluid extends FlowingFluid {
 	}
 
 	@Override
-	protected boolean canBeReplacedWith(FluidState state, BlockGetter world, BlockPos pos, Fluid fluid, Direction direction) {
+	protected boolean canBeReplacedWith(FluidState state, IBlockReader world, BlockPos pos, Fluid fluid, Direction direction) {
 		return direction == Direction.DOWN && fluid != flowing && fluid != still;
 	}
 
 	@Override
-	public int getTickDelay(LevelReader world) {
+	public int getTickDelay(IWorldReader world) {
 		return 5;
 	}
 
@@ -153,7 +153,7 @@ public abstract class ExtendedFluid extends FlowingFluid {
 
 	@Override
 	protected BlockState createLegacyBlock(FluidState state) {
-		return block.defaultBlockState().setValue(LiquidBlock.LEVEL, getLegacyLevel(state));
+		return block.defaultBlockState().setValue(FlowingFluidBlock.LEVEL, getLegacyLevel(state));
 	}
 
 	@Override
@@ -185,7 +185,7 @@ public abstract class ExtendedFluid extends FlowingFluid {
 
 		DamageSource source;
 
-		CreativeModeTab group;
+		ItemGroup group;
 
 		private Builder() {
 
@@ -226,7 +226,7 @@ public abstract class ExtendedFluid extends FlowingFluid {
 			return this;
 		}
 
-		public Builder group(CreativeModeTab group) {
+		public Builder group(ItemGroup group) {
 			this.group = group;
 			return this;
 		}
@@ -243,7 +243,7 @@ public abstract class ExtendedFluid extends FlowingFluid {
 			still.still = still;
 			this.still = still;
 
-			Block block = AstromineBlocks.register(name, new LiquidBlock(still, BlockBehaviour.Properties.of(Material.WATER).noCollission().strength(100.0F).noDrops()));
+			Block block = AstromineBlocks.register(name, new FlowingFluidBlock(still, AbstractBlock.Properties.of(Material.WATER).noCollission().strength(100.0F).noDrops()));
 
 			Item bucket = AstromineItems.register(name + "_bucket", new BucketItem(still, (new Item.Properties()).craftRemainder(Items.BUCKET).stacksTo(1).tab(group)));
 
@@ -269,14 +269,14 @@ public abstract class ExtendedFluid extends FlowingFluid {
 		}
 
 		@Override
-		protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
+		protected void createFluidStateDefinition(StateContainer.Builder<Fluid, FluidState> builder) {
 			super.createFluidStateDefinition(builder);
-			builder.add(LEVEL);
+			builder.add(getSlopeFindDistance(net.minecraft.world.level.LevelReader));
 		}
 
 		@Override
 		public int getAmount(FluidState state) {
-			return state.getValue(LEVEL);
+			return state.getValue(getSlopeFindDistance(net.minecraft.world.level.LevelReader));
 		}
 
 		@Override

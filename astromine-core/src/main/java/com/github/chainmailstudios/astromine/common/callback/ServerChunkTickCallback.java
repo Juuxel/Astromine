@@ -2,8 +2,8 @@ package com.github.chainmailstudios.astromine.common.callback;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.server.ServerWorld;
 
 @FunctionalInterface
 public interface ServerChunkTickCallback {
@@ -13,5 +13,5 @@ public interface ServerChunkTickCallback {
 		}
 	});
 
-	void tickChunk(ServerLevel world, LevelChunk chunk);
+	void tickChunk(ServerWorld world, Chunk chunk);
 }

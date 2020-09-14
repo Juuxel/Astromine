@@ -27,15 +27,15 @@ package com.github.chainmailstudios.astromine.technologies.common.block;
 import com.github.chainmailstudios.astromine.common.block.base.WrenchableHorizontalFacingTieredBlockWithEntity;
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.ElectricSmelterBlockEntity;
 import com.github.chainmailstudios.astromine.technologies.common.screenhandler.ElectricSmelterScreenHandler;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public abstract class ElectricSmelterBlock extends WrenchableHorizontalFacingTieredBlockWithEntity {
 	public ElectricSmelterBlock(Settings settings) {
@@ -53,12 +53,12 @@ public abstract class ElectricSmelterBlock extends WrenchableHorizontalFacingTie
 		}
 
 		@Override
-		public AbstractContainerMenu createScreenHandler(BlockState state, Level world, BlockPos pos, int syncId, Inventory playerInventory, Player player) {
+		public Container createScreenHandler(BlockState state, World world, BlockPos pos, int syncId, PlayerInventory playerInventory, PlayerEntity player) {
 			return new ElectricSmelterScreenHandler(syncId, playerInventory.player, pos);
 		}
 
 		@Override
-		public void populateScreenHandlerBuffer(BlockState state, Level world, BlockPos pos, ServerPlayer player, FriendlyByteBuf buffer) {
+		public void populateScreenHandlerBuffer(BlockState state, World world, BlockPos pos, ServerPlayerEntity player, PacketBuffer buffer) {
 			buffer.writeBlockPos(pos);
 		}
 	}
@@ -69,7 +69,7 @@ public abstract class ElectricSmelterBlock extends WrenchableHorizontalFacingTie
 		}
 
 		@Override
-		public BlockEntity createBlockEntity() {
+		public TileEntity createBlockEntity() {
 			return new ElectricSmelterBlockEntity.Primitive();
 		}
 	}
@@ -80,7 +80,7 @@ public abstract class ElectricSmelterBlock extends WrenchableHorizontalFacingTie
 		}
 
 		@Override
-		public BlockEntity createBlockEntity() {
+		public TileEntity createBlockEntity() {
 			return new ElectricSmelterBlockEntity.Basic();
 		}
 	}
@@ -91,7 +91,7 @@ public abstract class ElectricSmelterBlock extends WrenchableHorizontalFacingTie
 		}
 
 		@Override
-		public BlockEntity createBlockEntity() {
+		public TileEntity createBlockEntity() {
 			return new ElectricSmelterBlockEntity.Advanced();
 		}
 	}
@@ -102,7 +102,7 @@ public abstract class ElectricSmelterBlock extends WrenchableHorizontalFacingTie
 		}
 
 		@Override
-		public BlockEntity createBlockEntity() {
+		public TileEntity createBlockEntity() {
 			return new ElectricSmelterBlockEntity.Elite();
 		}
 	}

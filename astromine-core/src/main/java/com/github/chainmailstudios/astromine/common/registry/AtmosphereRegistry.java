@@ -27,16 +27,16 @@ package com.github.chainmailstudios.astromine.common.registry;
 import com.github.chainmailstudios.astromine.common.registry.base.UniRegistry;
 
 import java.util.Optional;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.world.World;
 
-public class AtmosphereRegistry extends UniRegistry<ResourceKey<Level>, Boolean> {
+public class AtmosphereRegistry extends UniRegistry<RegistryKey<World>, Boolean> {
 	public static final AtmosphereRegistry INSTANCE = new AtmosphereRegistry();
 
 	private AtmosphereRegistry() {}
 
 	@Override
-	public Boolean get(ResourceKey<Level> worldRegistryKey) {
+	public Boolean get(RegistryKey<World> worldRegistryKey) {
 		return Optional.ofNullable(super.get(worldRegistryKey)).orElse(false);
 	}
 }

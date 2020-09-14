@@ -26,7 +26,7 @@ package com.github.chainmailstudios.astromine.common.registry;
 
 import com.github.chainmailstudios.astromine.common.network.type.base.NetworkType;
 import com.github.chainmailstudios.astromine.common.registry.base.BiRegistry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 public class NetworkTypeRegistry extends BiRegistry<ResourceLocation, NetworkType> {
 	public static final NetworkTypeRegistry INSTANCE = new NetworkTypeRegistry();

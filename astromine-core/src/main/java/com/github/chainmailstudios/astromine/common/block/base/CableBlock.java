@@ -33,31 +33,30 @@ import com.github.chainmailstudios.astromine.common.utilities.capability.block.C
 import com.github.chainmailstudios.astromine.common.utilities.data.position.WorldPos;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
-
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.IWaterLoggable;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.StateContainer;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class CableBlock extends Block implements SimpleWaterloggedBlock, CableWrenchable {
+public abstract class CableBlock extends Block implements IWaterLoggable, CableWrenchable {
 	public static final BooleanProperty EAST = BooleanProperty.create("east");
 	public static final BooleanProperty WEST = BooleanProperty.create("west");
 	public static final BooleanProperty NORTH = BooleanProperty.create("north");
@@ -90,7 +89,7 @@ public abstract class CableBlock extends Block implements SimpleWaterloggedBlock
 	protected static final Map<Integer, VoxelShape> SHAPE_CACHE = new HashMap<>();
 	protected static final VoxelShape CENTER_SHAPE = Block.box(6.0D, 6.0D, 6.0D, 10.0D, 10.0D, 10.0D);
 
-	public CableBlock(BlockBehaviour.Properties settings) {
+	public CableBlock(AbstractBlock.Properties settings) {
 		super(settings);
 
 		registerDefaultState(defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, false));
@@ -105,12 +104,12 @@ public abstract class CableBlock extends Block implements SimpleWaterloggedBlock
 
 	@Nullable
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext context) {
+	public BlockState getStateForPlacement(BlockItemUseContext context) {
 		return super.getStateForPlacement(context).setValue(BlockStateProperties.WATERLOGGED, context.getLevel().getBlockState(context.getClickedPos()).getBlock() == Blocks.WATER);
 	}
 
 	@Override
-	public void setPlacedBy(Level world, BlockPos position, BlockState stateA, LivingEntity placer, ItemStack stack) {
+	public void setPlacedBy(World world, BlockPos position, BlockState stateA, LivingEntity placer, ItemStack stack) {
 		super.setPlacedBy(world, position, stateA, placer, stack);
 
 		NetworkTracer.Tracer.INSTANCE.trace(getNetworkType(), WorldPos.of(world, position));
@@ -138,7 +137,7 @@ public abstract class CableBlock extends Block implements SimpleWaterloggedBlock
 	}
 
 	@Override
-	public void onRemove(BlockState state, Level world, BlockPos position, BlockState newState, boolean moved) {
+	public void onRemove(BlockState state, World world, BlockPos position, BlockState newState, boolean moved) {
 		super.onRemove(state, world, position, newState, moved);
 
 		if (state.getBlock() == newState.getBlock())
@@ -169,7 +168,7 @@ public abstract class CableBlock extends Block implements SimpleWaterloggedBlock
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level world, BlockPos position, Block block, BlockPos neighborPosition, boolean moved) {
+	public void neighborChanged(BlockState state, World world, BlockPos position, Block block, BlockPos neighborPosition, boolean moved) {
 		super.neighborChanged(state, world, position, block, neighborPosition, moved);
 
 		ComponentProvider provider = ComponentProvider.fromWorld(world);
@@ -186,12 +185,12 @@ public abstract class CableBlock extends Block implements SimpleWaterloggedBlock
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
 		builder.add(EAST, WEST, NORTH, SOUTH, UP, DOWN, BlockStateProperties.WATERLOGGED);
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState blockState, BlockGetter world, BlockPos position, CollisionContext entityContext) {
+	public VoxelShape getShape(BlockState blockState, IBlockReader world, BlockPos position, ISelectionContext entityContext) {
 		VoxelShape returnShape = CENTER_SHAPE;
 		NetworkTracer.Modeller modeller = new NetworkTracer.Modeller();
 		modeller.scanBlockState(blockState);

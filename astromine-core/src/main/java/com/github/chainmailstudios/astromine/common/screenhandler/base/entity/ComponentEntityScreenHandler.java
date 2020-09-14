@@ -36,9 +36,9 @@ import com.github.vini2003.blade.common.widget.base.TextWidget;
 
 import java.util.Collection;
 import java.util.HashSet;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.item.ItemStack;
 
 public abstract class ComponentEntityScreenHandler extends BaseScreenHandler {
 	public ComponentEntity syncEntity;
@@ -46,7 +46,7 @@ public abstract class ComponentEntityScreenHandler extends BaseScreenHandler {
 	public TabWidgetCollection mainTab;
 	protected TabWidget tabs;
 
-	public ComponentEntityScreenHandler(MenuType<?> type, int syncId, Player player, int entityId) {
+	public ComponentEntityScreenHandler(ContainerType<?> type, int syncId, PlayerEntity player, int entityId) {
 		super(type, syncId, player);
 
 		syncEntity = (ComponentEntity) player.level.getEntity(entityId);
@@ -59,7 +59,7 @@ public abstract class ComponentEntityScreenHandler extends BaseScreenHandler {
 	}
 
 	@Override
-	public boolean stillValid(Player player) {
+	public boolean stillValid(PlayerEntity player) {
 		return this.syncEntity.isAlive() && this.syncEntity.distanceTo(player) < 8.0F;
 	}
 

@@ -24,23 +24,23 @@
 
 package com.github.chainmailstudios.astromine.common.multiblock;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.MultiBufferSource;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 
-public abstract class MultiblockControllerBlockEntityRenderer<T extends MultiblockControllerBlockEntity> extends BlockEntityRenderer<T> {
-	private final ModelPart model;
+public abstract class MultiblockControllerBlockEntityRenderer<T extends MultiblockControllerBlockEntity> extends TileEntityRenderer<T> {
+	private final ModelRenderer model;
 
-	public MultiblockControllerBlockEntityRenderer(BlockEntityRenderDispatcher dispatcher, ModelPart model) {
+	public MultiblockControllerBlockEntityRenderer(TileEntityRendererDispatcher dispatcher, ModelRenderer model) {
 		super(dispatcher);
 		this.model = model;
 	}
 
 	@Override
-	public void render(T entity, float tickDelta, PoseStack matrices, MultiBufferSource provider, int light, int overlay) {
+	public void render(T entity, float tickDelta, MatrixStack matrices, IRenderTypeBuffer provider, int light, int overlay) {
 		model.render(matrices, provider.getBuffer(RenderType.solid()), light, overlay);
 	}
 }

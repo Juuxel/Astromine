@@ -26,11 +26,11 @@ package com.github.chainmailstudios.astromine.registry;
 
 import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.WorldlyContainerHolder;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.block.Block;
+import net.minecraft.inventory.ISidedInventoryProvider;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.registry.Registry;
 import com.github.chainmailstudios.astromine.common.network.NetworkMember;
 import com.github.chainmailstudios.astromine.common.network.NetworkMemberType;
 import com.github.chainmailstudios.astromine.common.network.type.base.NetworkType;
@@ -55,7 +55,7 @@ public class AstromineNetworkMembers {
 			@Override
 			public Collection<NetworkMemberType> get(WorldPos pos) {
 				if (!this.types.containsKey(pos.getBlock())) {
-					BlockEntity blockEntity = pos.getBlockEntity();
+					TileEntity blockEntity = pos.getBlockEntity();
 					if (blockEntity instanceof EnergyStorage) {
 						return NetworkMember.REQUESTER_PROVIDER;
 					}
@@ -68,8 +68,8 @@ public class AstromineNetworkMembers {
 			@Override
 			public Collection<NetworkMemberType> get(WorldPos pos) {
 				if (!this.types.containsKey(pos.getBlock())) {
-					BlockEntity blockEntity = pos.getBlockEntity();
-					if (blockEntity instanceof WorldlyContainerHolder) {
+					TileEntity blockEntity = pos.getBlockEntity();
+					if (blockEntity instanceof ISidedInventoryProvider) {
 						return NetworkMember.REQUESTER_PROVIDER;
 					}
 				}
@@ -81,10 +81,10 @@ public class AstromineNetworkMembers {
 
 		Registry.BLOCK.entrySet().forEach(entry -> acceptBlock(entry.getKey(), entry.getValue()));
 
-		RegistryEntryAddedCallback.event(Registry.BLOCK).register((index, identifier, block) -> acceptBlock(ResourceKey.create(Registry.BLOCK_REGISTRY, identifier), block));
+		RegistryEntryAddedCallback.event(Registry.BLOCK).register((index, identifier, block) -> acceptBlock(RegistryKey.create(Registry.BLOCK_REGISTRY, identifier), block));
 	}
 
-	public static void acceptBlock(ResourceKey<Block> id, Block block) {
+	public static void acceptBlock(RegistryKey<Block> id, Block block) {
 		if (id.location().getNamespace().equals("astromine")) {
 			for (Map.Entry<Predicate<Block>, Consumer<Block>> blockConsumerEntry : BLOCK_CONSUMER.entrySet()) {
 				if (blockConsumerEntry.getKey().test(block)) {

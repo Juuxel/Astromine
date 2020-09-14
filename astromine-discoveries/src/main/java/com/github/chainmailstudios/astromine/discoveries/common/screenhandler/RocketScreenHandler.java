@@ -10,15 +10,15 @@ import com.github.vini2003.blade.common.miscellaneous.Size;
 import com.github.vini2003.blade.common.widget.base.ButtonWidget;
 import com.github.vini2003.blade.common.widget.base.SlotWidget;
 import com.github.vini2003.blade.common.widget.base.TextWidget;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public class RocketScreenHandler extends ComponentEntityFluidInventoryScreenHandler {
 	private TextWidget fuelTextWidget;
 
-	public RocketScreenHandler(int syncId, Player player, int entityId) {
+	public RocketScreenHandler(int syncId, PlayerEntity player, int entityId) {
 		super(AstromineDiscoveriesScreenHandlers.ROCKET, syncId, player, entityId);
 	}
 
@@ -40,7 +40,7 @@ public class RocketScreenHandler extends ComponentEntityFluidInventoryScreenHand
 
 		launchButtonWidget.setPosition(Position.of(mainTab, 3 + 4, 11));
 		launchButtonWidget.setSize(Size.of(48, 18));
-		launchButtonWidget.setLabel(new TranslatableComponent("text.astromine.rocket.launch"));
+		launchButtonWidget.setLabel(new TranslationTextComponent("text.astromine.rocket.launch"));
 		launchButtonWidget.setDisabled(() -> entity.getDataTracker().get(RocketEntity.IS_RUNNING) || entity.getFluidComponent().getVolume(0).smallerOrEqualThan(Fraction.empty()));
 
 		ButtonWidget abortButtonWidget = new ButtonWidget(() -> {
@@ -51,7 +51,7 @@ public class RocketScreenHandler extends ComponentEntityFluidInventoryScreenHand
 
 		abortButtonWidget.setPosition(Position.of(mainTab, 3 + 4, 11 + fluidBar.getHeight() - 18));
 		abortButtonWidget.setSize(Size.of(48, 18));
-		abortButtonWidget.setLabel(new TranslatableComponent("text.astromine.rocket.destroy"));
+		abortButtonWidget.setLabel(new TranslationTextComponent("text.astromine.rocket.destroy"));
 
 		fluidBar.setPosition(Position.of(width / 2F - fluidBar.getWidth() / 2F + 2, fluidBar.getY()));
 
@@ -72,7 +72,7 @@ public class RocketScreenHandler extends ComponentEntityFluidInventoryScreenHand
 		mainTab.addWidget(output);
 	}
 
-	public void setFuelText(Component text) {
+	public void setFuelText(ITextComponent text) {
 		this.fuelTextWidget.setText(text);
 	}
 }

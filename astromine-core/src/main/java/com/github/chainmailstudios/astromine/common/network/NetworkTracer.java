@@ -33,13 +33,13 @@ import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.BlockState;
+import net.minecraft.state.BooleanProperty;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.world.World;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.HashSet;
@@ -53,7 +53,7 @@ public class NetworkTracer {
 		private Tracer() {}
 
 		public void trace(NetworkType type, WorldPos initialPosition) {
-			Level world = initialPosition.getWorld();
+			World world = initialPosition.getWorld();
 			ComponentProvider provider = ComponentProvider.fromWorld(world);
 			WorldNetworkComponent networkComponent = provider.getComponent(AstromineComponentTypes.WORLD_NETWORK_COMPONENT);
 			NetworkMember initialMember = NetworkMemberRegistry.get(initialPosition);
@@ -129,7 +129,7 @@ public class NetworkTracer {
 			}
 		}
 
-		public void scanNeighbours(NetworkType type, BlockPos initialPosition, Level world) {
+		public void scanNeighbours(NetworkType type, BlockPos initialPosition, World world) {
 			WorldPos initialObject = WorldPos.of(world, initialPosition);
 			for (Direction direction : Direction.values()) {
 				WorldPos pos = WorldPos.of(world, initialPosition.relative(direction));
@@ -153,7 +153,7 @@ public class NetworkTracer {
 		public VoxelShape applyToVoxelShape(VoxelShape shape) {
 			for (Direction direction : Direction.values()) {
 				if (directions.contains(direction)) {
-					shape = Shapes.or(shape, CableBlock.SHAPE_MAP.get(CableBlock.PROPERTIES.get(direction)));
+					shape = VoxelShapes.or(shape, CableBlock.SHAPE_MAP.get(CableBlock.PROPERTIES.get(direction)));
 				}
 			}
 			return shape;

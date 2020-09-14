@@ -33,7 +33,7 @@ import com.github.chainmailstudios.astromine.common.item.base.FluidVolumeItem;
 import com.github.chainmailstudios.astromine.registry.AstromineConfig;
 import com.github.chainmailstudios.astromine.registry.AstromineItems;
 import com.github.chainmailstudios.astromine.technologies.common.item.HolographicConnectorItem;
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
 
 public class AstromineTechnologiesItems extends AstromineItems {
 	public static final Item PRIMITIVE_MACHINE_CHASSIS = register("primitive_machine_chassis", new Item(getBasicSettings()));

@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.registry.IdentifierFixRegistry;
 import com.github.chainmailstudios.astromine.registry.AstromineConfig;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 @Mixin(ResourceLocation.class)
 public class IdentifierMixin {

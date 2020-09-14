@@ -28,15 +28,15 @@ import com.github.chainmailstudios.astromine.common.entity.base.ComponentFluidEn
 import com.github.chainmailstudios.astromine.common.widget.blade.FluidVerticalBarWidget;
 import com.github.vini2003.blade.common.miscellaneous.Position;
 import com.github.vini2003.blade.common.miscellaneous.Size;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.MenuType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.ContainerType;
 
 public abstract class ComponentEntityFluidScreenHandler extends ComponentEntityScreenHandler {
 	public ComponentFluidEntity blockEntity;
 
 	public FluidVerticalBarWidget fluidBar;
 
-	public ComponentEntityFluidScreenHandler(MenuType<?> type, int syncId, Player player, int entityId) {
+	public ComponentEntityFluidScreenHandler(ContainerType<?> type, int syncId, PlayerEntity player, int entityId) {
 		super(type, syncId, player, entityId);
 
 		blockEntity = (ComponentFluidEntity) player.level.getEntity(entityId);

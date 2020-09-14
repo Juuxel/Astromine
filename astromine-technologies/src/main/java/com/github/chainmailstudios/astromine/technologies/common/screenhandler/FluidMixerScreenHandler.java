@@ -33,13 +33,13 @@ import com.github.chainmailstudios.astromine.common.widget.blade.HorizontalArrow
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import com.github.vini2003.blade.common.miscellaneous.Position;
 import com.github.vini2003.blade.common.miscellaneous.Size;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.BlockPos;
 
 public class FluidMixerScreenHandler extends ComponentBlockEntityEnergyFluidScreenHandler {
 	private FluidMixerBlockEntity mixer;
 
-	public FluidMixerScreenHandler(int syncId, Player player, BlockPos position) {
+	public FluidMixerScreenHandler(int syncId, PlayerEntity player, BlockPos position) {
 		super(AstromineTechnologiesScreenHandlers.FLUID_MIXER, syncId, player, position);
 
 		mixer = (FluidMixerBlockEntity) blockEntity;

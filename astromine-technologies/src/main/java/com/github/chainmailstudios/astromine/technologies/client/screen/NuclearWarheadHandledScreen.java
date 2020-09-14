@@ -27,11 +27,11 @@ package com.github.chainmailstudios.astromine.technologies.client.screen;
 import com.github.chainmailstudios.astromine.technologies.common.screenhandler.NuclearWarheadScreenHandler;
 import com.github.vini2003.blade.client.handler.BaseHandledScreen;
 import com.github.vini2003.blade.common.handler.BaseScreenHandler;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.util.text.ITextComponent;
 
 public class NuclearWarheadHandledScreen extends BaseHandledScreen<NuclearWarheadScreenHandler> {
-	public NuclearWarheadHandledScreen(BaseScreenHandler handler, Inventory inventory, Component title) {
+	public NuclearWarheadHandledScreen(BaseScreenHandler handler, PlayerInventory inventory, ITextComponent title) {
 		super(handler, inventory, title);
 	}
 }

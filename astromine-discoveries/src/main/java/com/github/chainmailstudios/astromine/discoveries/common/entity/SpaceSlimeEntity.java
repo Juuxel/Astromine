@@ -24,45 +24,45 @@
 
 package com.github.chainmailstudios.astromine.discoveries.common.entity;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.monster.SlimeEntity;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.particles.IParticleData;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.SoundEvents;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.monster.Slime;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.LightType;
+import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import com.github.chainmailstudios.astromine.discoveries.common.entity.ai.superspaceslime.SpaceSlimeJumpHoverGoal;
 import com.github.chainmailstudios.astromine.discoveries.registry.AstromineDiscoveriesParticles;
 
 import java.util.Random;
 
-public class SpaceSlimeEntity extends Slime {
-	private static final EntityDataAccessor<Integer> FLOATING_PROGRESS = SynchedEntityData.defineId(SpaceSlimeEntity.class, EntityDataSerializers.INT);
-	private static final EntityDataAccessor<Boolean> FLOATING = SynchedEntityData.defineId(SpaceSlimeEntity.class, EntityDataSerializers.BOOLEAN);
+public class SpaceSlimeEntity extends SlimeEntity {
+	private static final DataParameter<Integer> FLOATING_PROGRESS = EntityDataManager.defineId(SpaceSlimeEntity.class, DataSerializers.INT);
+	private static final DataParameter<Boolean> FLOATING = EntityDataManager.defineId(SpaceSlimeEntity.class, DataSerializers.BOOLEAN);
 	private int floatingCooldown;
 
-	public SpaceSlimeEntity(EntityType<? extends Slime> entityType, Level world) {
+	public SpaceSlimeEntity(EntityType<? extends SlimeEntity> entityType, World world) {
 		super(entityType, world);
-		this.floatingCooldown = world.random.nextInt(200);
+		this.floatingCooldown = world.getFreeMapId().nextInt(200);
 	}
 
-	public static boolean canSpawnInDark(EntityType<? extends SpaceSlimeEntity> type, LevelAccessor world, MobSpawnType spawnReason, BlockPos pos, Random random) {
+	public static boolean canSpawnInDark(EntityType<? extends SpaceSlimeEntity> type, IWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
 		return world.getDifficulty() != Difficulty.PEACEFUL && isSpawnDark(world, pos, random) && checkMobSpawnRules(type, world, spawnReason, pos, random) && random.nextDouble() <= .15;
 	}
 
-	public static boolean isSpawnDark(LevelAccessor world, BlockPos pos, Random random) {
-		if (world.getBrightness(LightLayer.SKY, pos) > random.nextInt(32)) {
+	public static boolean isSpawnDark(IWorld world, BlockPos pos, Random random) {
+		if (world.getBrightness(LightType.SKY, pos) > random.nextInt(32)) {
 			return false;
 		} else {
-			int i = ((ServerLevel) world).isThundering() ? world.getMaxLocalRawBrightness(pos, 10) : world.getMaxLocalRawBrightness(pos);
+			int i = ((ServerWorld) world).isThundering() ? world.getMaxLocalRawBrightness(pos, 10) : world.getMaxLocalRawBrightness(pos);
 			return i <= random.nextInt(8);
 		}
 	}
@@ -81,7 +81,7 @@ public class SpaceSlimeEntity extends Slime {
 	}
 
 	@Override
-	protected ParticleOptions getParticleType() {
+	protected IParticleData getParticleType() {
 		return AstromineDiscoveriesParticles.SPACE_SLIME;
 	}
 

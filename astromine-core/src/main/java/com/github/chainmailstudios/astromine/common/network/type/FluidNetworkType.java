@@ -39,12 +39,12 @@ import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import net.minecraft.core.Direction;
+import net.minecraft.block.DirectionalBlock;
+import net.minecraft.block.HorizontalBlock;
+import net.minecraft.state.Property;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
 import net.minecraft.util.Tuple;
-import net.minecraft.world.level.block.DirectionalBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.properties.Property;
 
 public class FluidNetworkType extends NetworkType {
 	@Override
@@ -53,7 +53,7 @@ public class FluidNetworkType extends NetworkType {
 		List<Tuple<FluidInventoryComponent, Direction>> outputs = Lists.newArrayList();
 
 		for (NetworkMemberNode memberNode : instance.members) {
-			BlockEntity blockEntity = instance.getWorld().getBlockEntity(memberNode.getBlockPos());
+			TileEntity blockEntity = instance.getWorld().getBlockEntity(memberNode.getBlockPos());
 			NetworkMember networkMember = NetworkMemberRegistry.get(blockEntity);
 
 			if (blockEntity instanceof SidedComponentProvider && networkMember.acceptsType(this)) {
@@ -65,7 +65,7 @@ public class FluidNetworkType extends NetworkType {
 
 				before:
 				if (fluidComponent != null && transferComponent != null) {
-					Property<Direction> property = blockEntity.getBlockState().hasProperty(HorizontalDirectionalBlock.FACING) ? HorizontalDirectionalBlock.FACING : blockEntity.getBlockState().hasProperty(DirectionalBlock.FACING) ? DirectionalBlock.FACING : null;
+					Property<Direction> property = blockEntity.getBlockState().hasProperty(HorizontalBlock.FACING) ? HorizontalBlock.FACING : blockEntity.getBlockState().hasProperty(DirectionalBlock.FACING) ? DirectionalBlock.FACING : null;
 
 					if (!blockEntity.getBlockState().hasProperty(property))
 						break before;

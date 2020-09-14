@@ -27,15 +27,15 @@ package com.github.chainmailstudios.astromine.registry;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialColor;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 
 public class AstromineBlocks {
 	public static void initialize() {
@@ -99,23 +99,23 @@ public class AstromineBlocks {
 		return Registry.register(Registry.BLOCK, name, block);
 	}
 
-	public static BlockBehaviour.Properties getPrimitiveSettings() {
+	public static AbstractBlock.Properties getPrimitiveSettings() {
 		return FabricBlockSettings.of(Material.METAL, MaterialColor.COLOR_ORANGE).requiresCorrectToolForDrops().breakByTool(FabricToolTags.PICKAXES, 1).strength(4, 6).sound(SoundType.METAL);
 	}
 
-	public static BlockBehaviour.Properties getBasicSettings() {
+	public static AbstractBlock.Properties getBasicSettings() {
 		return FabricBlockSettings.of(Material.METAL, MaterialColor.TERRACOTTA_ORANGE).requiresCorrectToolForDrops().breakByTool(FabricToolTags.PICKAXES, 2).strength(6, 6).sound(SoundType.METAL);
 	}
 
-	public static BlockBehaviour.Properties getAdvancedSettings() {
+	public static AbstractBlock.Properties getAdvancedSettings() {
 		return FabricBlockSettings.of(Material.METAL, MaterialColor.COLOR_GRAY).requiresCorrectToolForDrops().breakByTool(FabricToolTags.PICKAXES, 2).strength(8, 6).sound(SoundType.METAL);
 	}
 
-	public static BlockBehaviour.Properties getEliteSettings() {
+	public static AbstractBlock.Properties getEliteSettings() {
 		return FabricBlockSettings.of(Material.METAL, MaterialColor.COLOR_PINK).requiresCorrectToolForDrops().breakByTool(FabricToolTags.PICKAXES, 4).strength(8, 100).sound(SoundType.METAL);
 	}
 
-	public static BlockBehaviour.Properties getCreativeSettings() {
+	public static AbstractBlock.Properties getCreativeSettings() {
 		return FabricBlockSettings.of(Material.METAL, MaterialColor.COLOR_LIGHT_GREEN).noDrops().strength(-1.0F, 3600000.8F).sound(SoundType.METAL);
 	}
 }

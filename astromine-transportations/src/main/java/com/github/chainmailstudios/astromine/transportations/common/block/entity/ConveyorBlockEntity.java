@@ -26,20 +26,20 @@ package com.github.chainmailstudios.astromine.transportations.common.block.entit
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachmentBlockEntity;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.HorizontalBlock;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.server.ServerWorld;
 import com.github.chainmailstudios.astromine.common.inventory.SingularStackInventory;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.Conveyable;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.Conveyor;
@@ -47,7 +47,7 @@ import com.github.chainmailstudios.astromine.transportations.common.conveyor.Con
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.ConveyorTypes;
 import com.github.chainmailstudios.astromine.transportations.registry.AstromineTransportationsBlockEntityTypes;
 
-public class ConveyorBlockEntity extends BlockEntity implements ConveyorConveyable, SingularStackInventory, BlockEntityClientSerializable, RenderAttachmentBlockEntity, TickableBlockEntity {
+public class ConveyorBlockEntity extends TileEntity implements ConveyorConveyable, SingularStackInventory, BlockEntityClientSerializable, RenderAttachmentBlockEntity, ITickableTileEntity {
 	protected boolean front = false;
 	protected boolean down = false;
 	protected boolean across = false;
@@ -60,13 +60,13 @@ public class ConveyorBlockEntity extends BlockEntity implements ConveyorConveyab
 		super(AstromineTransportationsBlockEntityTypes.CONVEYOR);
 	}
 
-	public ConveyorBlockEntity(BlockEntityType type) {
+	public ConveyorBlockEntity(TileEntityType type) {
 		super(type);
 	}
 
 	@Override
 	public void tick() {
-		Direction direction = getBlockState().getValue(HorizontalDirectionalBlock.FACING);
+		Direction direction = getBlockState().getValue(HorizontalBlock.FACING);
 		int speed = ((Conveyor) getBlockState().getBlock()).getSpeed();
 
 		if (!isEmpty()) {
@@ -104,7 +104,7 @@ public class ConveyorBlockEntity extends BlockEntity implements ConveyorConveyab
 				setPosition(getPosition() + 1);
 			} else if (transition && position == speed) {
 				conveyable.give(getStack());
-				if (!level.isClientSide() || level.isClientSide && Minecraft.getInstance().player.distanceToSqr(Vec3.atLowerCornerOf(getBlockPos())) > 40 * 40)
+				if (!level.isClientSide() || level.isClientSide && Minecraft.getInstance().player.distanceToSqr(Vector3d.atLowerCornerOf(getBlockPos())) > 40 * 40)
 					removeStack();
 			}
 		} else if (conveyable instanceof ConveyorConveyable) {
@@ -137,7 +137,7 @@ public class ConveyorBlockEntity extends BlockEntity implements ConveyorConveyab
 				}
 			} else if (transition && position == speed) {
 				conveyable.give(getStack());
-				if (!level.isClientSide() || level.isClientSide && Minecraft.getInstance().player.distanceToSqr(Vec3.atLowerCornerOf(getBlockPos())) > 40 * 40)
+				if (!level.isClientSide() || level.isClientSide && Minecraft.getInstance().player.distanceToSqr(Vector3d.atLowerCornerOf(getBlockPos())) > 40 * 40)
 					removeStack();
 			}
 		} else if (conveyable instanceof ConveyorConveyable && acrossConveyable instanceof ConveyorConveyable) {
@@ -178,12 +178,12 @@ public class ConveyorBlockEntity extends BlockEntity implements ConveyorConveyab
 
 	@Override
 	public boolean validInputSide(Direction direction) {
-		return direction != getBlockState().getValue(HorizontalDirectionalBlock.FACING) && direction != Direction.UP && direction != Direction.DOWN;
+		return direction != getBlockState().getValue(HorizontalBlock.FACING) && direction != Direction.UP && direction != Direction.DOWN;
 	}
 
 	@Override
 	public boolean isOutputSide(Direction direction, ConveyorTypes type) {
-		return getBlockState().getValue(HorizontalDirectionalBlock.FACING) == direction;
+		return getBlockState().getValue(HorizontalBlock.FACING) == direction;
 	}
 
 	@Override
@@ -209,7 +209,7 @@ public class ConveyorBlockEntity extends BlockEntity implements ConveyorConveyab
 	public void setStack(int slot, ItemStack stack) {
 		SingularStackInventory.super.setStack(slot, stack);
 		if (!level.isClientSide())
-			sendPacket((ServerLevel) level, save(new CompoundTag()));
+			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 	}
 
 	@Override
@@ -218,7 +218,7 @@ public class ConveyorBlockEntity extends BlockEntity implements ConveyorConveyab
 		position = 0;
 		prevPosition = 0;
 		if (!level.isClientSide())
-			sendPacket((ServerLevel) level, save(new CompoundTag()));
+			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 		return stack;
 	}
 
@@ -226,7 +226,7 @@ public class ConveyorBlockEntity extends BlockEntity implements ConveyorConveyab
 	public void clear() {
 		SingularStackInventory.super.clear();
 		if (!level.isClientSide())
-			sendPacket((ServerLevel) level, save(new CompoundTag()));
+			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 	}
 
 	@Override
@@ -242,7 +242,7 @@ public class ConveyorBlockEntity extends BlockEntity implements ConveyorConveyab
 		this.front = front;
 		setChanged();
 		if (!level.isClientSide())
-			sendPacket((ServerLevel) level, save(new CompoundTag()));
+			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 	}
 
 	public boolean hasDown() {
@@ -253,7 +253,7 @@ public class ConveyorBlockEntity extends BlockEntity implements ConveyorConveyab
 		this.down = down;
 		setChanged();
 		if (!level.isClientSide())
-			sendPacket((ServerLevel) level, save(new CompoundTag()));
+			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 	}
 
 	public boolean hasAcross() {
@@ -264,7 +264,7 @@ public class ConveyorBlockEntity extends BlockEntity implements ConveyorConveyab
 		this.across = across;
 		setChanged();
 		if (!level.isClientSide())
-			sendPacket((ServerLevel) level, save(new CompoundTag()));
+			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 	}
 
 	@Override
@@ -284,13 +284,13 @@ public class ConveyorBlockEntity extends BlockEntity implements ConveyorConveyab
 		return prevPosition;
 	}
 
-	protected void sendPacket(ServerLevel w, CompoundTag tag) {
-		tag.putString("id", BlockEntityType.getKey(getType()).toString());
-		sendPacket(w, new ClientboundBlockEntityDataPacket(getBlockPos(), 127, tag));
+	protected void sendPacket(ServerWorld w, CompoundNBT tag) {
+		tag.putString("id", TileEntityType.getKey(getType()).toString());
+		sendPacket(w, new SUpdateTileEntityPacket(getBlockPos(), 127, tag));
 	}
 
-	protected void sendPacket(ServerLevel w, ClientboundBlockEntityDataPacket packet) {
-		w.getPlayers(player -> player.distanceToSqr(Vec3.atLowerCornerOf(getBlockPos())) < 40 * 40).forEach(player -> player.connection.send(packet));
+	protected void sendPacket(ServerWorld w, SUpdateTileEntityPacket packet) {
+		w.getPlayers(player -> player.distanceToSqr(Vector3d.atLowerCornerOf(getBlockPos())) < 40 * 40).forEach(player -> player.connection.send(packet));
 	}
 
 	@Override
@@ -299,7 +299,7 @@ public class ConveyorBlockEntity extends BlockEntity implements ConveyorConveyab
 	}
 
 	@Override
-	public void load(BlockState state, CompoundTag compoundTag) {
+	public void load(BlockState state, CompoundNBT compoundTag) {
 		super.load(state, compoundTag);
 		stacks.set(0, ItemStack.of(compoundTag.getCompound("stack")));
 		front = compoundTag.getBoolean("front");
@@ -310,13 +310,13 @@ public class ConveyorBlockEntity extends BlockEntity implements ConveyorConveyab
 	}
 
 	@Override
-	public void fromClientTag(CompoundTag compoundTag) {
+	public void fromClientTag(CompoundNBT compoundTag) {
 		load(getBlockState(), compoundTag);
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag compoundTag) {
-		compoundTag.put("stack", getStack().toTag(new CompoundTag()));
+	public CompoundNBT save(CompoundNBT compoundTag) {
+		compoundTag.put("stack", getStack().toTag(new CompoundNBT()));
 		compoundTag.putBoolean("front", front);
 		compoundTag.putBoolean("down", down);
 		compoundTag.putBoolean("across", across);
@@ -326,12 +326,12 @@ public class ConveyorBlockEntity extends BlockEntity implements ConveyorConveyab
 	}
 
 	@Override
-	public CompoundTag getUpdateTag() {
-		return save(new CompoundTag());
+	public CompoundNBT getUpdateTag() {
+		return save(new CompoundNBT());
 	}
 
 	@Override
-	public CompoundTag toClientTag(CompoundTag compoundTag) {
+	public CompoundNBT toClientTag(CompoundNBT compoundTag) {
 		return save(compoundTag);
 	}
 }

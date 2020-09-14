@@ -24,7 +24,7 @@
 
 package com.github.chainmailstudios.astromine.common.recipe;
 
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeType;
 
-public interface AstromineRecipeType<T extends Recipe<?>> extends RecipeType<T> {}
+public interface AstromineRecipeType<T extends IRecipe<?>> extends IRecipeType<T> {}

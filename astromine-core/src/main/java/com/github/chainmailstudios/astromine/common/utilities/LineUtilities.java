@@ -25,10 +25,10 @@
 package com.github.chainmailstudios.astromine.common.utilities;
 
 import com.google.common.collect.Lists;
-import com.mojang.math.Vector3f;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import net.minecraft.util.math.vector.Vector3f;
 
 public class LineUtilities {
 	/**

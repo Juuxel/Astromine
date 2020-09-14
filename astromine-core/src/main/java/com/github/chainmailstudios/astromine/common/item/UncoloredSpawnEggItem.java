@@ -24,9 +24,9 @@
 
 package com.github.chainmailstudios.astromine.common.item;
 
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.entity.EntityType;
+import net.minecraft.item.Item;
+import net.minecraft.item.SpawnEggItem;
 
 public class UncoloredSpawnEggItem extends SpawnEggItem {
 	public UncoloredSpawnEggItem(EntityType<?> type, Item.Properties settings) {

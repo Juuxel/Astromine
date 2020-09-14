@@ -24,40 +24,39 @@
 
 package com.github.chainmailstudios.astromine.common.component.world;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import com.github.chainmailstudios.astromine.common.utilities.VoxelShapeUtilities;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import nerdhub.cardinal.components.api.component.Component;
-
+import net.minecraft.block.Block;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.world.World;
 import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Set;
 
 public class WorldBridgeComponent implements Component {
-	public final Long2ObjectArrayMap<Set<Vec3i>> entries = new Long2ObjectArrayMap<>();
+	public final Long2ObjectArrayMap<Set<Vector3i>> entries = new Long2ObjectArrayMap<>();
 
-	private final Level world;
+	private final World world;
 
-	public WorldBridgeComponent(Level world) {
+	public WorldBridgeComponent(World world) {
 		this.world = world;
 	}
 
-	public Level getWorld() {
+	public World getWorld() {
 		return world;
 	}
 
-	public void add(BlockPos pos, Vec3i vec) {
+	public void add(BlockPos pos, Vector3i vec) {
 		add(pos.asLong(), vec);
 	}
 
-	public void add(long pos, Vec3i top) {
+	public void add(long pos, Vector3i top) {
 		entries.computeIfAbsent(pos, (k) -> Sets.newHashSet());
 		entries.get(pos).add(top);
 	}
@@ -70,11 +69,11 @@ public class WorldBridgeComponent implements Component {
 		entries.remove(pos);
 	}
 
-	public Set<Vec3i> get(BlockPos pos) {
+	public Set<Vector3i> get(BlockPos pos) {
 		return get(pos.asLong());
 	}
 
-	public Set<Vec3i> get(long pos) {
+	public Set<Vector3i> get(long pos) {
 		return entries.getOrDefault(pos, Sets.newHashSet());
 	}
 
@@ -83,27 +82,27 @@ public class WorldBridgeComponent implements Component {
 	}
 
 	public VoxelShape getShape(long pos) {
-		Set<Vec3i> vecs = get(pos);
+		Set<Vector3i> vecs = get(pos);
 		if (vecs == null)
-			return Shapes.block();
+			return VoxelShapes.block();
 		else return getShape(vecs);
 	}
 
-	private VoxelShape getShape(Set<Vec3i> vecs) {
-		VoxelShape shape = Shapes.empty();
+	private VoxelShape getShape(Set<Vector3i> vecs) {
+		VoxelShape shape = VoxelShapes.empty();
 
 		boolean a = vecs.stream().allMatch(vec -> vec.getZ() == 0);
 		boolean b = vecs.stream().allMatch(vec -> vec.getX() == 0);
 		boolean c = false;
 		boolean d = false;
 
-		for (Vec3i vec : vecs) {
+		for (Vector3i vec : vecs) {
 			if (!c && vec.getX() < 0)
 				c = true;
 			if (!d && vec.getZ() < 0)
 				d = true;
 
-			shape = Shapes.or(shape, Block.box(Math.abs(vec.getX()), Math.abs(vec.getY()) - 1, Math.abs(vec.getZ()), b ? 16 : Math.abs(vec.getX() + 1), Math.abs(vec.getY()) + 1, a ? 16 : Math.abs(vec.getZ() + 1)));
+			shape = VoxelShapes.or(shape, Block.box(Math.abs(vec.getX()), Math.abs(vec.getY()) - 1, Math.abs(vec.getZ()), b ? 16 : Math.abs(vec.getX() + 1), Math.abs(vec.getY()) + 1, a ? 16 : Math.abs(vec.getZ() + 1)));
 		}
 
 		if (c || d) {
@@ -114,20 +113,20 @@ public class WorldBridgeComponent implements Component {
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
-		CompoundTag dataTag = new CompoundTag();
+	public CompoundNBT toTag(CompoundNBT tag) {
+		CompoundNBT dataTag = new CompoundNBT();
 
 		int k = 0;
 
-		for (Map.Entry<Long, Set<Vec3i>> entry : entries.entrySet()) {
-			CompoundTag pointTag = new CompoundTag();
-			CompoundTag vecTag = new CompoundTag();
+		for (Map.Entry<Long, Set<Vector3i>> entry : entries.entrySet()) {
+			CompoundNBT pointTag = new CompoundNBT();
+			CompoundNBT vecTag = new CompoundNBT();
 
 			pointTag.putLong("pos", entry.getKey());
 
 			int i = 0;
 
-			for (Vec3i vec : entry.getValue()) {
+			for (Vector3i vec : entry.getValue()) {
 				vecTag.putLong(String.valueOf(i), BlockPos.asLong(vec.getX(), vec.getY(), vec.getZ()));
 
 				++i;
@@ -146,12 +145,12 @@ public class WorldBridgeComponent implements Component {
 	}
 
 	@Override
-	public void fromTag(CompoundTag tag) {
-		CompoundTag dataTag = tag.getCompound("data");
+	public void fromTag(CompoundNBT tag) {
+		CompoundNBT dataTag = tag.getCompound("data");
 
 		for (String key : dataTag.getAllKeys()) {
-			CompoundTag pointTag = dataTag.getCompound(key);
-			CompoundTag vecTag = pointTag.getCompound("vecs");
+			CompoundNBT pointTag = dataTag.getCompound(key);
+			CompoundNBT vecTag = pointTag.getCompound("vecs");
 
 			long pos = pointTag.getLong("pos");
 

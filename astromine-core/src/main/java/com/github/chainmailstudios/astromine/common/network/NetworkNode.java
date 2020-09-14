@@ -24,9 +24,9 @@
 
 package com.github.chainmailstudios.astromine.common.network;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import com.google.common.base.Objects;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.math.BlockPos;
 
 public class NetworkNode {
 	private long pos;
@@ -47,7 +47,7 @@ public class NetworkNode {
 		return new NetworkNode(pos);
 	}
 
-	public static NetworkNode fromTag(CompoundTag tag) {
+	public static NetworkNode fromTag(CompoundNBT tag) {
 		return of(tag.getLong("pos"));
 	}
 
@@ -67,7 +67,7 @@ public class NetworkNode {
 		this.pos = pos;
 	}
 
-	public CompoundTag toTag(CompoundTag tag) {
+	public CompoundNBT toTag(CompoundNBT tag) {
 		tag.putLong("pos", pos);
 		return tag;
 	}

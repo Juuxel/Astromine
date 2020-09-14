@@ -31,9 +31,9 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import nerdhub.cardinal.components.api.ComponentRegistry;
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.Component;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -54,8 +54,8 @@ public class BlockEntityTransferComponent implements Component {
 	}
 
 	@Override
-	public void fromTag(CompoundTag tag) {
-		CompoundTag dataTag = tag.getCompound("data");
+	public void fromTag(CompoundNBT tag) {
+		CompoundNBT dataTag = tag.getCompound("data");
 
 		for (String key : dataTag.getAllKeys()) {
 			ResourceLocation keyId = new ResourceLocation(key);
@@ -66,11 +66,11 @@ public class BlockEntityTransferComponent implements Component {
 	}
 
 	@Override
-	public @NotNull CompoundTag toTag(CompoundTag tag) {
-		CompoundTag dataTag = new CompoundTag();
+	public @NotNull CompoundNBT toTag(CompoundNBT tag) {
+		CompoundNBT dataTag = new CompoundNBT();
 
 		for (Map.Entry<ComponentType<?>, TransferEntry> entry : components.entrySet()) {
-			dataTag.put(entry.getKey().getId().toString(), entry.getValue().toTag(new CompoundTag()));
+			dataTag.put(entry.getKey().getId().toString(), entry.getValue().toTag(new CompoundNBT()));
 		}
 
 		tag.put("data", dataTag);
@@ -96,7 +96,7 @@ public class BlockEntityTransferComponent implements Component {
 			return types.get(origin);
 		}
 
-		public void fromTag(CompoundTag tag) {
+		public void fromTag(CompoundNBT tag) {
 			for (String directionKey : tag.getAllKeys()) {
 				if (tag.contains(directionKey)) {
 					types.put(DirectionUtilities.byNameOrId(directionKey), TransferType.valueOf(tag.getString(directionKey)));
@@ -104,7 +104,7 @@ public class BlockEntityTransferComponent implements Component {
 			}
 		}
 
-		public CompoundTag toTag(CompoundTag tag) {
+		public CompoundNBT toTag(CompoundNBT tag) {
 			for (Map.Entry<Direction, TransferType> entry : types.entrySet()) {
 				if (entry.getValue() != TransferType.NONE)
 					tag.putString(String.valueOf(entry.getKey().getName()), entry.getValue().toString());
@@ -134,10 +134,10 @@ public class BlockEntityTransferComponent implements Component {
 		}
 
 		@Override
-		public void fromTag(CompoundTag tag) {}
+		public void fromTag(CompoundNBT tag) {}
 
 		@Override
-		public CompoundTag toTag(CompoundTag tag) {
+		public CompoundNBT toTag(CompoundNBT tag) {
 			return tag;
 		}
 

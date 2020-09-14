@@ -28,26 +28,26 @@ import com.github.chainmailstudios.astromine.foundations.registry.AstromineFound
 import com.github.chainmailstudios.astromine.foundations.registry.AstromineFoundationsSoundEvents;
 import com.github.chainmailstudios.astromine.registry.AstromineConfig;
 import com.github.chainmailstudios.astromine.registry.AstromineSoundEvents;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.CampfireBlock;
-import net.minecraft.world.level.block.FireBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.CampfireBlock;
+import net.minecraft.block.FireBlock;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUseContext;
+import net.minecraft.particles.ParticleTypes;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.World;
 
 public class FireExtinguisherItem extends Item {
 	public FireExtinguisherItem(Item.Properties settings) {
@@ -55,22 +55,22 @@ public class FireExtinguisherItem extends Item {
 	}
 
 	@Override
-	public InteractionResult useOn(UseOnContext context) {
+	public ActionResultType useOn(ItemUseContext context) {
 		this.use(context.getLevel(), context.getPlayer(), context.getHand());
 
-		return InteractionResult.PASS;
+		return ActionResultType.PASS;
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
-		Vec3 placeVec = user.getEyePosition(0);
+	public ActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+		Vector3d placeVec = user.getEyePosition(0);
 
-		Vec3 thrustVec = new Vec3(0.8, 0.8, 0.8);
+		Vector3d thrustVec = new Vector3d(0.8, 0.8, 0.8);
 
 		thrustVec = thrustVec.multiply(user.getLookAngle());
 
-		for (int i = 0; i < world.random.nextInt(64); ++i) {
-			float r = world.random.nextFloat();
+		for (int i = 0; i < world.getFreeMapId().nextInt(64); ++i) {
+			float r = world.getFreeMapId().nextFloat();
 			world.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, placeVec.x + thrustVec.x, placeVec.y + thrustVec.y, placeVec.z + thrustVec.z, thrustVec.x * r, thrustVec.y * r, thrustVec.z * r);
 		}
 
@@ -78,18 +78,18 @@ public class FireExtinguisherItem extends Item {
 
 		if (!user.isShiftKeyDown()) {
 			user.push(thrustVec.x, thrustVec.y, thrustVec.z);
-			if (user instanceof ServerPlayer) {
-				((ServerPlayer) user).connection.aboveGroundTickCount = 0;
-				AstromineFoundationsCriteria.USE_FIRE_EXTINGUISHER.trigger((ServerPlayer) user);
+			if (user instanceof ServerPlayerEntity) {
+				((ServerPlayerEntity) user).connection.aboveGroundTickCount = 0;
+				AstromineFoundationsCriteria.USE_FIRE_EXTINGUISHER.trigger((ServerPlayerEntity) user);
 			}
 			user.getCooldowns().addCooldown(this, AstromineConfig.get().fireExtinguisherStandingDelay);
 		} else {
 			user.getCooldowns().addCooldown(this, AstromineConfig.get().fireExtinguisherSneakingDelay);
 		}
 
-		BlockHitResult result = (BlockHitResult) user.pick(6, 0, false);
+		BlockRayTraceResult result = (BlockRayTraceResult) user.pick(6, 0, false);
 
-		BlockPos.MutableBlockPos.betweenClosedStream(new AABB(result.getBlockPos()).inflate(2)).forEach(position -> {
+		BlockPos.Mutable.betweenClosedStream(new AxisAlignedBB(result.getBlockPos()).inflate(2)).forEach(position -> {
 			BlockState state = world.getBlockState(position);
 
 			if (state.getBlock() instanceof FireBlock) {
@@ -100,26 +100,26 @@ public class FireExtinguisherItem extends Item {
 			}
 		});
 
-		world.getEntities(null, new AABB(result.getBlockPos()).inflate(3)).forEach(entity -> {
+		world.getEntities(null, new AxisAlignedBB(result.getBlockPos()).inflate(3)).forEach(entity -> {
 			if (entity.isOnFire()) {
 				entity.setRemainingFireTicks(0);
-				if (user instanceof ServerPlayer) {
-					AstromineFoundationsCriteria.PROPERLY_USE_FIRE_EXTINGUISHER.trigger((ServerPlayer) user);
+				if (user instanceof ServerPlayerEntity) {
+					AstromineFoundationsCriteria.PROPERLY_USE_FIRE_EXTINGUISHER.trigger((ServerPlayerEntity) user);
 				}
 			}
 		});
 
 		if (world.isClientSide) {
-			world.playSound(user, user.blockPosition(), AstromineFoundationsSoundEvents.FIRE_EXTINGUISHER_OPEN, SoundSource.PLAYERS, 1f, 1f);
+			world.playSound(user, user.blockPosition(), AstromineFoundationsSoundEvents.FIRE_EXTINGUISHER_OPEN, SoundCategory.PLAYERS, 1f, 1f);
 		}
 
 		return super.use(world, user, hand);
 	}
 
 	@Override
-	public InteractionResult interactLivingEntity(ItemStack stack, Player user, LivingEntity entity, InteractionHand hand) {
+	public ActionResultType interactLivingEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
 		this.use(user.level, user, hand);
 
-		return InteractionResult.PASS;
+		return ActionResultType.PASS;
 	}
 }

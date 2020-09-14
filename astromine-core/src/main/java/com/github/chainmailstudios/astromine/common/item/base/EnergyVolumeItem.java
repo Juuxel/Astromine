@@ -26,10 +26,10 @@ package com.github.chainmailstudios.astromine.common.item.base;
 
 import com.github.chainmailstudios.astromine.common.volume.energy.EnergyVolume;
 import me.shedaniel.cloth.api.durability.bar.DurabilityBarItem;
-import net.minecraft.core.NonNullList;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import team.reborn.energy.Energy;
 import team.reborn.energy.EnergyHolder;
 import team.reborn.energy.EnergyTier;
@@ -83,7 +83,7 @@ public class EnergyVolumeItem extends BaseVolumeItem<EnergyVolume> implements En
 	}
 
 	@Override
-	public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> stacks) {
+	public void fillItemCategory(ItemGroup group, NonNullList<ItemStack> stacks) {
 		super.fillItemCategory(group, stacks);
 		if (this.allowdedIn(group)) {
 			ItemStack stack = new ItemStack(this);

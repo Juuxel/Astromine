@@ -38,19 +38,18 @@ import com.github.chainmailstudios.astromine.foundations.registry.AstromineFound
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.IPacket;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
@@ -64,12 +63,12 @@ import java.util.function.Supplier;
 public class PrimitiveRocketEntity extends RocketEntity implements ExtendedScreenHandlerFactory {
 	public static final ResourceLocation PRIMITIVE_ROCKET_SPAWN = AstromineCommon.identifier("primitive_rocket_spawn");
 
-	public PrimitiveRocketEntity(EntityType<?> type, Level world) {
+	public PrimitiveRocketEntity(EntityType<?> type, World world) {
 		super(type, world);
 	}
 
 	@Override
-	public void openInventory(Player player) {
+	public void openInventory(PlayerEntity player) {
 		player.openMenu(this);
 	}
 
@@ -116,9 +115,9 @@ public class PrimitiveRocketEntity extends RocketEntity implements ExtendedScree
 	}
 
 	@Override
-	public InteractionResult interactAt(Player player, Vec3 hitPos, InteractionHand hand) {
+	public ActionResultType interactAt(PlayerEntity player, net.minecraft.util.math.vector.Vector3d hitPos, Hand hand) {
 		if (player.level.isClientSide) {
-			return InteractionResult.CONSUME;
+			return ActionResultType.CONSUME;
 		}
 
 		if (player.isShiftKeyDown()) {
@@ -131,8 +130,8 @@ public class PrimitiveRocketEntity extends RocketEntity implements ExtendedScree
 	}
 
 	@Override
-	public Packet<?> createSpawnPacket() {
-		FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
+	public IPacket<?> createSpawnPacket() {
+		PacketBuffer packet = new PacketBuffer(Unpooled.buffer());
 
 		packet.writeDouble(this.getX());
 		packet.writeDouble(this.getY());
@@ -144,13 +143,13 @@ public class PrimitiveRocketEntity extends RocketEntity implements ExtendedScree
 	}
 
 	@Override
-	public void writeScreenOpeningData(ServerPlayer serverPlayerEntity, FriendlyByteBuf buffer) {
+	public void writeScreenOpeningData(ServerPlayerEntity serverPlayerEntity, PacketBuffer buffer) {
 		buffer.writeInt(this.getEntityId());
 	}
 
 	@Nullable
 	@Override
-	public AbstractContainerMenu createMenu(int syncId, Inventory inventory, Player player) {
+	public Container createMenu(int syncId, PlayerInventory inventory, PlayerEntity player) {
 		return new RocketScreenHandler(syncId, player, getEntityId());
 	}
 }

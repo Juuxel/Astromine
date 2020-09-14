@@ -27,118 +27,118 @@ package com.github.chainmailstudios.astromine.common.block.base;
 import com.github.chainmailstudios.astromine.common.item.base.EnergyVolumeItem;
 import com.github.chainmailstudios.astromine.common.item.base.FluidVolumeItem;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.BucketItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.LootParameters;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.StateContainer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
 import java.util.List;
 
-public abstract class BlockWithEntity extends Block implements EntityBlock {
+public abstract class BlockWithEntity extends Block implements ITileEntityProvider {
 	public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
-	protected BlockWithEntity(BlockBehaviour.Properties settings) {
+	protected BlockWithEntity(AbstractBlock.Properties settings) {
 		super(settings);
 	}
 
-	public static void markActive(Level world, BlockPos pos) {
+	public static void markActive(World world, BlockPos pos) {
 		world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(ACTIVE, true));
 	}
 
-	public static void markInactive(Level world, BlockPos pos) {
+	public static void markInactive(World world, BlockPos pos) {
 		world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(ACTIVE, false));
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
 		if (!world.isClientSide && (!(player.getItemInHand(hand).getItem() instanceof BucketItem) && !(player.getItemInHand(hand).getItem() instanceof EnergyVolumeItem) && !(player.getItemInHand(hand).getItem() instanceof FluidVolumeItem)) && hasScreenHandler()) {
 			player.openMenu(state.getMenuProvider(world, pos));
-			return InteractionResult.CONSUME;
+			return ActionResultType.CONSUME;
 		} else if (player.getItemInHand(hand).getItem() instanceof BucketItem) {
 			return super.use(state, world, pos, player, hand, hit);
 		} else {
-			return InteractionResult.SUCCESS;
+			return ActionResultType.SUCCESS;
 		}
 	}
 
 	public abstract boolean hasScreenHandler();
 
-	public abstract BlockEntity createBlockEntity();
+	public abstract TileEntity createBlockEntity();
 
-	public abstract AbstractContainerMenu createScreenHandler(BlockState state, Level world, BlockPos pos, int syncId, Inventory playerInventory, Player player);
+	public abstract Container createScreenHandler(BlockState state, World world, BlockPos pos, int syncId, PlayerInventory playerInventory, PlayerEntity player);
 
-	public abstract void populateScreenHandlerBuffer(BlockState state, Level world, BlockPos pos, ServerPlayer player, FriendlyByteBuf buffer);
+	public abstract void populateScreenHandlerBuffer(BlockState state, World world, BlockPos pos, ServerPlayerEntity player, PacketBuffer buffer);
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter world) {
+	public TileEntity newBlockEntity(IBlockReader world) {
 		return createBlockEntity();
 	}
 
 	@Override
-	public MenuProvider getMenuProvider(BlockState state, Level world, BlockPos pos) {
+	public INamedContainerProvider getMenuProvider(BlockState state, World world, BlockPos pos) {
 		return new ExtendedScreenHandlerFactory() {
 			@Override
-			public void writeScreenOpeningData(ServerPlayer player, FriendlyByteBuf buffer) {
+			public void writeScreenOpeningData(ServerPlayerEntity player, PacketBuffer buffer) {
 				populateScreenHandlerBuffer(state, world, pos, player, buffer);
 			}
 
 			@Override
-			public Component getDisplayName() {
-				return new TranslatableComponent(getDescriptionId());
+			public ITextComponent getDisplayName() {
+				return new TranslationTextComponent(getDescriptionId());
 			}
 
 			@Override
-			public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
+			public Container createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
 				return createScreenHandler(state, world, pos, syncId, playerInventory, player);
 			}
 		};
 	}
 
-	public boolean triggerEvent(BlockState state, Level world, BlockPos pos, int type, int data) {
+	public boolean triggerEvent(BlockState state, World world, BlockPos pos, int type, int data) {
 		super.triggerEvent(state, world, pos, type, data);
-		BlockEntity blockEntity = world.getBlockEntity(pos);
+		TileEntity blockEntity = world.getBlockEntity(pos);
 		return blockEntity != null && blockEntity.triggerEvent(type, data);
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
 		builder.add(ACTIVE);
 		super.createBlockStateDefinition(builder);
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext context) {
+	public BlockState getStateForPlacement(BlockItemUseContext context) {
 		return super.getStateForPlacement(context).setValue(ACTIVE, false);
 	}
 
 	@Override
-	public void setPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+	public void setPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
 		super.setPlacedBy(world, pos, state, placer, stack);
 
-		BlockEntity blockEntity = world.getBlockEntity(pos);
+		TileEntity blockEntity = world.getBlockEntity(pos);
 		if (blockEntity != null) {
 			blockEntity.load(state, stack.getOrCreateTag());
 			blockEntity.setPosition(pos);
@@ -148,11 +148,11 @@ public abstract class BlockWithEntity extends Block implements EntityBlock {
 	@Override
 	public List<ItemStack> getDrops(BlockState state, LootContext.Builder builder) {
 		List<ItemStack> stacks = super.getDrops(state, builder);
-		BlockEntity blockEntity = builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+		TileEntity blockEntity = builder.getOptionalParameter(LootParameters.BLOCK_ENTITY);
 		if (blockEntity != null && saveTagToDroppedItem()) {
 			for (ItemStack drop : stacks) {
 				if (drop.getItem() == asItem()) {
-					CompoundTag tag = blockEntity.save(drop.getOrCreateTag());
+					CompoundNBT tag = blockEntity.save(drop.getOrCreateTag());
 					tag.remove("x");
 					tag.remove("y");
 					tag.remove("z");

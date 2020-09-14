@@ -24,14 +24,6 @@
 
 package com.github.chainmailstudios.astromine.common.component.inventory;
 
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.material.Fluid;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
 import com.github.chainmailstudios.astromine.common.utilities.data.Range;
@@ -39,6 +31,14 @@ import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import com.github.chainmailstudios.astromine.registry.AstromineItems;
 import nerdhub.cardinal.components.api.ComponentType;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.item.Item;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.text.TranslationTextComponent;
 import org.apache.logging.log4j.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -59,8 +59,8 @@ public interface FluidInventoryComponent extends NameableComponent {
 		return AstromineItems.FLUID.asItem();
 	}
 
-	default TranslatableComponent getName() {
-		return new TranslatableComponent("text.astromine.fluid");
+	default TranslationTextComponent getName() {
+		return new TranslationTextComponent("text.astromine.fluid");
 	}
 
 	default Collection<FluidVolume> getContentsMatching(Predicate<FluidVolume> predicate) {
@@ -95,24 +95,24 @@ public interface FluidInventoryComponent extends NameableComponent {
 		return true;
 	}
 
-	default InteractionResultHolder<FluidVolume> insert(Direction direction, FluidVolume volume) {
+	default ActionResult<FluidVolume> insert(Direction direction, FluidVolume volume) {
 		if (this.canInsert()) {
 			return this.insert(direction, volume.getFluid(), volume.getAmount());
 		} else {
-			return new InteractionResultHolder<>(InteractionResult.FAIL, volume);
+			return new ActionResult<>(ActionResultType.FAIL, volume);
 		}
 	}
 
-	default InteractionResultHolder<FluidVolume> insert(Direction direction, Fluid fluid, Fraction fraction) {
+	default ActionResult<FluidVolume> insert(Direction direction, Fluid fluid, Fraction fraction) {
 		Optional<Map.Entry<Integer, FluidVolume>> matchingVolumeOptional = this.getContents().entrySet().stream().filter(entry -> {
 			return canInsert(direction, entry.getValue(), entry.getKey()) && entry.getValue().getFluid() == fluid;
 		}).findFirst();
 
 		if (matchingVolumeOptional.isPresent()) {
 			matchingVolumeOptional.get().getValue().add(fraction);
-			return new InteractionResultHolder<>(InteractionResult.SUCCESS, matchingVolumeOptional.get().getValue());
+			return new ActionResult<>(ActionResultType.SUCCESS, matchingVolumeOptional.get().getValue());
 		} else {
-			return new InteractionResultHolder<>(InteractionResult.FAIL, null);
+			return new ActionResult<>(ActionResultType.FAIL, null);
 		}
 	}
 
@@ -131,11 +131,11 @@ public interface FluidInventoryComponent extends NameableComponent {
 
 	List<Runnable> getListeners();
 
-	default InteractionResultHolder<Collection<FluidVolume>> extractMatching(Direction direction, Predicate<FluidVolume> predicate) {
+	default ActionResult<Collection<FluidVolume>> extractMatching(Direction direction, Predicate<FluidVolume> predicate) {
 		HashSet<FluidVolume> extractedVolumes = new HashSet<>();
 		this.getContents().forEach((slot, volume) -> {
 			if (canExtract(direction, volume, slot) && predicate.test(volume)) {
-				InteractionResultHolder<FluidVolume> extractionResult = this.extract(direction, slot);
+				ActionResult<FluidVolume> extractionResult = this.extract(direction, slot);
 
 				if (extractionResult.getResult().consumesAction()) {
 					extractedVolumes.add(extractionResult.getObject());
@@ -144,19 +144,19 @@ public interface FluidInventoryComponent extends NameableComponent {
 		});
 
 		if (!extractedVolumes.isEmpty()) {
-			return new InteractionResultHolder<>(InteractionResult.SUCCESS, extractedVolumes);
+			return new ActionResult<>(ActionResultType.SUCCESS, extractedVolumes);
 		} else {
-			return new InteractionResultHolder<>(InteractionResult.FAIL, extractedVolumes);
+			return new ActionResult<>(ActionResultType.FAIL, extractedVolumes);
 		}
 	}
 
-	default InteractionResultHolder<FluidVolume> extract(Direction direction, int slot) {
+	default ActionResult<FluidVolume> extract(Direction direction, int slot) {
 		FluidVolume volume = this.getVolume(slot);
 
 		if (!volume.isEmpty() && this.canExtract(direction, volume, slot)) {
 			return this.extract(direction, slot, volume.getAmount());
 		} else {
-			return new InteractionResultHolder<>(InteractionResult.FAIL, FluidVolume.empty());
+			return new ActionResult<>(ActionResultType.FAIL, FluidVolume.empty());
 		}
 	}
 
@@ -181,29 +181,29 @@ public interface FluidInventoryComponent extends NameableComponent {
 		return getContents().entrySet().stream().filter((entry) -> canInsert(direction, entry.getValue(), entry.getKey()) && (entry.getValue().isEmpty() || (entry.getValue().getFluid() == fluid))).map(Map.Entry::getValue).findFirst().orElse(null);
 	}
 
-	default InteractionResultHolder<FluidVolume> extract(Direction direction, int slot, Fraction fraction) {
+	default ActionResult<FluidVolume> extract(Direction direction, int slot, Fraction fraction) {
 		Optional<FluidVolume> matchingVolumeOptional = Optional.ofNullable(this.getVolume(slot));
 
 		if (matchingVolumeOptional.isPresent()) {
 			FluidVolume volume = matchingVolumeOptional.get();
 
 			if (canExtract(direction, volume, slot)) {
-				return new InteractionResultHolder<>(InteractionResult.SUCCESS, matchingVolumeOptional.get().minus(fraction));
+				return new ActionResult<>(ActionResultType.SUCCESS, matchingVolumeOptional.get().minus(fraction));
 			} else {
-				return new InteractionResultHolder<>(InteractionResult.FAIL, FluidVolume.empty());
+				return new ActionResult<>(ActionResultType.FAIL, FluidVolume.empty());
 			}
 		} else {
-			return new InteractionResultHolder<>(InteractionResult.FAIL, FluidVolume.empty());
+			return new ActionResult<>(ActionResultType.FAIL, FluidVolume.empty());
 		}
 	}
 
-	default CompoundTag write(FluidInventoryComponent source, Optional<String> subtag, Optional<Range<Integer>> range) {
-		CompoundTag tag = new CompoundTag();
+	default CompoundNBT write(FluidInventoryComponent source, Optional<String> subtag, Optional<Range<Integer>> range) {
+		CompoundNBT tag = new CompoundNBT();
 		this.write(source, tag, subtag, range);
 		return tag;
 	}
 
-	default void write(FluidInventoryComponent source, CompoundTag tag, Optional<String> subtag, Optional<Range<Integer>> range) {
+	default void write(FluidInventoryComponent source, CompoundNBT tag, Optional<String> subtag, Optional<Range<Integer>> range) {
 		if (source == null || source.getSize() <= 0) {
 			return;
 		}
@@ -212,7 +212,7 @@ public interface FluidInventoryComponent extends NameableComponent {
 			return;
 		}
 
-		CompoundTag volumesTag = new CompoundTag();
+		CompoundNBT volumesTag = new CompoundNBT();
 
 		int minimum = range.isPresent() ? range.get().getMinimum() : 0;
 		int maximum = range.isPresent() ? range.get().getMaximum() : source.getSize();
@@ -222,7 +222,7 @@ public interface FluidInventoryComponent extends NameableComponent {
 				FluidVolume volume = source.getVolume(position);
 
 				if (volume != null) {
-					CompoundTag volumeTag = source.getVolume(position).toTag();
+					CompoundNBT volumeTag = source.getVolume(position).toTag();
 
 					volumesTag.put(String.valueOf(position), volumeTag);
 				}
@@ -230,7 +230,7 @@ public interface FluidInventoryComponent extends NameableComponent {
 		}
 
 		if (subtag.isPresent()) {
-			CompoundTag inventoryTag = new CompoundTag();
+			CompoundNBT inventoryTag = new CompoundNBT();
 
 			inventoryTag.putInt("size", source.getSize());
 			inventoryTag.put("volumes", volumesTag);
@@ -242,12 +242,12 @@ public interface FluidInventoryComponent extends NameableComponent {
 		}
 	}
 
-	default void read(FluidInventoryComponent target, CompoundTag tag, Optional<String> subtag, Optional<Range<Integer>> range) {
+	default void read(FluidInventoryComponent target, CompoundNBT tag, Optional<String> subtag, Optional<Range<Integer>> range) {
 		if (tag == null) {
 			return;
 		}
 
-		Tag rawTag;
+		INBT rawTag;
 
 		if (subtag.isPresent()) {
 			rawTag = tag.get(subtag.get());
@@ -255,15 +255,15 @@ public interface FluidInventoryComponent extends NameableComponent {
 			rawTag = tag;
 		}
 
-		if (!(rawTag instanceof CompoundTag)) {
-			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + rawTag.getClass().getName() + " is not instance of " + CompoundTag.class.getName() + "!");
+		if (!(rawTag instanceof CompoundNBT)) {
+			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + rawTag.getClass().getName() + " is not instance of " + CompoundNBT.class.getName() + "!");
 			return;
 		}
 
-		CompoundTag compoundTag = (CompoundTag) rawTag;
+		CompoundNBT compoundTag = (CompoundNBT) rawTag;
 
 		if (!compoundTag.contains("size")) {
-			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + CompoundTag.class.getName() + " does not contain 'size' value! (" + getClass().getName() + ")");
+			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + CompoundNBT.class.getName() + " does not contain 'size' value! (" + getClass().getName() + ")");
 			return;
 		}
 
@@ -274,18 +274,18 @@ public interface FluidInventoryComponent extends NameableComponent {
 		}
 
 		if (!compoundTag.contains("volumes")) {
-			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + CompoundTag.class.getName() + " does not contain 'volumes' subtag!");
+			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + CompoundNBT.class.getName() + " does not contain 'volumes' subtag!");
 			return;
 		}
 
-		Tag rawVolumesTag = compoundTag.get("volumes");
+		INBT rawVolumesTag = compoundTag.get("volumes");
 
-		if (!(rawVolumesTag instanceof CompoundTag)) {
-			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + rawVolumesTag.getClass().getName() + " is not instance of " + CompoundTag.class.getName() + "!");
+		if (!(rawVolumesTag instanceof CompoundNBT)) {
+			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + rawVolumesTag.getClass().getName() + " is not instance of " + CompoundNBT.class.getName() + "!");
 			return;
 		}
 
-		CompoundTag volumesTag = (CompoundTag) rawVolumesTag;
+		CompoundNBT volumesTag = (CompoundNBT) rawVolumesTag;
 
 		int minimum = range.isPresent() ? range.get().getMinimum() : 0;
 		int maximum = range.isPresent() ? range.get().getMaximum() : target.getSize();
@@ -302,14 +302,14 @@ public interface FluidInventoryComponent extends NameableComponent {
 
 		for (int position = minimum; position < maximum; ++position) {
 			if (volumesTag.contains(String.valueOf(position))) {
-				Tag rawVolumeTag = volumesTag.get(String.valueOf(position));
+				INBT rawVolumeTag = volumesTag.get(String.valueOf(position));
 
-				if (!(rawVolumeTag instanceof CompoundTag)) {
-					AstromineCommon.LOGGER.log(Level.ERROR, "Inventory volume skipped: stored tag not instance of " + CompoundTag.class.getName() + "!");
+				if (!(rawVolumeTag instanceof CompoundNBT)) {
+					AstromineCommon.LOGGER.log(Level.ERROR, "Inventory volume skipped: stored tag not instance of " + CompoundNBT.class.getName() + "!");
 					return;
 				}
 
-				CompoundTag volumeTag = (CompoundTag) rawVolumeTag;
+				CompoundNBT volumeTag = (CompoundNBT) rawVolumeTag;
 
 				FluidVolume volume = FluidVolume.fromTag(volumeTag);
 

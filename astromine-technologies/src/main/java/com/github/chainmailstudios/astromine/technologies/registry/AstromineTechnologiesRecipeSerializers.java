@@ -29,23 +29,23 @@ import com.github.chainmailstudios.astromine.technologies.common.recipe.FluidMix
 import com.github.chainmailstudios.astromine.technologies.common.recipe.LiquidGeneratingRecipe;
 import com.github.chainmailstudios.astromine.technologies.common.recipe.PressingRecipe;
 import com.github.chainmailstudios.astromine.technologies.common.recipe.TrituratingRecipe;
-import net.minecraft.core.Registry;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.util.registry.Registry;
 import com.github.chainmailstudios.astromine.registry.AstromineRecipeSerializers;
 import com.github.chainmailstudios.astromine.technologies.common.recipe.AlloySmeltingRecipe;
 
 public class AstromineTechnologiesRecipeSerializers extends AstromineRecipeSerializers {
-	public static final RecipeSerializer<TrituratingRecipe> TRITURATING = Registry.register(Registry.RECIPE_SERIALIZER, TrituratingRecipe.Serializer.ID, TrituratingRecipe.Serializer.INSTANCE);
+	public static final IRecipeSerializer<TrituratingRecipe> TRITURATING = Registry.register(Registry.RECIPE_SERIALIZER, TrituratingRecipe.Serializer.ID, TrituratingRecipe.Serializer.INSTANCE);
 
-	public static final RecipeSerializer<PressingRecipe> PRESSING = Registry.register(Registry.RECIPE_SERIALIZER, PressingRecipe.Serializer.ID, PressingRecipe.Serializer.INSTANCE);
+	public static final IRecipeSerializer<PressingRecipe> PRESSING = Registry.register(Registry.RECIPE_SERIALIZER, PressingRecipe.Serializer.ID, PressingRecipe.Serializer.INSTANCE);
 
-	public static final RecipeSerializer<LiquidGeneratingRecipe> LIQUID_GENERATING = Registry.register(Registry.RECIPE_SERIALIZER, LiquidGeneratingRecipe.Serializer.ID, LiquidGeneratingRecipe.Serializer.INSTANCE);
+	public static final IRecipeSerializer<LiquidGeneratingRecipe> LIQUID_GENERATING = Registry.register(Registry.RECIPE_SERIALIZER, LiquidGeneratingRecipe.Serializer.ID, LiquidGeneratingRecipe.Serializer.INSTANCE);
 
-	public static final RecipeSerializer<ElectrolyzingRecipe> ELECTROLYZING = Registry.register(Registry.RECIPE_SERIALIZER, ElectrolyzingRecipe.Serializer.ID, ElectrolyzingRecipe.Serializer.INSTANCE);
+	public static final IRecipeSerializer<ElectrolyzingRecipe> ELECTROLYZING = Registry.register(Registry.RECIPE_SERIALIZER, ElectrolyzingRecipe.Serializer.ID, ElectrolyzingRecipe.Serializer.INSTANCE);
 
-	public static final RecipeSerializer<FluidMixingRecipe> FLUID_MIXING = Registry.register(Registry.RECIPE_SERIALIZER, FluidMixingRecipe.Serializer.ID, FluidMixingRecipe.Serializer.INSTANCE);
+	public static final IRecipeSerializer<FluidMixingRecipe> FLUID_MIXING = Registry.register(Registry.RECIPE_SERIALIZER, FluidMixingRecipe.Serializer.ID, FluidMixingRecipe.Serializer.INSTANCE);
 
-	public static final RecipeSerializer<AlloySmeltingRecipe> ALLOY_SMELTING = Registry.register(Registry.RECIPE_SERIALIZER, AlloySmeltingRecipe.Serializer.ID, AlloySmeltingRecipe.Serializer.INSTANCE);
+	public static final IRecipeSerializer<AlloySmeltingRecipe> ALLOY_SMELTING = Registry.register(Registry.RECIPE_SERIALIZER, AlloySmeltingRecipe.Serializer.ID, AlloySmeltingRecipe.Serializer.INSTANCE);
 
 	public static void initialize() {
 

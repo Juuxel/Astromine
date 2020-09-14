@@ -34,22 +34,22 @@ import com.github.chainmailstudios.astromine.discoveries.registry.AstromineDisco
 
 import java.util.Arrays;
 import java.util.Random;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.RegistryLookupCodec;
-import net.minecraft.server.level.WorldGenRegion;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.NoiseColumn;
-import net.minecraft.world.level.StructureFeatureManager;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.StructureSettings;
-import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.SharedSeedRandom;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryLookupCodec;
+import net.minecraft.world.Blockreader;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.gen.ChunkGenerator;
+import net.minecraft.world.gen.Heightmap;
+import net.minecraft.world.gen.WorldGenRegion;
+import net.minecraft.world.gen.feature.structure.StructureManager;
+import net.minecraft.world.gen.settings.DimensionStructuresSettings;
 
 public class EarthSpaceChunkGenerator extends ChunkGenerator {
 	public static Codec<EarthSpaceChunkGenerator> CODEC = RecordCodecBuilder.create(instance -> instance.group(Codec.LONG.fieldOf("seed").forGetter(gen -> gen.seed), RegistryLookupCodec.create(Registry.BIOME_REGISTRY).forGetter(source -> source.biomeRegistry)).apply(instance,
@@ -61,7 +61,7 @@ public class EarthSpaceChunkGenerator extends ChunkGenerator {
 	private final OctaveNoiseSampler<OpenSimplexNoise> noise;
 
 	public EarthSpaceChunkGenerator(long seed, Registry<Biome> biomeRegistry) {
-		super(new EarthSpaceBiomeSource(biomeRegistry, seed), new StructureSettings(false));
+		super(new EarthSpaceBiomeSource(biomeRegistry, seed), new DimensionStructuresSettings(false));
 		this.seed = seed;
 		this.biomeRegistry = biomeRegistry;
 		this.noise = new OctaveNoiseSampler<>(OpenSimplexNoise.class, new Random(seed), 3, 200, 1.225, 1);
@@ -69,7 +69,7 @@ public class EarthSpaceChunkGenerator extends ChunkGenerator {
 
 	@Override
 	protected Codec<? extends ChunkGenerator> codec() {
-		return CODEC;
+		return getBaseColumn(int,int);
 	}
 
 	@Override
@@ -82,13 +82,13 @@ public class EarthSpaceChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public void buildSurfaceAndBedrock(WorldGenRegion region, ChunkAccess chunk) {
+	public void buildSurfaceAndBedrock(WorldGenRegion region, IChunk chunk) {
 
 	}
 
 	@Override
-	public void fillFromNoise(LevelAccessor world, StructureFeatureManager accessor, ChunkAccess chunk) {
-		BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+	public void fillFromNoise(IWorld world, StructureManager accessor, IChunk chunk) {
+		BlockPos.Mutable mutable = new BlockPos.Mutable();
 		int x1 = chunk.getPos().getMinBlockX();
 		int z1 = chunk.getPos().getMinBlockZ();
 		int y1 = 0;
@@ -97,7 +97,7 @@ public class EarthSpaceChunkGenerator extends ChunkGenerator {
 		int z2 = chunk.getPos().getMaxBlockZ();
 		int y2 = 256;
 
-		WorldgenRandom random = new WorldgenRandom();
+		SharedSeedRandom random = new SharedSeedRandom();
 		random.setDecorationSeed(this.seed, x1, z1);
 
 		for (int x = x1; x <= x2; ++x) {
@@ -123,14 +123,14 @@ public class EarthSpaceChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public int getBaseHeight(int x, int z, Heightmap.Types heightmapType) {
+	public int getBaseHeight(int x, int z, Heightmap.Type heightmapType) {
 		return 0;
 	}
 
 	@Override
-	public BlockGetter getBaseColumn(int x, int z) {
+	public IBlockReader getBaseColumn(int x, int z) {
 		BlockState[] states = new BlockState[256];
 		Arrays.fill(states, Blocks.AIR.defaultBlockState());
-		return new NoiseColumn(states);
+		return new Blockreader(states);
 	}
 }

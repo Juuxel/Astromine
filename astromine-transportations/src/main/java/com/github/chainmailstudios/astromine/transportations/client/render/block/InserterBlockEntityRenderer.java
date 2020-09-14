@@ -28,24 +28,24 @@ import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.transportations.client.model.InserterArmModel;
 import com.github.chainmailstudios.astromine.transportations.common.block.InserterBlock;
 import com.github.chainmailstudios.astromine.transportations.common.block.entity.InserterBlockEntity;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
-import net.minecraft.client.renderer.MultiBufferSource;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.block.HorizontalBlock;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Vector3f;
 
-public class InserterBlockEntityRenderer extends BlockEntityRenderer<InserterBlockEntity> implements ConveyorRenderer<InserterBlockEntity> {
-	public InserterBlockEntityRenderer(BlockEntityRenderDispatcher blockEntityRenderDispatcher) {
+public class InserterBlockEntityRenderer extends TileEntityRenderer<InserterBlockEntity> implements ConveyorRenderer<InserterBlockEntity> {
+	public InserterBlockEntityRenderer(TileEntityRendererDispatcher blockEntityRenderDispatcher) {
 		super(blockEntityRenderDispatcher);
 	}
 
 	@Override
-	public void render(InserterBlockEntity blockEntity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
-		Direction direction = blockEntity.getBlockState().getValue(HorizontalDirectionalBlock.FACING);
+	public void render(InserterBlockEntity blockEntity, float tickDelta, MatrixStack matrices, IRenderTypeBuffer vertexConsumers, int light, int overlay) {
+		Direction direction = blockEntity.getBlockState().getValue(HorizontalBlock.FACING);
 		String type = ((InserterBlock) blockEntity.getBlockState().getBlock()).getType();
 		int speed = ((InserterBlock) blockEntity.getBlockState().getBlock()).getSpeed();
 		InserterArmModel modelInserterArm = new InserterArmModel();

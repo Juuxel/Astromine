@@ -25,11 +25,11 @@
 package com.github.chainmailstudios.astromine.common.registry;
 
 import com.github.chainmailstudios.astromine.common.registry.base.MultiRegistry;
-import net.minecraft.tags.Tag;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.material.Fluid;
+import net.minecraft.entity.EntityType;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.tags.ITag;
 
-public class BreathableRegistry extends MultiRegistry<EntityType<?>, Tag<Fluid>> {
+public class BreathableRegistry extends MultiRegistry<EntityType<?>, ITag<Fluid>> {
 	public static final BreathableRegistry INSTANCE = new BreathableRegistry();
 
 	private BreathableRegistry() {
@@ -37,8 +37,8 @@ public class BreathableRegistry extends MultiRegistry<EntityType<?>, Tag<Fluid>>
 	}
 
 	@SafeVarargs
-	public final void register(EntityType<?> type, Tag<Fluid>... tags) {
-		for (Tag<Fluid> tag : tags) {
+	public final void register(EntityType<?> type, ITag<Fluid>... tags) {
+		for (ITag<Fluid> tag : tags) {
 			register(type, tag);
 		}
 	}

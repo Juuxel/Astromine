@@ -25,15 +25,16 @@
 package com.github.chainmailstudios.astromine.technologies.common.block.entity;
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.HorizontalBlock;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.math.vector.Vector3i;
 import com.github.chainmailstudios.astromine.common.component.world.WorldBridgeComponent;
 import com.github.chainmailstudios.astromine.common.utilities.LineUtilities;
 import com.github.chainmailstudios.astromine.common.utilities.VectorUtilities;
@@ -41,13 +42,12 @@ import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlockEntityTypes;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
 import com.github.vini2003.blade.common.miscellaneous.Color;
-import com.mojang.math.Vector3f;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-public class HolographicBridgeProjectorBlockEntity extends BlockEntity implements TickableBlockEntity, BlockEntityClientSerializable {
+public class HolographicBridgeProjectorBlockEntity extends TileEntity implements ITickableTileEntity, BlockEntityClientSerializable {
 	public ArrayList<Vector3f> segments = null;
 
 	public Color color = Color.of("0x7e80cad4");
@@ -72,7 +72,7 @@ public class HolographicBridgeProjectorBlockEntity extends BlockEntity implement
 		if (this.level == null || this.level.isClientSide)
 			return;
 		if (!this.hasCheckedChild && this.childPosition != null) {
-			BlockEntity childEntity = this.level.getBlockEntity(this.childPosition);
+			TileEntity childEntity = this.level.getBlockEntity(this.childPosition);
 
 			if (childEntity instanceof HolographicBridgeProjectorBlockEntity) {
 				this.child = (HolographicBridgeProjectorBlockEntity) childEntity;
@@ -95,7 +95,7 @@ public class HolographicBridgeProjectorBlockEntity extends BlockEntity implement
 
 		BlockPos nCP = bCP;
 
-		Direction cD = this.getChild().getBlockState().getValue(HorizontalDirectionalBlock.FACING);
+		Direction cD = this.getChild().getBlockState().getValue(HorizontalBlock.FACING);
 
 		if (cD == Direction.EAST) {
 			nCP = nCP.offset(1, 0, 0);
@@ -122,7 +122,7 @@ public class HolographicBridgeProjectorBlockEntity extends BlockEntity implement
 
 			WorldBridgeComponent bridgeComponent = componentProvider.getComponent(AstromineComponentTypes.WORLD_BRIDGE_COMPONENT);
 
-			bridgeComponent.add(nP, new Vec3i((v.x() - (int) v.x()) * 16f, (v.y() - (int) v.y()) * 16f, (v.z() - (int) v.z()) * 16f));
+			bridgeComponent.add(nP, new Vector3i((v.x() - (int) v.x()) * 16f, (v.y() - (int) v.y()) * 16f, (v.z() - (int) v.z()) * 16f));
 		}
 	}
 
@@ -189,7 +189,7 @@ public class HolographicBridgeProjectorBlockEntity extends BlockEntity implement
 	}
 
 	@Override
-	public void load(BlockState state, @NotNull CompoundTag tag) {
+	public void load(BlockState state, @NotNull CompoundNBT tag) {
 		if (tag.contains("child_position")) {
 			this.childPosition = BlockPos.of(tag.getLong("child_position"));
 		}
@@ -198,7 +198,7 @@ public class HolographicBridgeProjectorBlockEntity extends BlockEntity implement
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag tag) {
+	public CompoundNBT save(CompoundNBT tag) {
 		if (this.child != null) {
 			tag.putLong("child_position", this.child.getBlockPos().asLong());
 		} else if (this.childPosition != null) {
@@ -209,7 +209,7 @@ public class HolographicBridgeProjectorBlockEntity extends BlockEntity implement
 	}
 
 	@Override
-	public void fromClientTag(CompoundTag tag) {
+	public void fromClientTag(CompoundNBT tag) {
 		this.load(null, tag);
 
 		this.destroyBridge();
@@ -222,7 +222,7 @@ public class HolographicBridgeProjectorBlockEntity extends BlockEntity implement
 	}
 
 	@Override
-	public CompoundTag toClientTag(CompoundTag compoundTag) {
+	public CompoundNBT toClientTag(CompoundNBT compoundTag) {
 		return this.save(compoundTag);
 	}
 }

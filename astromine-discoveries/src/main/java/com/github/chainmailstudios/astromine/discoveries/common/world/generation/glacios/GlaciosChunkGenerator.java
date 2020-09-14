@@ -1,20 +1,20 @@
 package com.github.chainmailstudios.astromine.discoveries.common.world.generation.glacios;
 
 import java.util.Random;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.RegistryLookupCodec;
-import net.minecraft.server.level.WorldGenRegion;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.StructureFeatureManager;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.StructureSettings;
-import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.SharedSeedRandom;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryLookupCodec;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.gen.ChunkGenerator;
+import net.minecraft.world.gen.Heightmap;
+import net.minecraft.world.gen.WorldGenRegion;
+import net.minecraft.world.gen.feature.structure.StructureManager;
+import net.minecraft.world.gen.settings.DimensionStructuresSettings;
 import com.github.chainmailstudios.astromine.common.noise.FastNoise;
 import com.github.chainmailstudios.astromine.common.noise.OctaveNoiseSampler;
 import com.github.chainmailstudios.astromine.common.noise.OpenSimplexNoise;
@@ -34,7 +34,7 @@ public class GlaciosChunkGenerator extends ChunkGenerator {
 	private final FastNoise fastNoise;
 
 	public GlaciosChunkGenerator(long seed, Registry<Biome> biomeRegistry) {
-		super(new GlaciosBiomeSource(biomeRegistry, seed), new StructureSettings(false));
+		super(new GlaciosBiomeSource(biomeRegistry, seed), new DimensionStructuresSettings(false));
 		this.seed = seed;
 		this.biomeRegistry = biomeRegistry;
 
@@ -52,7 +52,7 @@ public class GlaciosChunkGenerator extends ChunkGenerator {
 
 	@Override
 	protected Codec<? extends ChunkGenerator> codec() {
-		return CODEC;
+		return getBaseColumn(int,int);
 	}
 
 	@Override
@@ -65,22 +65,22 @@ public class GlaciosChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public void buildSurfaceAndBedrock(WorldGenRegion region, ChunkAccess chunk) {
+	public void buildSurfaceAndBedrock(WorldGenRegion region, IChunk chunk) {
 
 	}
 
 	@Override
-	public void fillFromNoise(LevelAccessor world, StructureFeatureManager accessor, ChunkAccess chunk) {
+	public void fillFromNoise(IWorld world, StructureManager accessor, IChunk chunk) {
 		int x1 = chunk.getPos().getMinBlockX();
 		int z1 = chunk.getPos().getMinBlockZ();
 
 		int x2 = chunk.getPos().getMaxBlockX();
 		int z2 = chunk.getPos().getMaxBlockZ();
 
-		WorldgenRandom chunkRandom = new WorldgenRandom();
+		SharedSeedRandom chunkRandom = new SharedSeedRandom();
 		chunkRandom.setBaseChunkSeed(chunk.getPos().x, chunk.getPos().z);
 
-		BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+		BlockPos.Mutable mutable = new BlockPos.Mutable();
 		mutable.setY(1);
 
 		for (int x = x1; x <= x2; ++x) {
@@ -117,12 +117,12 @@ public class GlaciosChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public int getBaseHeight(int x, int z, Heightmap.Types heightmapType) {
+	public int getBaseHeight(int x, int z, Heightmap.Type heightmapType) {
 		return 0;
 	}
 
 	@Override
-	public BlockGetter getBaseColumn(int x, int z) {
+	public IBlockReader getBaseColumn(int x, int z) {
 		return null;
 	}
 }

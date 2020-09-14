@@ -28,7 +28,7 @@ import com.github.chainmailstudios.astromine.discoveries.client.rei.AstromineDis
 import com.github.chainmailstudios.astromine.discoveries.common.recipe.AltarRecipe;
 import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.api.RecipeDisplay;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;

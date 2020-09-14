@@ -24,10 +24,9 @@
 
 package com.github.chainmailstudios.astromine.common.volume.fraction;
 
-import net.minecraft.nbt.CompoundTag;
-
 import com.google.common.base.Objects;
 import java.text.DecimalFormat;
+import net.minecraft.nbt.CompoundNBT;
 
 public final class Fraction extends Number implements Comparable<Fraction> {
 	public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###.###");
@@ -259,7 +258,7 @@ public final class Fraction extends Number implements Comparable<Fraction> {
 		return this;
 	}
 
-	public static Fraction fromTag(CompoundTag tag) {
+	public static Fraction fromTag(CompoundNBT tag) {
 		long[] values = tag.getLongArray("values");
 
 		if (values.length != 2)
@@ -268,8 +267,8 @@ public final class Fraction extends Number implements Comparable<Fraction> {
 		return new Fraction(values[0], values[1]);
 	}
 
-	public CompoundTag toTag() {
-		CompoundTag tag = new CompoundTag();
+	public CompoundNBT toTag() {
+		CompoundNBT tag = new CompoundNBT();
 
 		tag.putLongArray("values", new long[]{ this.numerator, this.denominator });
 

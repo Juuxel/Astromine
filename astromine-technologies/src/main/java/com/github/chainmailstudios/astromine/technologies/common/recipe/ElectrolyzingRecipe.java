@@ -40,44 +40,44 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
-import net.minecraft.core.Registry;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.LazyLoadedValue;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.Fluid;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.LazyValue;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 
-public class ElectrolyzingRecipe implements Recipe<Container>, EnergyConsumingRecipe<Container> {
+public class ElectrolyzingRecipe implements IRecipe<IInventory>, EnergyConsumingRecipe<IInventory> {
 	final ResourceLocation identifier;
-	final ResourceKey<Fluid> inputFluidKey;
-	final LazyLoadedValue<Fluid> inputFluid;
+	final RegistryKey<Fluid> inputFluidKey;
+	final LazyValue<Fluid> inputFluid;
 	final Fraction inputAmount;
-	final ResourceKey<Fluid> firstOutputFluidKey;
-	final LazyLoadedValue<Fluid> firstOutputFluid;
+	final RegistryKey<Fluid> firstOutputFluidKey;
+	final LazyValue<Fluid> firstOutputFluid;
 	final Fraction firstOutputAmount;
-	final ResourceKey<Fluid> secondOutputFluidKey;
-	final LazyLoadedValue<Fluid> secondOutputFluid;
+	final RegistryKey<Fluid> secondOutputFluidKey;
+	final LazyValue<Fluid> secondOutputFluid;
 	final Fraction secondOutputAmount;
 	final double energyConsumed;
 	final int time;
 
-	public ElectrolyzingRecipe(ResourceLocation identifier, ResourceKey<Fluid> inputFluidKey, Fraction inputAmount, ResourceKey<Fluid> firstOutputFluidKey, Fraction firstOutputAmount, ResourceKey<Fluid> secondOutputFluidKey, Fraction secondOutputAmount, double energyConsumed,
+	public ElectrolyzingRecipe(ResourceLocation identifier, RegistryKey<Fluid> inputFluidKey, Fraction inputAmount, RegistryKey<Fluid> firstOutputFluidKey, Fraction firstOutputAmount, RegistryKey<Fluid> secondOutputFluidKey, Fraction secondOutputAmount, double energyConsumed,
 		int time) {
 		this.identifier = identifier;
 		this.inputFluidKey = inputFluidKey;
-		this.inputFluid = new LazyLoadedValue<>(() -> Registry.FLUID.get(this.inputFluidKey));
+		this.inputFluid = new LazyValue<>(() -> Registry.FLUID.get(this.inputFluidKey));
 		this.inputAmount = inputAmount;
 		this.firstOutputFluidKey = firstOutputFluidKey;
-		this.firstOutputFluid = new LazyLoadedValue<>(() -> Registry.FLUID.get(this.firstOutputFluidKey));
+		this.firstOutputFluid = new LazyValue<>(() -> Registry.FLUID.get(this.firstOutputFluidKey));
 		this.firstOutputAmount = firstOutputAmount;
 		this.secondOutputFluidKey = secondOutputFluidKey;
-		this.secondOutputFluid = new LazyLoadedValue<>(() -> Registry.FLUID.get(this.secondOutputFluidKey));
+		this.secondOutputFluid = new LazyValue<>(() -> Registry.FLUID.get(this.secondOutputFluidKey));
 		this.secondOutputAmount = secondOutputAmount;
 		this.energyConsumed = energyConsumed;
 		this.time = time;
@@ -115,22 +115,22 @@ public class ElectrolyzingRecipe implements Recipe<Container>, EnergyConsumingRe
 	}
 
 	@Override
-	public RecipeSerializer<?> getSerializer() {
+	public IRecipeSerializer<?> getSerializer() {
 		return Serializer.INSTANCE;
 	}
 
 	@Override
-	public RecipeType<?> getType() {
+	public IRecipeType<?> getType() {
 		return Type.INSTANCE;
 	}
 
 	@Override
-	public boolean matches(Container inventory, Level world) {
+	public boolean matches(IInventory inventory, World world) {
 		return false;
 	}
 
 	@Override
-	public ItemStack assemble(Container inventory) {
+	public ItemStack assemble(IInventory inventory) {
 		return null;
 	}
 
@@ -185,7 +185,7 @@ public class ElectrolyzingRecipe implements Recipe<Container>, EnergyConsumingRe
 		return time;
 	}
 
-	public static final class Serializer implements RecipeSerializer<ElectrolyzingRecipe> {
+	public static final class Serializer implements IRecipeSerializer<ElectrolyzingRecipe> {
 		public static final ResourceLocation ID = AstromineCommon.identifier("electrolyzing");
 
 		public static final Serializer INSTANCE = new Serializer();
@@ -198,18 +198,18 @@ public class ElectrolyzingRecipe implements Recipe<Container>, EnergyConsumingRe
 		public ElectrolyzingRecipe fromJson(ResourceLocation identifier, JsonObject object) {
 			ElectrolyzingRecipe.Format format = new Gson().fromJson(object, ElectrolyzingRecipe.Format.class);
 
-			return new ElectrolyzingRecipe(identifier, ResourceKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.input)), FractionUtilities.fromJson(format.inputAmount), ResourceKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.firstOutput)), FractionUtilities.fromJson(
-				format.firstOutputAmount), ResourceKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.secondOutput)), FractionUtilities.fromJson(format.secondOutputAmount), EnergyUtilities.fromJson(format.energyGenerated), ParsingUtilities.fromJson(format.time, Integer.class));
+			return new ElectrolyzingRecipe(identifier, RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.input)), FractionUtilities.fromJson(format.inputAmount), RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.firstOutput)), FractionUtilities.fromJson(
+				format.firstOutputAmount), RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.secondOutput)), FractionUtilities.fromJson(format.secondOutputAmount), EnergyUtilities.fromJson(format.energyGenerated), ParsingUtilities.fromJson(format.time, Integer.class));
 		}
 
 		@Override
-		public ElectrolyzingRecipe fromNetwork(ResourceLocation identifier, FriendlyByteBuf buffer) {
-			return new ElectrolyzingRecipe(identifier, ResourceKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), ResourceKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), ResourceKey.create(
+		public ElectrolyzingRecipe fromNetwork(ResourceLocation identifier, PacketBuffer buffer) {
+			return new ElectrolyzingRecipe(identifier, RegistryKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), RegistryKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), RegistryKey.create(
 				Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), EnergyUtilities.fromPacket(buffer), PacketUtilities.fromPacket(buffer, Integer.class));
 		}
 
 		@Override
-		public void write(FriendlyByteBuf buffer, ElectrolyzingRecipe recipe) {
+		public void write(PacketBuffer buffer, ElectrolyzingRecipe recipe) {
 			buffer.writeResourceLocation(recipe.inputFluidKey.location());
 			FractionUtilities.toPacket(buffer, recipe.inputAmount);
 			buffer.writeResourceLocation(recipe.firstOutputFluidKey.location());

@@ -26,10 +26,10 @@ package com.github.chainmailstudios.astromine.technologies.common.block;
 
 import com.github.chainmailstudios.astromine.common.utilities.ExplosionUtilities;
 import com.github.chainmailstudios.astromine.registry.AstromineConfig;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public class NuclearWarheadBlock extends Block {
 	public NuclearWarheadBlock(Properties settings) {
@@ -37,16 +37,16 @@ public class NuclearWarheadBlock extends Block {
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
+	public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
 		this.tryDetonate(world, pos);
 	}
 
 	@Override
-	public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean notify) {
+	public void onPlace(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
 		this.tryDetonate(world, pos);
 	}
 
-	private void tryDetonate(Level world, BlockPos pos) {
+	private void tryDetonate(World world, BlockPos pos) {
 		if (world.isClientSide())
 			return;
 		if (world.hasNeighborSignal(pos)) {

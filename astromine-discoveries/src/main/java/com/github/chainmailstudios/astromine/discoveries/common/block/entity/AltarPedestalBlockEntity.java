@@ -25,18 +25,18 @@
 package com.github.chainmailstudios.astromine.discoveries.common.block.entity;
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.particles.ParticleTypes;
+import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.compatibility.ItemInventoryFromInventoryComponent;
 import com.github.chainmailstudios.astromine.discoveries.registry.AstromineDiscoveriesBlockEntityTypes;
 
-public class AltarPedestalBlockEntity extends BlockEntity implements ItemInventoryFromInventoryComponent, TickableBlockEntity, BlockEntityClientSerializable {
+public class AltarPedestalBlockEntity extends TileEntity implements ItemInventoryFromInventoryComponent, ITickableTileEntity, BlockEntityClientSerializable {
 	public BlockPos parent;
 	private int spinAge;
 	private int lastSpinAddition;
@@ -99,17 +99,17 @@ public class AltarPedestalBlockEntity extends BlockEntity implements ItemInvento
 	}
 
 	@Override
-	public void fromClientTag(CompoundTag compoundTag) {
+	public void fromClientTag(CompoundNBT compoundTag) {
 		load(null, compoundTag);
 	}
 
 	@Override
-	public CompoundTag toClientTag(CompoundTag compoundTag) {
+	public CompoundNBT toClientTag(CompoundNBT compoundTag) {
 		return save(compoundTag);
 	}
 
 	@Override
-	public void load(BlockState state, CompoundTag tag) {
+	public void load(BlockState state, CompoundNBT tag) {
 		super.load(state, tag);
 		inventory.fromTag(tag);
 		if (tag.contains("parent"))
@@ -118,7 +118,7 @@ public class AltarPedestalBlockEntity extends BlockEntity implements ItemInvento
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag tag) {
+	public CompoundNBT save(CompoundNBT tag) {
 		inventory.toTag(tag);
 		if (parent != null)
 			tag.putLong("parent", parent.asLong());

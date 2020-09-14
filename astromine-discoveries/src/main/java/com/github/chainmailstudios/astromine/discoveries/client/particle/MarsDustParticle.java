@@ -24,17 +24,17 @@
 
 package com.github.chainmailstudios.astromine.discoveries.client.particle;
 
-import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.IAnimatedSprite;
+import net.minecraft.client.particle.IParticleFactory;
+import net.minecraft.client.particle.IParticleRenderType;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.particle.TextureSheetParticle;
-import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.client.particle.SpriteTexturedParticle;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.particles.BasicParticleType;
 import java.util.Random;
 
-public class MarsDustParticle extends TextureSheetParticle {
-	protected MarsDustParticle(ClientLevel clientWorld, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
+public class MarsDustParticle extends SpriteTexturedParticle {
+	protected MarsDustParticle(ClientWorld clientWorld, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
 		super(clientWorld, x, y - 0.125D, z, velocityX, velocityY, velocityZ);
 		this.hasPhysics = true;
 
@@ -48,19 +48,19 @@ public class MarsDustParticle extends TextureSheetParticle {
 	}
 
 	@Override
-	public ParticleRenderType getRenderType() {
-		return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
+	public IParticleRenderType getRenderType() {
+		return IParticleRenderType.PARTICLE_SHEET_OPAQUE;
 	}
 
-	public static class Factory implements ParticleProvider<SimpleParticleType> {
-		private final SpriteSet spriteProvider;
+	public static class Factory implements IParticleFactory<BasicParticleType> {
+		private final IAnimatedSprite spriteProvider;
 
-		public Factory(SpriteSet spriteProvider) {
+		public Factory(IAnimatedSprite spriteProvider) {
 			this.spriteProvider = spriteProvider;
 		}
 
 		@Override
-		public Particle createParticle(SimpleParticleType parameters, ClientLevel clientWorld, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
+		public Particle createParticle(BasicParticleType parameters, ClientWorld clientWorld, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
 			Random random = clientWorld.getRandom();
 
 			MarsDustParticle particle = new MarsDustParticle(clientWorld, x, y, z, velocityX * random.nextDouble(), (random.nextDouble() - 0.5) * 0.05, velocityZ * random.nextDouble());

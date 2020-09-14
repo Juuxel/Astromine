@@ -26,18 +26,18 @@ package com.github.chainmailstudios.astromine.discoveries.client.render.sky;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.DimensionSpecialEffects;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.client.world.DimensionRenderInfo;
+import net.minecraft.util.math.vector.Vector3d;
 
 @Environment(EnvType.CLIENT)
-public class VulcanSkyProperties extends DimensionSpecialEffects {
+public class VulcanSkyProperties extends DimensionRenderInfo {
 	public VulcanSkyProperties() {
-		super(Float.NaN, false, SkyType.NORMAL, true, true);
+		super(Float.NaN, false, FogType.NORMAL, true, true);
 	}
 
 	@Override
-	public Vec3 getBrightnessDependentFogColor(Vec3 color, float sunHeight) {
-		return new Vec3(0.4, 0.35, 0.31);
+	public Vector3d getBrightnessDependentFogColor(Vector3d color, float sunHeight) {
+		return new Vector3d(0.4, 0.35, 0.31);
 	}
 
 	@Override

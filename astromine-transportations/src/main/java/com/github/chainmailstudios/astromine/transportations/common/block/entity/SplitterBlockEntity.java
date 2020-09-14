@@ -27,16 +27,16 @@ package com.github.chainmailstudios.astromine.transportations.common.block.entit
 import com.github.chainmailstudios.astromine.transportations.common.block.entity.base.AbstractConveyableBlockEntity;
 import com.github.chainmailstudios.astromine.transportations.registry.AstromineTransportationsBlockEntityTypes;
 import com.github.chainmailstudios.astromine.transportations.registry.AstromineTransportationsSoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.SoundCategory;
 
 public class SplitterBlockEntity extends AbstractConveyableBlockEntity {
 	public SplitterBlockEntity() {
 		super(AstromineTransportationsBlockEntityTypes.SPLITTER);
 	}
 
-	public SplitterBlockEntity(BlockEntityType type) {
+	public SplitterBlockEntity(TileEntityType type) {
 		super(type);
 	}
 
@@ -64,6 +64,6 @@ public class SplitterBlockEntity extends AbstractConveyableBlockEntity {
 			setLeftStack(stack);
 		}
 
-		level.playSound(null, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), AstromineTransportationsSoundEvents.MACHINE_CLICK, SoundSource.BLOCKS, 1.0F, 1.0F);
+		level.playSound(null, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), AstromineTransportationsSoundEvents.MACHINE_CLICK, SoundCategory.BLOCKS, 1.0F, 1.0F);
 	}
 }

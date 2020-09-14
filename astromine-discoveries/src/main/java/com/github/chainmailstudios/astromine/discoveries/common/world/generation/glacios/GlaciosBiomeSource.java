@@ -2,15 +2,15 @@ package com.github.chainmailstudios.astromine.discoveries.common.world.generatio
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.RegistryLookupCodec;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryLookupCodec;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.provider.BiomeProvider;
 import com.github.chainmailstudios.astromine.discoveries.registry.AstromineDiscoveriesBiomes;
 
 import com.google.common.collect.ImmutableList;
 
-public class GlaciosBiomeSource extends BiomeSource {
+public class GlaciosBiomeSource extends BiomeProvider {
 	public static final Codec<GlaciosBiomeSource> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			RegistryLookupCodec.create(Registry.BIOME_REGISTRY).forGetter((biomeSource) -> biomeSource.registry),
 			Codec.LONG.fieldOf("seed").stable().forGetter((biomeSource) -> biomeSource.seed))
@@ -25,12 +25,12 @@ public class GlaciosBiomeSource extends BiomeSource {
 	}
 
 	@Override
-	protected Codec<? extends BiomeSource> codec() {
-		return CODEC;
+	protected Codec<? extends BiomeProvider> codec() {
+		return withSeed(long);
 	}
 
 	@Override
-	public BiomeSource withSeed(long seed) {
+	public BiomeProvider withSeed(long seed) {
 		return new GlaciosBiomeSource(registry, seed);
 	}
 

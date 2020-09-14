@@ -45,13 +45,13 @@ import com.github.chainmailstudios.astromine.technologies.common.recipe.LiquidGe
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlockEntityTypes;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesRecipeSerializers;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntityType;
 
 public abstract class FluidMixerBlockEntity extends ComponentEnergyFluidBlockEntity implements EnergySizeProvider, TierProvider, SpeedProvider, FluidSizeProvider {
 	public double progress = 0;
@@ -60,7 +60,7 @@ public abstract class FluidMixerBlockEntity extends ComponentEnergyFluidBlockEnt
 
 	private Optional<FluidMixingRecipe> optionalRecipe = Optional.empty();
 
-	public FluidMixerBlockEntity(Block energyBlock, BlockEntityType<?> type) {
+	public FluidMixerBlockEntity(Block energyBlock, TileEntityType<?> type) {
 		super(energyBlock, type);
 		fluidComponent.addListener(() -> shouldTry = true);
 	}
@@ -164,14 +164,14 @@ public abstract class FluidMixerBlockEntity extends ComponentEnergyFluidBlockEnt
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
+	public CompoundNBT toTag(CompoundNBT tag) {
 		tag.putDouble("progress", progress);
 		tag.putInt("limit", limit);
 		return super.toTag(tag);
 	}
 
 	@Override
-	public void fromTag(BlockState state, @NotNull CompoundTag tag) {
+	public void fromTag(BlockState state, @NotNull CompoundNBT tag) {
 		progress = tag.getDouble("progress");
 		limit = tag.getInt("limit");
 		super.fromTag(state, tag);

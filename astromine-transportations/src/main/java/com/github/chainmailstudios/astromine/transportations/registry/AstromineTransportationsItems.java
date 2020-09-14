@@ -26,7 +26,7 @@ package com.github.chainmailstudios.astromine.transportations.registry;
 
 import com.github.chainmailstudios.astromine.registry.AstromineItems;
 import com.github.chainmailstudios.astromine.transportations.registry.client.AstromineTransportationsItemGroups;
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
 
 public class AstromineTransportationsItems extends AstromineItems {
 	public static Item.Properties getTransportationsBasicSettings() {

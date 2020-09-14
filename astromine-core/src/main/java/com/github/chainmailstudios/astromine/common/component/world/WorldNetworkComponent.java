@@ -25,14 +25,14 @@
 package com.github.chainmailstudios.astromine.common.component.world;
 
 import net.fabricmc.fabric.api.util.NbtType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.LongTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.LongNBT;
+import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import com.github.chainmailstudios.astromine.common.network.NetworkInstance;
 import com.github.chainmailstudios.astromine.common.network.NetworkMemberNode;
 import com.github.chainmailstudios.astromine.common.network.NetworkNode;
@@ -44,12 +44,12 @@ import org.jetbrains.annotations.NotNull;
 import com.google.common.collect.Sets;
 import java.util.Set;
 
-public class WorldNetworkComponent implements Component, TickableBlockEntity {
+public class WorldNetworkComponent implements Component, ITickableTileEntity {
 	private final Set<NetworkInstance> instances = Sets.newConcurrentHashSet();
 
-	private final Level world;
+	private final World world;
 
-	public WorldNetworkComponent(Level world) {
+	public WorldNetworkComponent(World world) {
 		this.world = world;
 	}
 
@@ -70,27 +70,27 @@ public class WorldNetworkComponent implements Component, TickableBlockEntity {
 		return getInstance(type, position) != NetworkInstance.EMPTY;
 	}
 
-	public Level getWorld() {
+	public World getWorld() {
 		return world;
 	}
 
 	@Override
 	@NotNull
-	public CompoundTag toTag(CompoundTag tag) {
-		ListTag instanceTags = new ListTag();
+	public CompoundNBT toTag(CompoundNBT tag) {
+		ListNBT instanceTags = new ListNBT();
 
 		for (NetworkInstance instance : instances) {
-			ListTag nodeList = new ListTag();
+			ListNBT nodeList = new ListNBT();
 			for (NetworkNode node : instance.nodes) {
-				nodeList.add(LongTag.valueOf(node.getPos()));
+				nodeList.add(LongNBT.valueOf(node.getPos()));
 			}
 
-			ListTag memberList = new ListTag();
+			ListNBT memberList = new ListNBT();
 			for (NetworkMemberNode member : instance.members) {
-				memberList.add(member.toTag(new CompoundTag()));
+				memberList.add(member.toTag(new CompoundNBT()));
 			}
 
-			CompoundTag data = new CompoundTag();
+			CompoundNBT data = new CompoundNBT();
 
 			data.putString("type", NetworkTypeRegistry.INSTANCE.getKey(instance.getType()).toString());
 			data.put("nodes", nodeList);
@@ -106,22 +106,22 @@ public class WorldNetworkComponent implements Component, TickableBlockEntity {
 	}
 
 	@Override
-	public void fromTag(CompoundTag tag) {
-		ListTag instanceTags = tag.getList("instanceTags", NbtType.COMPOUND);
-		for (Tag instanceTag : instanceTags) {
-			CompoundTag dataTag = (CompoundTag) instanceTag;
-			ListTag nodeList = dataTag.getList("nodes", NbtType.LONG);
-			ListTag memberList = dataTag.getList("members", NbtType.COMPOUND);
+	public void fromTag(CompoundNBT tag) {
+		ListNBT instanceTags = tag.getList("instanceTags", NbtType.COMPOUND);
+		for (INBT instanceTag : instanceTags) {
+			CompoundNBT dataTag = (CompoundNBT) instanceTag;
+			ListNBT nodeList = dataTag.getList("nodes", NbtType.LONG);
+			ListNBT memberList = dataTag.getList("members", NbtType.COMPOUND);
 
 			NetworkType type = NetworkTypeRegistry.INSTANCE.get(new ResourceLocation(dataTag.getString("type")));
 			NetworkInstance instance = new NetworkInstance(world, type);
 
-			for (Tag nodeKey : nodeList) {
-				instance.addNode(NetworkNode.of(((LongTag) nodeKey).getAsLong()));
+			for (INBT nodeKey : nodeList) {
+				instance.addNode(NetworkNode.of(((LongNBT) nodeKey).getAsLong()));
 			}
 
-			for (Tag memberTag : memberList) {
-				instance.addMember(NetworkMemberNode.fromTag((CompoundTag) memberTag));
+			for (INBT memberTag : memberList) {
+				instance.addMember(NetworkMemberNode.fromTag((CompoundNBT) memberTag));
 			}
 
 			if (dataTag.contains("additionalData")) {

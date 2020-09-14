@@ -25,7 +25,7 @@
 package com.github.chainmailstudios.astromine.foundations.registry;
 
 import com.github.chainmailstudios.astromine.registry.AstromineSoundEvents;
-import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.SoundEvent;
 
 public class AstromineFoundationsSoundEvents extends AstromineSoundEvents {
 	public static final SoundEvent FIRE_EXTINGUISHER_OPEN = register("fire_extinguisher_open");

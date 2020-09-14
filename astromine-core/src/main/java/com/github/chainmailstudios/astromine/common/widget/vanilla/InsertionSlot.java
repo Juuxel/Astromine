@@ -24,17 +24,17 @@
 
 package com.github.chainmailstudios.astromine.common.widget.vanilla;
 
-import net.minecraft.world.Container;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.Slot;
 
 public class InsertionSlot extends Slot {
-	public InsertionSlot(Container inventory, int index, int x, int y) {
+	public InsertionSlot(IInventory inventory, int index, int x, int y) {
 		super(inventory, index, x, y);
 	}
 
 	@Override
-	public boolean mayPickup(Player playerEntity) {
+	public boolean mayPickup(PlayerEntity playerEntity) {
 		return false;
 	}
 }

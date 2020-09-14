@@ -44,14 +44,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.block.Block;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.state.DirectionProperty;
+import net.minecraft.util.Direction;
+import net.minecraft.util.IWorldPosCallable;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public abstract class ComponentBlockEntityScreenHandler extends BaseScreenHandler {
 	public ComponentBlockEntity syncBlockEntity;
@@ -61,7 +61,7 @@ public abstract class ComponentBlockEntityScreenHandler extends BaseScreenHandle
 	public TabWidgetCollection mainTab;
 	protected TabWidget tabs;
 
-	public ComponentBlockEntityScreenHandler(MenuType<?> type, int syncId, Player player, BlockPos position) {
+	public ComponentBlockEntityScreenHandler(ContainerType<?> type, int syncId, PlayerEntity player, BlockPos position) {
 		super(type, syncId, player);
 
 		this.position = position;
@@ -79,8 +79,8 @@ public abstract class ComponentBlockEntityScreenHandler extends BaseScreenHandle
 	}
 
 	@Override
-	public boolean stillValid(@Nullable Player player) {
-		return stillValid(ContainerLevelAccess.create(player.level, position), player, originalBlock);
+	public boolean stillValid(@Nullable PlayerEntity player) {
+		return stillValid(IWorldPosCallable.create(player.level, position), player, originalBlock);
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public abstract class ComponentBlockEntityScreenHandler extends BaseScreenHandle
 
 		TextWidget title = new TextWidget();
 		title.setPosition(Position.of(mainTab, 8, 0));
-		title.setText(new TranslatableComponent(syncBlockEntity.getBlockState().getBlock().asItem().getDescriptionId()));
+		title.setText(new TranslationTextComponent(syncBlockEntity.getBlockState().getBlock().asItem().getDescriptionId()));
 		title.setColor(4210752);
 		mainTab.addWidget(title);
 

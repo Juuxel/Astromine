@@ -24,16 +24,16 @@
 
 package com.github.chainmailstudios.astromine.common.inventory;
 
-import net.minecraft.core.Direction;
-import net.minecraft.world.WorldlyContainer;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Direction;
 
 /**
  * A simple {@code Inventory} implementation with only default methods + an item list getter.
  * <p>
  * Originally by Juuz
  */
-public interface SingularStackSidedInventory extends SingularStackInventory, WorldlyContainer {
+public interface SingularStackSidedInventory extends SingularStackInventory, ISidedInventory {
 	Direction[] getInsertionSides();
 
 	Direction[] getExtractionSides();

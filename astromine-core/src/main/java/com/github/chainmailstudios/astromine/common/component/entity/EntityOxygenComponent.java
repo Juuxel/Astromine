@@ -24,11 +24,11 @@
 
 package com.github.chainmailstudios.astromine.common.component.entity;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import nerdhub.cardinal.components.api.component.Component;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.DamageSource;
 
 public class EntityOxygenComponent implements Component {
 	int oxygen;
@@ -48,19 +48,19 @@ public class EntityOxygenComponent implements Component {
 	}
 
 	@Override
-	public void fromTag(CompoundTag tag) {
+	public void fromTag(CompoundNBT tag) {
 		this.oxygen = tag.getInt("oxygen");
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
+	public CompoundNBT toTag(CompoundNBT tag) {
 		tag.putInt("oxygen", oxygen);
 		return tag;
 	}
 
 	public void simulate(boolean isBreathing) {
-		if (entity instanceof Player) {
-			Player player = (Player) entity;
+		if (entity instanceof PlayerEntity) {
+			PlayerEntity player = (PlayerEntity) entity;
 
 			if (player.isCreative() || player.isSpectator()) {
 				return;

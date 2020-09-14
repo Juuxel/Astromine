@@ -27,25 +27,25 @@ package com.github.chainmailstudios.astromine.technologies.client.render.block;
 import com.github.chainmailstudios.astromine.client.render.layer.Layer;
 import com.github.chainmailstudios.astromine.technologies.common.block.HolographicBridgeProjectorBlock;
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.HolographicBridgeProjectorBlockEntity;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.HorizontalBlock;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.math.vector.Vector3i;
 
-public class HolographicBridgeBlockEntityRenderer extends BlockEntityRenderer<HolographicBridgeProjectorBlockEntity> {
-	public HolographicBridgeBlockEntityRenderer(BlockEntityRenderDispatcher dispatcher) {
+public class HolographicBridgeBlockEntityRenderer extends TileEntityRenderer<HolographicBridgeProjectorBlockEntity> {
+	public HolographicBridgeBlockEntityRenderer(TileEntityRendererDispatcher dispatcher) {
 		super(dispatcher);
 	}
 
 	@Override
-	public void render(HolographicBridgeProjectorBlockEntity entity, float tickDelta, PoseStack matrices, MultiBufferSource provider, int light, int overlay) {
+	public void render(HolographicBridgeProjectorBlockEntity entity, float tickDelta, MatrixStack matrices, IRenderTypeBuffer provider, int light, int overlay) {
 		BlockState state = entity.getLevel().getBlockState(entity.getBlockPos());
 
 		if (!(state.getBlock() instanceof HolographicBridgeProjectorBlock)) {
@@ -53,9 +53,9 @@ public class HolographicBridgeBlockEntityRenderer extends BlockEntityRenderer<Ho
 		}
 
 		if (entity.hasChild()) {
-			Vec3i pA = entity.getBlockPos();
+			Vector3i pA = entity.getBlockPos();
 
-			Direction direction = state.getValue(HorizontalDirectionalBlock.FACING);
+			Direction direction = state.getValue(HorizontalBlock.FACING);
 
 			int offsetX = direction == Direction.NORTH ? 1 : 0;
 			int offsetZ = direction == Direction.WEST ? 1 : 0;
@@ -69,7 +69,7 @@ public class HolographicBridgeBlockEntityRenderer extends BlockEntityRenderer<Ho
 
 			matrices.pushPose();
 
-			VertexConsumer consumer = provider.getBuffer(Layer.getHolographicBridge());
+			IVertexBuilder consumer = provider.getBuffer(Layer.getHolographicBridge());
 
 			float xA = end.x() - pA.getX();
 			float xB = start.x() - pA.getX();

@@ -7,7 +7,7 @@ import com.github.chainmailstudios.astromine.common.volume.base.Volume;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
 import java.util.Optional;
 import java.util.function.Consumer;
 

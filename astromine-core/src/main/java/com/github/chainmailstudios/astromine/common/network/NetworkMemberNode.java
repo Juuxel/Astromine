@@ -24,10 +24,10 @@
 
 package com.github.chainmailstudios.astromine.common.network;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import com.google.common.base.Objects;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
 
 public class NetworkMemberNode {
 	private long pos;
@@ -70,7 +70,7 @@ public class NetworkMemberNode {
 		return new NetworkMemberNode(pos);
 	}
 
-	public static NetworkMemberNode fromTag(CompoundTag tag) {
+	public static NetworkMemberNode fromTag(CompoundNBT tag) {
 		return of(tag.getLong("pos"), tag.getInt("dir"));
 	}
 
@@ -106,7 +106,7 @@ public class NetworkMemberNode {
 		this.dir = dir;
 	}
 
-	public CompoundTag toTag(CompoundTag tag) {
+	public CompoundNBT toTag(CompoundNBT tag) {
 		tag.putLong("pos", pos);
 		tag.putInt("dir", dir);
 		return tag;

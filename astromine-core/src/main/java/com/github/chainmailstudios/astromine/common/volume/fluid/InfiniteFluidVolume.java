@@ -1,8 +1,8 @@
 package com.github.chainmailstudios.astromine.common.volume.fluid;
 
 import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.material.Fluid;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.util.ResourceLocation;
 import com.github.chainmailstudios.astromine.common.volume.base.Volume;
 
 public class InfiniteFluidVolume extends FluidVolume {

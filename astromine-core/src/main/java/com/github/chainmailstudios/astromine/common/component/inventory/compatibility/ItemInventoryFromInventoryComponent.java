@@ -25,15 +25,15 @@
 package com.github.chainmailstudios.astromine.common.component.inventory.compatibility;
 
 import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
-import net.minecraft.world.Container;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ActionResult;
 
 /**
  * Vanilla wrapper for an InventoryComponent.
  */
-public interface ItemInventoryFromInventoryComponent extends Container {
+public interface ItemInventoryFromInventoryComponent extends IInventory {
 	/**
 	 * Builds an wrapper over the given component for vanilla Inventory usage.
 	 *
@@ -96,13 +96,13 @@ public interface ItemInventoryFromInventoryComponent extends Container {
 	@Override
 	default ItemStack removeItem(int slot, int count) {
 		if (this.getItemComponent().getStack(slot).getCount() < count) {
-			InteractionResultHolder<ItemStack> result = this.getItemComponent().extract(null, slot);
+			ActionResult<ItemStack> result = this.getItemComponent().extract(null, slot);
 			if (!result.getObject().isEmpty()) {
 				this.setChanged();
 			}
 			return result.getObject();
 		} else {
-			InteractionResultHolder<ItemStack> result = this.getItemComponent().extract(slot, count);
+			ActionResult<ItemStack> result = this.getItemComponent().extract(slot, count);
 			if (!result.getObject().isEmpty()) {
 				this.setChanged();
 			}
@@ -156,7 +156,7 @@ public interface ItemInventoryFromInventoryComponent extends Container {
 	 * @return true if yes; false if no.
 	 */
 	@Override
-	default boolean stillValid(Player player) {
+	default boolean stillValid(PlayerEntity player) {
 		return true;
 	}
 

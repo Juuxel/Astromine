@@ -27,8 +27,8 @@ package com.github.chainmailstudios.astromine.common.volume.energy;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleEnergyInventoryComponent;
 import com.github.chainmailstudios.astromine.common.volume.base.Volume;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 
 public class EnergyVolume extends Volume<ResourceLocation, Double> {
 	public static final ResourceLocation ID = AstromineCommon.identifier("energy");
@@ -103,14 +103,14 @@ public class EnergyVolume extends Volume<ResourceLocation, Double> {
 	}
 
 	@Override
-	public CompoundTag toTag() {
-		CompoundTag tag = new CompoundTag();
+	public CompoundNBT toTag() {
+		CompoundNBT tag = new CompoundNBT();
 		tag.putDouble("amount", getAmount());
 		tag.putDouble("size", getSize());
 		return tag;
 	}
 
-	public static EnergyVolume fromTag(CompoundTag tag) {
+	public static EnergyVolume fromTag(CompoundNBT tag) {
 		return of(tag.getDouble("amount"), tag.getDouble("size"));
 	}
 

@@ -43,12 +43,12 @@ import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluid;
+import net.minecraft.block.BlockState;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public final class LibBlockAttributesCompatibility {
 	public static void initialize() {
@@ -59,8 +59,8 @@ public final class LibBlockAttributesCompatibility {
 		attribute.appendBlockAdder(LibBlockAttributesCompatibility::append);
 	}
 
-	private static <T> void append(Level world, BlockPos blockPos, BlockState state, AttributeList<T> list) {
-		BlockEntity blockEntity = world.getBlockEntity(blockPos);
+	private static <T> void append(World world, BlockPos blockPos, BlockState state, AttributeList<T> list) {
+		TileEntity blockEntity = world.getBlockEntity(blockPos);
 
 		if (blockEntity != null) {
 			SidedComponentProvider sidedComponentProvider = SidedComponentProvider.fromBlockEntity(blockEntity);

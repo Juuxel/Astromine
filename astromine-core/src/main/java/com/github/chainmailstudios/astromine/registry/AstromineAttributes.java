@@ -25,9 +25,9 @@
 package com.github.chainmailstudios.astromine.registry;
 
 import com.github.chainmailstudios.astromine.AstromineCommon;
-import net.minecraft.core.Registry;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.RangedAttribute;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.RangedAttribute;
+import net.minecraft.util.registry.Registry;
 
 public class AstromineAttributes {
 	public static final Attribute GRAVITY_MULTIPLIER = Registry.register(Registry.ATTRIBUTE, AstromineCommon.identifier("gravity_multiplier"), new RangedAttribute("attribute.name.generic.astromine.gravity_multiplier", 1d, -100d, 100d));

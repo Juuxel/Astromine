@@ -26,17 +26,17 @@ package com.github.chainmailstudios.astromine.technologies.common.item;
 
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesItems;
 import net.fabricmc.fabric.api.tool.attribute.v1.DynamicAttributeTool;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.UseAction;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.world.World;
 import com.github.chainmailstudios.astromine.common.item.base.EnergyVolumeItem;
 import com.github.chainmailstudios.astromine.registry.AstromineConfig;
 import com.github.chainmailstudios.astromine.registry.AstromineItems;
@@ -54,27 +54,27 @@ public class GravityGauntletItem extends EnergyVolumeItem implements DynamicAttr
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
+	public ActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
 		ItemStack stack = user.getItemInHand(hand);
-		if (hand == InteractionHand.OFF_HAND)
-			return InteractionResultHolder.pass(stack);
-		ItemStack offStack = user.getItemInHand(InteractionHand.OFF_HAND);
+		if (hand == Hand.OFF_HAND)
+			return ActionResult.pass(stack);
+		ItemStack offStack = user.getItemInHand(Hand.OFF_HAND);
 		if (offStack.getItem() == AstromineTechnologiesItems.GRAVITY_GAUNTLET) {
 			EnergyHandler selfHandler = Energy.of(stack);
 			EnergyHandler otherHandler = Energy.of(offStack);
 			if (selfHandler.getEnergy() > AstromineConfig.get().gravityGauntletConsumed && otherHandler.getEnergy() > AstromineConfig.get().gravityGauntletConsumed) {
 				user.startUsingItem(hand);
-				return InteractionResultHolder.success(stack);
+				return ActionResult.success(stack);
 			}
 		}
 		return super.use(world, user, hand);
 	}
 
 	@Override
-	public ItemStack finishUsing(ItemStack stack, Level world, LivingEntity user) {
+	public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
 		if (world.isClientSide)
 			return stack;
-		ItemStack offStack = user.getItemInHand(InteractionHand.OFF_HAND);
+		ItemStack offStack = user.getItemInHand(Hand.OFF_HAND);
 		if (offStack.getItem() == AstromineTechnologiesItems.GRAVITY_GAUNTLET) {
 			EnergyHandler selfHandler = Energy.of(stack);
 			EnergyHandler otherHandler = Energy.of(offStack);
@@ -90,8 +90,8 @@ public class GravityGauntletItem extends EnergyVolumeItem implements DynamicAttr
 	}
 
 	@Override
-	public UseAnim getUseAction(ItemStack stack) {
-		return UseAnim.BLOCK;
+	public UseAction getUseAction(ItemStack stack) {
+		return UseAction.BLOCK;
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public class GravityGauntletItem extends EnergyVolumeItem implements DynamicAttr
 	public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
 		if (attacker.level.isClientSide)
 			return super.postHit(stack, target, attacker);
-		ItemStack offStack = attacker.getItemInHand(InteractionHand.OFF_HAND);
+		ItemStack offStack = attacker.getItemInHand(Hand.OFF_HAND);
 		if (offStack.getItem() == AstromineTechnologiesItems.GRAVITY_GAUNTLET) {
 			if (stack.getOrCreateTag().getBoolean("Charged") && offStack.getOrCreateTag().getBoolean("Charged")) {
 				target.knockback(1, attacker.getX() - target.getX(), attacker.getZ() - target.getZ());
@@ -123,8 +123,8 @@ public class GravityGauntletItem extends EnergyVolumeItem implements DynamicAttr
 
 	// TODO: dynamic once not broken so only provide when charged
 	@Override
-	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot) {
-		if (slot == EquipmentSlot.MAINHAND) {
+	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlotType slot) {
+		if (slot == EquipmentSlotType.MAINHAND) {
 			return EAMS;
 		}
 		return super.getAttributeModifiers(slot);

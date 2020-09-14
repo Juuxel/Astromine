@@ -30,13 +30,13 @@ import com.github.chainmailstudios.astromine.technologies.common.block.entity.Li
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesScreenHandlers;
 import com.github.vini2003.blade.common.miscellaneous.Position;
 import com.github.vini2003.blade.common.miscellaneous.Size;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.BlockPos;
 
 public class LiquidGeneratorScreenHandler extends ComponentBlockEntityEnergyFluidScreenHandler {
 	private LiquidGeneratorBlockEntity generator;
 
-	public LiquidGeneratorScreenHandler(int syncId, Player player, BlockPos position) {
+	public LiquidGeneratorScreenHandler(int syncId, PlayerEntity player, BlockPos position) {
 		super(AstromineTechnologiesScreenHandlers.LIQUID_GENERATOR, syncId, player, position);
 
 		generator = (LiquidGeneratorBlockEntity) blockEntity;

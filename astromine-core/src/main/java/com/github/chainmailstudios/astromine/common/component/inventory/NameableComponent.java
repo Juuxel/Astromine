@@ -25,11 +25,11 @@
 package com.github.chainmailstudios.astromine.common.component.inventory;
 
 import nerdhub.cardinal.components.api.component.extension.CopyableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public interface NameableComponent extends CopyableComponent<NameableComponent> {
 	Item getSymbol();
 
-	TranslatableComponent getName();
+	TranslationTextComponent getName();
 }

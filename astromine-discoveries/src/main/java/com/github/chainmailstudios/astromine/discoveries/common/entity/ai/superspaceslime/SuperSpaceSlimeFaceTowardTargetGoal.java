@@ -27,9 +27,9 @@ package com.github.chainmailstudios.astromine.discoveries.common.entity.ai.super
 import com.github.chainmailstudios.astromine.discoveries.common.entity.SuperSpaceSlimeEntity;
 
 import java.util.EnumSet;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.player.PlayerEntity;
 
 /**
  * This goal instructs the given {@link SuperSpaceSlimeEntity} to look at its target for up to 300 ticks.
@@ -53,7 +53,7 @@ public class SuperSpaceSlimeFaceTowardTargetGoal extends Goal {
 		} else if (!livingEntity.isAlive()) {
 			return false;
 		} else {
-			return (!(livingEntity instanceof Player) || !((Player) livingEntity).abilities.invulnerable) && this.slime.getMoveControl() instanceof SuperSpaceSlimeMoveControl;
+			return (!(livingEntity instanceof PlayerEntity) || !((PlayerEntity) livingEntity).abilities.invulnerable) && this.slime.getMoveControl() instanceof SuperSpaceSlimeMoveControl;
 		}
 	}
 
@@ -65,7 +65,7 @@ public class SuperSpaceSlimeFaceTowardTargetGoal extends Goal {
 			return false;
 		} else if (!livingEntity.isAlive()) {
 			return false;
-		} else if (livingEntity instanceof Player && ((Player) livingEntity).abilities.invulnerable) {
+		} else if (livingEntity instanceof PlayerEntity && ((PlayerEntity) livingEntity).abilities.invulnerable) {
 			return false;
 		} else {
 			return --this.ticksLeft > 0;

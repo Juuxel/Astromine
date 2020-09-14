@@ -24,14 +24,14 @@
 
 package com.github.chainmailstudios.astromine.common.utilities;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.ShapedRecipe;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.StringNBT;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Tuple;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.util.text.ITextComponent;
 import com.google.gson.JsonObject;
 import java.util.Collection;
 import java.util.List;
@@ -60,11 +60,11 @@ public class StackUtilities {
 		return ItemStack.tagMatches(stackA, stackB) && ItemStack.isSameIgnoreDurability(stackA, stackB);
 	}
 
-	public static ItemStack fromPacket(FriendlyByteBuf buffer) {
+	public static ItemStack fromPacket(PacketBuffer buffer) {
 		return buffer.readItem();
 	}
 
-	public static void toPacket(FriendlyByteBuf buffer, ItemStack stack) {
+	public static void toPacket(PacketBuffer buffer, ItemStack stack) {
 		buffer.writeItem(stack);
 	}
 
@@ -72,18 +72,18 @@ public class StackUtilities {
 		return ShapedRecipe.itemFromJson(jsonObject);
 	}
 
-	public static ItemStack withLore(ItemStack stack, Collection<Component> texts) {
-		List<Component> entries = (List<Component>) texts;
+	public static ItemStack withLore(ItemStack stack, Collection<ITextComponent> texts) {
+		List<ITextComponent> entries = (List<ITextComponent>) texts;
 
-		ListTag loreListTag = new ListTag();
+		ListNBT loreListTag = new ListNBT();
 
-		entries.forEach(text -> loreListTag.add(StringTag.valueOf(Component.Serializer.toJson(text))));
+		entries.forEach(text -> loreListTag.add(StringNBT.valueOf(ITextComponent.Serializer.toJson(text))));
 
-		CompoundTag displayTag = stack.getOrCreateTag().getCompound("display");
+		CompoundNBT displayTag = stack.getOrCreateTag().getCompound("display");
 
 		displayTag.put("Lore", loreListTag);
 
-		CompoundTag stackTag = stack.getOrCreateTag();
+		CompoundNBT stackTag = stack.getOrCreateTag();
 
 		stackTag.put("display", displayTag);
 

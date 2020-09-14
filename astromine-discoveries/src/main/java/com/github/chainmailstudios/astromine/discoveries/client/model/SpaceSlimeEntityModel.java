@@ -25,13 +25,13 @@
 package com.github.chainmailstudios.astromine.discoveries.client.model;
 
 import com.github.chainmailstudios.astromine.discoveries.common.entity.SpaceSlimeEntity;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.SlimeModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.client.renderer.entity.model.SlimeModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 
 public class SpaceSlimeEntityModel extends SlimeModel<SpaceSlimeEntity> {
 
@@ -40,7 +40,7 @@ public class SpaceSlimeEntityModel extends SlimeModel<SpaceSlimeEntity> {
 	}
 
 	@Override
-	public void renderToBuffer(PoseStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+	public void renderToBuffer(MatrixStack matrices, IVertexBuilder vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 		this.parts().forEach((modelPart) -> {
 			modelPart.render(matrices, vertices, light, overlay, red, green, blue, alpha);
 		});
@@ -50,7 +50,7 @@ public class SpaceSlimeEntityModel extends SlimeModel<SpaceSlimeEntity> {
 		matrices.scale(1.25f, 1.25f, 1.25f);
 
 		// render glass block
-		Minecraft.getInstance().getItemRenderer().renderStatic(new ItemStack(Items.GLASS), ItemTransforms.TransformType.FIXED, light, overlay, matrices, Minecraft.getInstance().renderBuffers().crumblingBufferSource());
+		Minecraft.getInstance().getItemRenderer().renderStatic(new ItemStack(Items.GLASS), ItemCameraTransforms.TransformType.FIXED, light, overlay, matrices, Minecraft.getInstance().renderBuffers().crumblingBufferSource());
 
 		// undo translation & scale
 		matrices.scale(.75f, .75f, .75f);

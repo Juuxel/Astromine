@@ -28,9 +28,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import com.github.chainmailstudios.astromine.common.entity.GravityEntity;
-import net.minecraft.world.entity.projectile.FishingHook;
+import net.minecraft.entity.projectile.FishingBobberEntity;
 
-@Mixin(FishingHook.class)
+@Mixin(FishingBobberEntity.class)
 public abstract class FishingBobberEntityMixin implements GravityEntity {
 	@ModifyConstant(method = "use(Lnet/minecraft/item/ItemStack;)I", constant = @Constant(doubleValue = 0.08D))
 	double getGravity(double original) {

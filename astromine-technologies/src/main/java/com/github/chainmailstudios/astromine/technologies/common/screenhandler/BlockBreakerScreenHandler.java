@@ -29,11 +29,11 @@ import com.github.chainmailstudios.astromine.technologies.registry.AstromineTech
 import com.github.vini2003.blade.common.miscellaneous.Position;
 import com.github.vini2003.blade.common.miscellaneous.Size;
 import com.github.vini2003.blade.common.widget.base.SlotWidget;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.BlockPos;
 
 public class BlockBreakerScreenHandler extends ComponentBlockEntityEnergyItemScreenHandler {
-	public BlockBreakerScreenHandler(int syncId, Player player, BlockPos position) {
+	public BlockBreakerScreenHandler(int syncId, PlayerEntity player, BlockPos position) {
 		super(AstromineTechnologiesScreenHandlers.BLOCK_BREAKER, syncId, player, position);
 	}
 

@@ -33,11 +33,11 @@ import team.reborn.energy.EnergySide;
 
 import java.text.DecimalFormat;
 import java.util.Objects;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.Direction;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.Direction;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public class EnergyUtilities {
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###");
@@ -103,11 +103,11 @@ public class EnergyUtilities {
 		}
 	}
 
-	public static double fromPacket(FriendlyByteBuf buf) {
+	public static double fromPacket(PacketBuffer buf) {
 		return buf.readDouble();
 	}
 
-	public static void toPacket(FriendlyByteBuf buf, double v) {
+	public static void toPacket(PacketBuffer buf, double v) {
 		buf.writeDouble(v);
 	}
 
@@ -123,20 +123,20 @@ public class EnergyUtilities {
 		return String.valueOf((int) v);
 	}
 
-	public static MutableComponent simpleDisplay(double energy) {
-		return new TranslatableComponent("text.astromine.tooltip.energy_value", toRoundingString(energy));
+	public static IFormattableTextComponent simpleDisplay(double energy) {
+		return new TranslationTextComponent("text.astromine.tooltip.energy_value", toRoundingString(energy));
 	}
 
-	public static MutableComponent compoundDisplay(double energy, double maxEnergy) {
-		return new TranslatableComponent("text.astromine.tooltip.compound_energy_value", toRoundingString(energy), toRoundingString(maxEnergy));
+	public static IFormattableTextComponent compoundDisplay(double energy, double maxEnergy) {
+		return new TranslationTextComponent("text.astromine.tooltip.compound_energy_value", toRoundingString(energy), toRoundingString(maxEnergy));
 	}
 
-	public static MutableComponent simpleDisplayColored(double energy) {
-		return simpleDisplay(energy).withStyle(ChatFormatting.GRAY);
+	public static IFormattableTextComponent simpleDisplayColored(double energy) {
+		return simpleDisplay(energy).withStyle(TextFormatting.GRAY);
 	}
 
-	public static MutableComponent compoundDisplayColored(double energy, double maxEnergy) {
-		return compoundDisplay(energy, maxEnergy).withStyle(ChatFormatting.GRAY);
+	public static IFormattableTextComponent compoundDisplayColored(double energy, double maxEnergy) {
+		return compoundDisplay(energy, maxEnergy).withStyle(TextFormatting.GRAY);
 	}
 
 	@Nullable

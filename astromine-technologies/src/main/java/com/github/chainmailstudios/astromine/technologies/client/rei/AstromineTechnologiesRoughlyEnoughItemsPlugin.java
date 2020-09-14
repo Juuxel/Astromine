@@ -26,11 +26,11 @@ package com.github.chainmailstudios.astromine.technologies.client.rei;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.SmeltingRecipe;
-import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.item.BucketItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.crafting.FurnaceRecipe;
+import net.minecraft.tileentity.AbstractFurnaceTileEntity;
+import net.minecraft.util.ResourceLocation;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.client.rei.AstromineRoughlyEnoughItemsPlugin;
 import com.github.chainmailstudios.astromine.technologies.common.recipe.*;
@@ -83,14 +83,14 @@ public class AstromineTechnologiesRoughlyEnoughItemsPlugin extends AstromineRoug
 	@Override
 	public void registerRecipeDisplays(RecipeHelper recipeHelper) {
 		recipeHelper.registerRecipes(TRITURATING, TrituratingRecipe.class, TrituratingDisplay::new);
-		recipeHelper.registerRecipes(ELECTRIC_SMELTING, SmeltingRecipe.class, ElectricSmeltingDisplay::new);
+		recipeHelper.registerRecipes(ELECTRIC_SMELTING, FurnaceRecipe.class, ElectricSmeltingDisplay::new);
 		recipeHelper.registerRecipes(LIQUID_GENERATING, LiquidGeneratingRecipe.class, LiquidGeneratingDisplay::new);
 		recipeHelper.registerRecipes(FLUID_MIXING, FluidMixingRecipe.class, FluidMixingDisplay::new);
 		recipeHelper.registerRecipes(ELECTROLYZING, ElectrolyzingRecipe.class, ElectrolyzingDisplay::new);
 		recipeHelper.registerRecipes(PRESSING, PressingRecipe.class, PressingDisplay::new);
 		recipeHelper.registerRecipes(ALLOY_SMELTING, AlloySmeltingRecipe.class, AlloySmeltingDisplay::new);
 
-		for (Map.Entry<Item, Integer> entry : AbstractFurnaceBlockEntity.getFuel().entrySet()) {
+		for (Map.Entry<Item, Integer> entry : AbstractFurnaceTileEntity.getFuel().entrySet()) {
 			if (!(entry.getKey() instanceof BucketItem) && entry != null && entry.getValue() > 0) {
 				recipeHelper.registerDisplay(new SolidGeneratingDisplay((entry.getValue() / 2F * 5) / (entry.getValue() / 2F) * 6, Collections.singletonList(EntryStack.create(entry.getKey())), null, (entry.getValue() / 2) / 6.0));
 			}

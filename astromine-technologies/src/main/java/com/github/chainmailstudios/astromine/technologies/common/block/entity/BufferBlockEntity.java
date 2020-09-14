@@ -26,8 +26,7 @@ package com.github.chainmailstudios.astromine.technologies.common.block.entity;
 
 import com.github.chainmailstudios.astromine.common.volume.handler.ItemHandler;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.tileentity.TileEntityType;
 import com.github.chainmailstudios.astromine.common.block.entity.base.ComponentInventoryBlockEntity;
 import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleItemInventoryComponent;
@@ -36,7 +35,7 @@ import com.github.chainmailstudios.astromine.technologies.registry.AstromineTech
 import org.jetbrains.annotations.NotNull;
 
 public abstract class BufferBlockEntity extends ComponentInventoryBlockEntity {
-	public BufferBlockEntity(BlockEntityType<?> type) {
+	public BufferBlockEntity(TileEntityType<?> type) {
 		super(type);
 	}
 

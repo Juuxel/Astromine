@@ -5,8 +5,8 @@ import com.github.chainmailstudios.astromine.discoveries.common.entity.Primitive
 import com.github.chainmailstudios.astromine.registry.AstromineCommonPackets;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 
 public class AstromineDiscoveriesCommonPackets extends AstromineCommonPackets {
 	public static final ResourceLocation ROCKET_LAUNCH = AstromineCommon.identifier("rocket_launch");
@@ -21,8 +21,8 @@ public class AstromineDiscoveriesCommonPackets extends AstromineCommonPackets {
 		});
 	}
 
-	public static FriendlyByteBuf ofRocketLaunch(int entityId) {
-		FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+	public static PacketBuffer ofRocketLaunch(int entityId) {
+		PacketBuffer buf = new PacketBuffer(Unpooled.buffer());
 		buf.writeInt(entityId);
 		return buf;
 	}

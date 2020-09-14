@@ -26,10 +26,10 @@ package com.github.chainmailstudios.astromine.client.registry;
 
 import com.github.chainmailstudios.astromine.client.render.sky.skybox.Skybox;
 import com.github.chainmailstudios.astromine.common.registry.base.BiRegistry;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.world.World;
 
-public class SkyboxRegistry extends BiRegistry<ResourceKey<Level>, Skybox> {
+public class SkyboxRegistry extends BiRegistry<RegistryKey<World>, Skybox> {
 	public static final SkyboxRegistry INSTANCE = new SkyboxRegistry();
 
 	private SkyboxRegistry() {

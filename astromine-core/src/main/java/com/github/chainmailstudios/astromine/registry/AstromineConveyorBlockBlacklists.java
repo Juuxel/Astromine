@@ -25,8 +25,8 @@
 package com.github.chainmailstudios.astromine.registry;
 
 import com.github.chainmailstudios.astromine.common.registry.ConveyorBlockBlacklistRegistry;
+import net.minecraft.item.Items;
 import net.minecraft.util.Tuple;
-import net.minecraft.world.item.Items;
 
 public class AstromineConveyorBlockBlacklists {
 	public static void initialize() {

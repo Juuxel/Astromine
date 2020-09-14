@@ -25,8 +25,8 @@
 package com.github.chainmailstudios.astromine.registry;
 
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
-import net.minecraft.core.Registry;
-import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.particles.BasicParticleType;
+import net.minecraft.util.registry.Registry;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 
 public class AstromineParticles {
@@ -40,7 +40,7 @@ public class AstromineParticles {
 	 *
 	 * @return Registered {@link DefaultParticleType}
 	 */
-	public static SimpleParticleType register(String name, boolean alwaysShow) {
+	public static BasicParticleType register(String name, boolean alwaysShow) {
 		return Registry.register(Registry.PARTICLE_TYPE, AstromineCommon.identifier(name), FabricParticleTypes.simple(alwaysShow));
 	}
 }

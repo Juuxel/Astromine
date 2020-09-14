@@ -40,33 +40,33 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
-import net.minecraft.core.NonNullList;
-import net.minecraft.core.Registry;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.LazyLoadedValue;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.Fluid;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.LazyValue;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 
-public class LiquidGeneratingRecipe implements Recipe<Container>, EnergyGeneratingRecipe<Container> {
+public class LiquidGeneratingRecipe implements IRecipe<IInventory>, EnergyGeneratingRecipe<IInventory> {
 	final ResourceLocation identifier;
-	final ResourceKey<Fluid> fluidKey;
-	final LazyLoadedValue<Fluid> fluid;
+	final RegistryKey<Fluid> fluidKey;
+	final LazyValue<Fluid> fluid;
 	final Fraction amount;
 	final double energyGenerated;
 	final int time;
 
-	public LiquidGeneratingRecipe(ResourceLocation identifier, ResourceKey<Fluid> fluidKey, Fraction amount, double energyGenerated, int time) {
+	public LiquidGeneratingRecipe(ResourceLocation identifier, RegistryKey<Fluid> fluidKey, Fraction amount, double energyGenerated, int time) {
 		this.identifier = identifier;
 		this.fluidKey = fluidKey;
-		this.fluid = new LazyLoadedValue<>(() -> Registry.FLUID.get(this.fluidKey));
+		this.fluid = new LazyValue<>(() -> Registry.FLUID.get(this.fluidKey));
 		this.amount = amount;
 		this.energyGenerated = energyGenerated;
 		this.time = time;
@@ -85,12 +85,12 @@ public class LiquidGeneratingRecipe implements Recipe<Container>, EnergyGenerati
 	}
 
 	@Override
-	public boolean matches(Container inventory, Level world) {
+	public boolean matches(IInventory inventory, World world) {
 		return false;
 	}
 
 	@Override
-	public ItemStack assemble(Container inventory) {
+	public ItemStack assemble(IInventory inventory) {
 		return ItemStack.EMPTY;
 	}
 
@@ -110,12 +110,12 @@ public class LiquidGeneratingRecipe implements Recipe<Container>, EnergyGenerati
 	}
 
 	@Override
-	public RecipeSerializer<?> getSerializer() {
+	public IRecipeSerializer<?> getSerializer() {
 		return Serializer.INSTANCE;
 	}
 
 	@Override
-	public RecipeType<?> getType() {
+	public IRecipeType<?> getType() {
 		return Type.INSTANCE;
 	}
 
@@ -145,7 +145,7 @@ public class LiquidGeneratingRecipe implements Recipe<Container>, EnergyGenerati
 		return time;
 	}
 
-	public static final class Serializer implements RecipeSerializer<LiquidGeneratingRecipe> {
+	public static final class Serializer implements IRecipeSerializer<LiquidGeneratingRecipe> {
 		public static final ResourceLocation ID = AstromineCommon.identifier("liquid_generating");
 
 		public static final Serializer INSTANCE = new Serializer();
@@ -158,16 +158,16 @@ public class LiquidGeneratingRecipe implements Recipe<Container>, EnergyGenerati
 		public LiquidGeneratingRecipe fromJson(ResourceLocation identifier, JsonObject object) {
 			LiquidGeneratingRecipe.Format format = new Gson().fromJson(object, LiquidGeneratingRecipe.Format.class);
 
-			return new LiquidGeneratingRecipe(identifier, ResourceKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.input)), FractionUtilities.fromJson(format.amount), EnergyUtilities.fromJson(format.energyGenerated), ParsingUtilities.fromJson(format.time, Integer.class));
+			return new LiquidGeneratingRecipe(identifier, RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.input)), FractionUtilities.fromJson(format.amount), EnergyUtilities.fromJson(format.energyGenerated), ParsingUtilities.fromJson(format.time, Integer.class));
 		}
 
 		@Override
-		public LiquidGeneratingRecipe fromNetwork(ResourceLocation identifier, FriendlyByteBuf buffer) {
-			return new LiquidGeneratingRecipe(identifier, ResourceKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), EnergyUtilities.fromPacket(buffer), PacketUtilities.fromPacket(buffer, Integer.class));
+		public LiquidGeneratingRecipe fromNetwork(ResourceLocation identifier, PacketBuffer buffer) {
+			return new LiquidGeneratingRecipe(identifier, RegistryKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), EnergyUtilities.fromPacket(buffer), PacketUtilities.fromPacket(buffer, Integer.class));
 		}
 
 		@Override
-		public void write(FriendlyByteBuf buffer, LiquidGeneratingRecipe recipe) {
+		public void write(PacketBuffer buffer, LiquidGeneratingRecipe recipe) {
 			buffer.writeResourceLocation(recipe.fluidKey.location());
 			FractionUtilities.toPacket(buffer, recipe.amount);
 			EnergyUtilities.toPacket(buffer, recipe.energyGenerated);

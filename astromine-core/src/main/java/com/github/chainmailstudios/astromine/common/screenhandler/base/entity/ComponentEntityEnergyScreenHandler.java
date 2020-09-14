@@ -28,15 +28,15 @@ import com.github.chainmailstudios.astromine.common.entity.base.ComponentEnergyE
 import com.github.chainmailstudios.astromine.common.widget.blade.EnergyVerticalBarWidget;
 import com.github.vini2003.blade.common.miscellaneous.Position;
 import com.github.vini2003.blade.common.miscellaneous.Size;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.MenuType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.ContainerType;
 
 public abstract class ComponentEntityEnergyScreenHandler extends ComponentEntityScreenHandler {
 	public ComponentEnergyEntity entity;
 
 	public EnergyVerticalBarWidget energyBar;
 
-	public ComponentEntityEnergyScreenHandler(MenuType<?> type, int syncId, Player player, int entityId) {
+	public ComponentEntityEnergyScreenHandler(ContainerType<?> type, int syncId, PlayerEntity player, int entityId) {
 		super(type, syncId, player, entityId);
 
 		entity = (ComponentEnergyEntity) player.level.getEntity(entityId);

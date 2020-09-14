@@ -27,7 +27,7 @@ package com.github.chainmailstudios.astromine.discoveries.common.entity.ai.super
 import com.github.chainmailstudios.astromine.discoveries.common.entity.SuperSpaceSlimeEntity;
 
 import java.util.EnumSet;
-import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.entity.ai.goal.Goal;
 
 public class SuperSpaceSlimeSwimmingGoal extends Goal {
 

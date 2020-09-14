@@ -26,17 +26,17 @@ package com.github.chainmailstudios.astromine.discoveries.client.render.sky;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.DimensionSpecialEffects;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.client.world.DimensionRenderInfo;
+import net.minecraft.util.math.vector.Vector3d;
 
 @Environment(EnvType.CLIENT)
-public class SpaceSkyProperties extends DimensionSpecialEffects {
+public class SpaceSkyProperties extends DimensionRenderInfo {
 	public SpaceSkyProperties() {
-		super(Float.NaN, false, SkyType.NONE, true, true);
+		super(Float.NaN, false, FogType.NONE, true, true);
 	}
 
 	@Override
-	public Vec3 getBrightnessDependentFogColor(Vec3 color, float sunHeight) {
+	public Vector3d getBrightnessDependentFogColor(Vector3d color, float sunHeight) {
 		return color.scale(0.15000000596046448D);
 	}
 

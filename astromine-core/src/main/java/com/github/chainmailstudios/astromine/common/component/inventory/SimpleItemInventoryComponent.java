@@ -25,9 +25,6 @@
 package com.github.chainmailstudios.astromine.common.component.inventory;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.ItemStack;
 import com.github.chainmailstudios.astromine.common.utilities.data.predicate.TriPredicate;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,6 +33,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 
 /**
  * Simple implementation of an InventoryComponent for usage anywhere one is required. Size is immutable and therefore
@@ -108,12 +108,12 @@ public class SimpleItemInventoryComponent implements ItemInventoryComponent {
 	}
 
 	@Override
-	public void fromTag(CompoundTag compoundTag) {
+	public void fromTag(CompoundNBT compoundTag) {
 		read(this, compoundTag, Optional.empty(), Optional.empty());
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag compoundTag) {
+	public CompoundNBT toTag(CompoundNBT compoundTag) {
 		write(this, compoundTag, Optional.empty(), Optional.empty());
 		return compoundTag;
 	}

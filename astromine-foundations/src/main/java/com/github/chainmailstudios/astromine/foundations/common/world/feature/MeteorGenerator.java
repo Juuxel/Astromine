@@ -24,24 +24,6 @@
 
 package com.github.chainmailstudios.astromine.foundations.common.world.feature;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
-import net.minecraft.core.Vec3i;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.StructureFeatureManager;
-import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.ScatteredFeaturePiece;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
-import net.minecraft.world.level.material.Fluids;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.noise.OpenSimplexNoise;
 import com.github.chainmailstudios.astromine.foundations.registry.AstromineFoundationsBlocks;
@@ -58,8 +40,26 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.MutableBoundingBox;
+import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.ISeedReader;
+import net.minecraft.world.World;
+import net.minecraft.world.gen.ChunkGenerator;
+import net.minecraft.world.gen.Heightmap;
+import net.minecraft.world.gen.feature.structure.ScatteredStructurePiece;
+import net.minecraft.world.gen.feature.structure.StructureManager;
+import net.minecraft.world.gen.feature.template.TemplateManager;
 
-public class MeteorGenerator extends ScatteredFeaturePiece {
+public class MeteorGenerator extends ScatteredStructurePiece {
 
 	private static OpenSimplexNoise noise;
 
@@ -67,11 +67,11 @@ public class MeteorGenerator extends ScatteredFeaturePiece {
 		super(AstromineFoundationsFeatures.METEOR_STRUCTURE, random, x, 64, z, 16, 16, 16);
 	}
 
-	public MeteorGenerator(StructureManager manager, CompoundTag tag) {
+	public MeteorGenerator(TemplateManager manager, CompoundNBT tag) {
 		super(AstromineFoundationsFeatures.METEOR_STRUCTURE, tag);
 	}
 
-	public static void buildSphere(WorldGenLevel world, BlockPos originPos, int radius, BlockState state) {
+	public static void buildSphere(ISeedReader world, BlockPos originPos, int radius, BlockState state) {
 		for (int x = -radius; x <= radius; x++) {
 			for (int z = -radius; z <= radius; z++) {
 				for (int y = -radius; y <= radius; y++) {
@@ -87,15 +87,15 @@ public class MeteorGenerator extends ScatteredFeaturePiece {
 	}
 
 	@Override
-	public boolean postProcess(WorldGenLevel world, StructureFeatureManager structureAccessor, ChunkGenerator chunkGenerator, Random random, BoundingBox boundingBox, ChunkPos chunkPos, BlockPos blockPos) {
+	public boolean postProcess(ISeedReader world, StructureManager structureAccessor, ChunkGenerator chunkGenerator, Random random, MutableBoundingBox boundingBox, ChunkPos chunkPos, BlockPos blockPos) {
 		return generate(world, chunkPos, random, blockPos);
 	}
 
-	public boolean generate(WorldGenLevel world, ChunkPos chunkPos, Random random, BlockPos blockPos) {
-		if (!world.getLevel().dimension().equals(Level.OVERWORLD))
+	public boolean generate(ISeedReader world, ChunkPos chunkPos, Random random, BlockPos blockPos) {
+		if (!world.getLevel().dimension().equals(World.OVERWORLD))
 			return false;
 		noise = new OpenSimplexNoise(world.getSeed());
-		BlockPos originPos = world.getHeightmapPos(Heightmap.Types.OCEAN_FLOOR_WG, new BlockPos(chunkPos.getMinBlockX() + 8, 0, chunkPos.getMinBlockZ() + 8));
+		BlockPos originPos = world.getHeightmapPos(Heightmap.Type.OCEAN_FLOOR_WG, new BlockPos(chunkPos.getMinBlockX() + 8, 0, chunkPos.getMinBlockZ() + 8));
 		originPos = emptySphere(world, originPos, 16, state -> {
 			if (world.getRandom().nextInt(10) == 0) {
 				return Blocks.FIRE.defaultBlockState();
@@ -121,7 +121,7 @@ public class MeteorGenerator extends ScatteredFeaturePiece {
 		return true;
 	}
 
-	private BlockPos emptySphere(WorldGenLevel world, BlockPos originPos, int radius, GroundManipulator bottom, GroundManipulator underneath) {
+	private BlockPos emptySphere(ISeedReader world, BlockPos originPos, int radius, GroundManipulator bottom, GroundManipulator underneath) {
 		boolean hasWater = false;
 		List<BlockPos> placedPositions = new ArrayList<>();
 
@@ -168,7 +168,7 @@ public class MeteorGenerator extends ScatteredFeaturePiece {
 			world.setBlock(pos, underneath.manipulate(world.getBlockState(pos)), 3);
 		}
 
-		return placedPositions.stream().filter(pos -> pos.getX() == originPos.getX() && pos.getZ() == originPos.getZ()).min(Comparator.comparingInt(Vec3i::getY)).orElse(originPos).relative(Direction.DOWN);
+		return placedPositions.stream().filter(pos -> pos.getX() == originPos.getX() && pos.getZ() == originPos.getZ()).min(Comparator.comparingInt(Vector3i::getY)).orElse(originPos).relative(Direction.DOWN);
 	}
 
 	@FunctionalInterface

@@ -26,28 +26,28 @@ package com.github.chainmailstudios.astromine.transportations.common.block.entit
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachmentBlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.Container;
-import net.minecraft.world.WorldlyContainer;
-import net.minecraft.world.entity.EntitySelector;
-import net.minecraft.world.entity.vehicle.MinecartChest;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.AbstractFurnaceBlock;
-import net.minecraft.world.level.block.ComposterBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.block.AbstractFurnaceBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ComposterBlock;
+import net.minecraft.block.HorizontalBlock;
+import net.minecraft.entity.item.minecart.ChestMinecartEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.tileentity.AbstractFurnaceTileEntity;
+import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.EntityPredicates;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.server.ServerWorld;
 import alexiil.mc.lib.attributes.SearchOptions;
 import alexiil.mc.lib.attributes.Simulation;
 import alexiil.mc.lib.attributes.item.ItemAttributes;
@@ -63,7 +63,7 @@ import com.github.chainmailstudios.astromine.transportations.registry.AstromineT
 import java.util.List;
 import java.util.stream.IntStream;
 
-public class InserterBlockEntity extends BlockEntity implements SingularStackInventory, BlockEntityClientSerializable, RenderAttachmentBlockEntity, TickableBlockEntity {
+public class InserterBlockEntity extends TileEntity implements SingularStackInventory, BlockEntityClientSerializable, RenderAttachmentBlockEntity, ITickableTileEntity {
 	protected int position = 0;
 	protected int prevPosition = 0;
 	private NonNullList<ItemStack> stacks = NonNullList.withSize(1, ItemStack.EMPTY);
@@ -72,17 +72,17 @@ public class InserterBlockEntity extends BlockEntity implements SingularStackInv
 		super(AstromineTransportationsBlockEntityTypes.INSERTER);
 	}
 
-	public InserterBlockEntity(BlockEntityType type) {
+	public InserterBlockEntity(TileEntityType type) {
 		super(type);
 	}
 
-	private static IntStream getAvailableSlots(Container inventory, Direction side) {
-		return inventory instanceof WorldlyContainer ? IntStream.of(((WorldlyContainer) inventory).getSlotsForFace(side)) : IntStream.range(0, inventory.getContainerSize());
+	private static IntStream getAvailableSlots(IInventory inventory, Direction side) {
+		return inventory instanceof ISidedInventory ? IntStream.of(((ISidedInventory) inventory).getSlotsForFace(side)) : IntStream.range(0, inventory.getContainerSize());
 	}
 
-	public static ItemStack transfer(Container from, Container to, ItemStack stack, Direction side) {
-		if (to instanceof WorldlyContainer && side != null) {
-			WorldlyContainer sidedInventory = (WorldlyContainer) to;
+	public static ItemStack transfer(IInventory from, IInventory to, ItemStack stack, Direction side) {
+		if (to instanceof ISidedInventory && side != null) {
+			ISidedInventory sidedInventory = (ISidedInventory) to;
 			int[] is = sidedInventory.getSlotsForFace(side);
 
 			for (int i = 0; i < is.length && !stack.isEmpty(); ++i) {
@@ -99,11 +99,11 @@ public class InserterBlockEntity extends BlockEntity implements SingularStackInv
 		return stack;
 	}
 
-	private static boolean canInsert(Container inventory, ItemStack stack, int slot, Direction side) {
+	private static boolean canInsert(IInventory inventory, ItemStack stack, int slot, Direction side) {
 		if (!inventory.canPlaceItem(slot, stack)) {
 			return false;
 		} else {
-			return !(inventory instanceof WorldlyContainer) || ((WorldlyContainer) inventory).canPlaceItemThroughFace(slot, stack, side);
+			return !(inventory instanceof ISidedInventory) || ((ISidedInventory) inventory).canPlaceItemThroughFace(slot, stack, side);
 		}
 	}
 
@@ -119,11 +119,11 @@ public class InserterBlockEntity extends BlockEntity implements SingularStackInv
 		}
 	}
 
-	private static boolean canExtract(Container inventory, ItemStack stack, int slot, Direction facing) {
-		return !(inventory instanceof WorldlyContainer) || ((WorldlyContainer) inventory).canTakeItemThroughFace(slot, stack, facing);
+	private static boolean canExtract(IInventory inventory, ItemStack stack, int slot, Direction facing) {
+		return !(inventory instanceof ISidedInventory) || ((ISidedInventory) inventory).canTakeItemThroughFace(slot, stack, facing);
 	}
 
-	private static boolean extract(SingularStackInventory singularStackInventory, Container inventory, int slot, Direction side) {
+	private static boolean extract(SingularStackInventory singularStackInventory, IInventory inventory, int slot, Direction side) {
 		ItemStack stack = inventory.getItem(slot);
 		if (!stack.isEmpty() && canExtract(inventory, stack, slot, side)) {
 			ItemStack stackB = stack.copy();
@@ -139,7 +139,7 @@ public class InserterBlockEntity extends BlockEntity implements SingularStackInv
 		return false;
 	}
 
-	private static ItemStack transfer(Container from, Container to, ItemStack stackA, int slot, Direction direction) {
+	private static ItemStack transfer(IInventory from, IInventory to, ItemStack stackA, int slot, Direction direction) {
 		ItemStack stackB = to.getItem(slot);
 		if (canInsert(to, stackA, slot, direction)) {
 			if (stackB.isEmpty()) {
@@ -158,7 +158,7 @@ public class InserterBlockEntity extends BlockEntity implements SingularStackInv
 
 	@Override
 	public void tick() {
-		Direction direction = getBlockState().getValue(HorizontalDirectionalBlock.FACING);
+		Direction direction = getBlockState().getValue(HorizontalBlock.FACING);
 		boolean powered = getBlockState().getValue(BlockStateProperties.POWERED);
 		int speed = ((InserterBlock) getBlockState().getBlock()).getSpeed();
 
@@ -181,10 +181,10 @@ public class InserterBlockEntity extends BlockEntity implements SingularStackInv
 					}
 				} else {
 					BlockPos offsetPos = getBlockPos().relative(direction.getOpposite());
-					List<MinecartChest> minecartEntities = getLevel().getEntitiesOfClass(MinecartChest.class, new AABB(offsetPos.getX(), offsetPos.getY(), offsetPos.getZ(), offsetPos.getX() + 1, offsetPos.getY() + 1, offsetPos.getZ() + 1),
-						EntitySelector.NO_SPECTATORS);
+					List<ChestMinecartEntity> minecartEntities = getLevel().getEntitiesOfClass(ChestMinecartEntity.class, new AxisAlignedBB(offsetPos.getX(), offsetPos.getY(), offsetPos.getZ(), offsetPos.getX() + 1, offsetPos.getY() + 1, offsetPos.getZ() + 1),
+						EntityPredicates.NO_SPECTATORS);
 					if (position == 0 && minecartEntities.size() >= 1) {
-						MinecartChest minecartEntity = minecartEntities.get(0);
+						ChestMinecartEntity minecartEntity = minecartEntities.get(0);
 						FixedInventoryVanillaWrapper wrapper = new FixedInventoryVanillaWrapper(minecartEntity);
 						ItemExtractable extractableMinecart = wrapper.getExtractable();
 
@@ -205,7 +205,7 @@ public class InserterBlockEntity extends BlockEntity implements SingularStackInv
 
 				if (aheadState.getBlock() instanceof ComposterBlock) {
 					insertable = ItemAttributes.INSERTABLE.get(level, getBlockPos().relative(direction), SearchOptions.inDirection(Direction.DOWN));
-				} else if (aheadState.getBlock() instanceof AbstractFurnaceBlock && !AbstractFurnaceBlockEntity.isFuel(getStack())) {
+				} else if (aheadState.getBlock() instanceof AbstractFurnaceBlock && !AbstractFurnaceTileEntity.isFuel(getStack())) {
 					insertable = ItemAttributes.INSERTABLE.get(level, getBlockPos().relative(direction), SearchOptions.inDirection(Direction.DOWN));
 				}
 
@@ -223,12 +223,12 @@ public class InserterBlockEntity extends BlockEntity implements SingularStackInv
 					}
 				} else {
 					BlockPos offsetPos = getBlockPos().relative(direction);
-					List<MinecartChest> minecartEntities = getLevel().getEntitiesOfClass(MinecartChest.class, new AABB(offsetPos.getX(), offsetPos.getY(), offsetPos.getZ(), offsetPos.getX() + 1, offsetPos.getY() + 1, offsetPos.getZ() + 1),
-						EntitySelector.NO_SPECTATORS);
+					List<ChestMinecartEntity> minecartEntities = getLevel().getEntitiesOfClass(ChestMinecartEntity.class, new AxisAlignedBB(offsetPos.getX(), offsetPos.getY(), offsetPos.getZ(), offsetPos.getX() + 1, offsetPos.getY() + 1, offsetPos.getZ() + 1),
+						EntityPredicates.NO_SPECTATORS);
 					if (minecartEntities.size() >= 1) {
-						MinecartChest minecartEntity = minecartEntities.get(0);
-						if (minecartEntity instanceof Container) {
-							FixedInventoryVanillaWrapper wrapper = new FixedInventoryVanillaWrapper((Container) minecartEntity);
+						ChestMinecartEntity minecartEntity = minecartEntities.get(0);
+						if (minecartEntity instanceof IInventory) {
+							FixedInventoryVanillaWrapper wrapper = new FixedInventoryVanillaWrapper((IInventory) minecartEntity);
 							ItemInsertable insertableMinecart = wrapper.getInsertable();
 
 							ItemStack stackMinecart = insertableMinecart.attemptInsertion(getStack(), Simulation.SIMULATE);
@@ -237,7 +237,7 @@ public class InserterBlockEntity extends BlockEntity implements SingularStackInv
 							} else if (!getLevel().isClientSide() && (stackMinecart.isEmpty() || stackMinecart.getCount() != getStack().getCount())) {
 								stackMinecart = insertableMinecart.attemptInsertion(getStack(), Simulation.ACTION);
 								setStack(stackMinecart);
-								((Container) minecartEntity).setChanged();
+								((IInventory) minecartEntity).setChanged();
 							}
 						}
 					} else if (position > 0) {
@@ -252,7 +252,7 @@ public class InserterBlockEntity extends BlockEntity implements SingularStackInv
 		}
 	}
 
-	private boolean isInventoryFull(Container inventory, Direction direction) {
+	private boolean isInventoryFull(IInventory inventory, Direction direction) {
 		return getAvailableSlots(inventory, direction).allMatch((i) -> {
 			ItemStack stack = inventory.getItem(i);
 			return stack.getCount() >= stack.getMaxStackSize();
@@ -273,7 +273,7 @@ public class InserterBlockEntity extends BlockEntity implements SingularStackInv
 	public void setStack(int slot, ItemStack stack) {
 		SingularStackInventory.super.setStack(slot, stack);
 		if (!level.isClientSide())
-			sendPacket((ServerLevel) level, save(new CompoundTag()));
+			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 	}
 
 	@Override
@@ -282,7 +282,7 @@ public class InserterBlockEntity extends BlockEntity implements SingularStackInv
 		position = 15;
 		prevPosition = 15;
 		if (!level.isClientSide())
-			sendPacket((ServerLevel) level, save(new CompoundTag()));
+			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 		return stack;
 	}
 
@@ -290,7 +290,7 @@ public class InserterBlockEntity extends BlockEntity implements SingularStackInv
 	public void clear() {
 		SingularStackInventory.super.clear();
 		if (!level.isClientSide())
-			sendPacket((ServerLevel) level, save(new CompoundTag()));
+			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 	}
 
 	@Override
@@ -313,13 +313,13 @@ public class InserterBlockEntity extends BlockEntity implements SingularStackInv
 		return prevPosition;
 	}
 
-	protected void sendPacket(ServerLevel w, CompoundTag tag) {
-		tag.putString("id", BlockEntityType.getKey(getType()).toString());
-		sendPacket(w, new ClientboundBlockEntityDataPacket(getBlockPos(), 127, tag));
+	protected void sendPacket(ServerWorld w, CompoundNBT tag) {
+		tag.putString("id", TileEntityType.getKey(getType()).toString());
+		sendPacket(w, new SUpdateTileEntityPacket(getBlockPos(), 127, tag));
 	}
 
-	protected void sendPacket(ServerLevel w, ClientboundBlockEntityDataPacket packet) {
-		w.getPlayers(player -> player.distanceToSqr(Vec3.atLowerCornerOf(getBlockPos())) < 40 * 40).forEach(player -> player.connection.send(packet));
+	protected void sendPacket(ServerWorld w, SUpdateTileEntityPacket packet) {
+		w.getPlayers(player -> player.distanceToSqr(Vector3d.atLowerCornerOf(getBlockPos())) < 40 * 40).forEach(player -> player.connection.send(packet));
 	}
 
 	@Override
@@ -328,31 +328,31 @@ public class InserterBlockEntity extends BlockEntity implements SingularStackInv
 	}
 
 	@Override
-	public void load(BlockState state, CompoundTag compoundTag) {
+	public void load(BlockState state, CompoundNBT compoundTag) {
 		super.load(state, compoundTag);
 		getItems().set(0, ItemStack.of(compoundTag.getCompound("stack")));
 		position = compoundTag.getInt("position");
 	}
 
 	@Override
-	public void fromClientTag(CompoundTag compoundTag) {
+	public void fromClientTag(CompoundNBT compoundTag) {
 		load(getBlockState(), compoundTag);
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag compoundTag) {
-		compoundTag.put("stack", getStack().toTag(new CompoundTag()));
+	public CompoundNBT save(CompoundNBT compoundTag) {
+		compoundTag.put("stack", getStack().toTag(new CompoundNBT()));
 		compoundTag.putInt("position", position);
 		return super.save(compoundTag);
 	}
 
 	@Override
-	public CompoundTag getUpdateTag() {
-		return save(new CompoundTag());
+	public CompoundNBT getUpdateTag() {
+		return save(new CompoundNBT());
 	}
 
 	@Override
-	public CompoundTag toClientTag(CompoundTag compoundTag) {
+	public CompoundNBT toClientTag(CompoundNBT compoundTag) {
 		return save(compoundTag);
 	}
 }

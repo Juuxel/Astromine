@@ -25,7 +25,7 @@
 package com.github.chainmailstudios.astromine.common.block.entity.base;
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.tileentity.TileEntityType;
 import com.github.chainmailstudios.astromine.common.component.SidedComponentProvider;
 import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
@@ -35,7 +35,7 @@ public abstract class ComponentFluidBlockEntity extends ComponentBlockEntity imp
 
 	protected abstract FluidInventoryComponent createFluidComponent();
 
-	public ComponentFluidBlockEntity(BlockEntityType<?> type) {
+	public ComponentFluidBlockEntity(TileEntityType<?> type) {
 		super(type);
 
 		addComponent(AstromineComponentTypes.FLUID_INVENTORY_COMPONENT, fluidComponent);

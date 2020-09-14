@@ -27,20 +27,20 @@ package com.github.chainmailstudios.astromine.common.widget.blade;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import com.github.chainmailstudios.astromine.client.BaseRenderer;
 import com.github.chainmailstudios.astromine.common.block.entity.base.ComponentBlockEntity;
 import com.github.chainmailstudios.astromine.common.component.block.entity.BlockEntityTransferComponent;
 import com.github.chainmailstudios.astromine.common.utilities.MirrorUtilities;
 import com.github.chainmailstudios.astromine.registry.AstromineCommonPackets;
 import com.github.vini2003.blade.common.widget.base.AbstractWidget;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.netty.buffer.Unpooled;
 import nerdhub.cardinal.components.api.ComponentType;
 import org.jetbrains.annotations.NotNull;
@@ -127,7 +127,7 @@ public class TransferTypeSelectorButtonWidget extends AbstractWidget {
 	public void onMouseReleased(float mouseX, float mouseY, int mouseButton) {
 		if (getFocused() && wasClicked) {
 			if (getHandler().getClient()) {
-				FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+				PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
 
 				buffer.writeBlockPos(getBlockPos());
 				buffer.writeResourceLocation(ComponentBlockEntity.TRANSFER_UPDATE_PACKET);
@@ -146,14 +146,14 @@ public class TransferTypeSelectorButtonWidget extends AbstractWidget {
 
 	@Environment(EnvType.CLIENT)
 	@Override
-	public @NotNull List<Component> getTooltip() {
+	public @NotNull List<ITextComponent> getTooltip() {
 		Direction offset = MirrorUtilities.rotate(direction, rotation);
-		return Arrays.asList(new TranslatableComponent("text.astromine.siding." + offset.getName()), new TranslatableComponent("text.astromine.siding." + getSideName()));
+		return Arrays.asList(new TranslationTextComponent("text.astromine.siding." + offset.getName()), new TranslationTextComponent("text.astromine.siding." + getSideName()));
 	}
 
 	@Environment(EnvType.CLIENT)
 	@Override
-	public void drawWidget(@NotNull PoseStack matrices, @NotNull MultiBufferSource provider) {
+	public void drawWidget(@NotNull MatrixStack matrices, @NotNull IRenderTypeBuffer provider) {
 		if (getHidden())
 			return;
 

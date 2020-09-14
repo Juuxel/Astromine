@@ -30,10 +30,10 @@ import com.github.chainmailstudios.astromine.discoveries.registry.AstromineDisco
 import com.github.chainmailstudios.astromine.registry.client.AstromineBlockEntityRenderers;
 
 import java.util.function.Function;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 
 public class AstromineDiscoveriesBlockEntityRenderers {
 	public static void initialize() {
@@ -41,7 +41,7 @@ public class AstromineDiscoveriesBlockEntityRenderers {
 		register(AstromineDiscoveriesBlockEntityTypes.ALTAR, AltarBlockEntityRenderer::new);
 	}
 
-	public static <B extends BlockEntity, C extends BlockEntityType<B>> void register(C c, Function<BlockEntityRenderDispatcher, BlockEntityRenderer<B>> b) {
+	public static <B extends TileEntity, C extends TileEntityType<B>> void register(C c, Function<TileEntityRendererDispatcher, TileEntityRenderer<B>> b) {
 		AstromineBlockEntityRenderers.register(c, b);
 	}
 }

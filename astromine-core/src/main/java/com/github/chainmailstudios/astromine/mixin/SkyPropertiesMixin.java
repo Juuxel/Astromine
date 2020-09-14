@@ -26,8 +26,8 @@ package com.github.chainmailstudios.astromine.mixin;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.DimensionSpecialEffects;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.world.DimensionRenderInfo;
+import net.minecraft.util.ResourceLocation;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -38,12 +38,12 @@ import com.github.chainmailstudios.astromine.common.callback.SkyPropertiesCallba
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 
 @Environment(EnvType.CLIENT)
-@Mixin(DimensionSpecialEffects.class)
+@Mixin(DimensionRenderInfo.class)
 public class SkyPropertiesMixin {
 
 	@Shadow
 	@Final
-	private static Object2ObjectMap<ResourceLocation, DimensionSpecialEffects> BY_IDENTIFIER;
+	private static Object2ObjectMap<ResourceLocation, DimensionRenderInfo> BY_IDENTIFIER;
 
 	@Inject(method = "<clinit>", at = @At("RETURN"))
 	private static void init(CallbackInfo info) {

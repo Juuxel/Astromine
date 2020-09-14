@@ -26,23 +26,23 @@ package com.github.chainmailstudios.astromine.client.patchouli;
 
 import com.github.chainmailstudios.astromine.common.recipe.base.EnergyConsumingRecipe;
 import com.github.chainmailstudios.astromine.common.utilities.EnergyUtilities;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.crafting.RecipeType;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.util.text.TranslationTextComponent;
 import vazkii.patchouli.client.book.gui.GuiBook;
 import vazkii.patchouli.client.book.page.abstr.PageSimpleProcessingRecipe;
 
 public abstract class BasicEnergyConsumingPage<T extends EnergyConsumingRecipe<?>> extends PageSimpleProcessingRecipe<T> {
 	public static final int ENERGY_CONSUMED_TEXT_COLOR = 0x999999;
 
-	public BasicEnergyConsumingPage(RecipeType<T> recipeType) {
+	public BasicEnergyConsumingPage(IRecipeType<T> recipeType) {
 		super(recipeType);
 	}
 
 	@Override
-	public void drawRecipe(PoseStack ms, T recipe, int recipeX, int recipeY, int mouseX, int mouseY, boolean second) {
+	public void drawRecipe(MatrixStack ms, T recipe, int recipeX, int recipeY, int mouseX, int mouseY, boolean second) {
 		super.drawRecipe(ms, recipe, recipeX, recipeY, mouseX, mouseY, second);
-		parent.drawCenteredStringNoShadow(ms, new TranslatableComponent("category.astromine.consuming.energy", EnergyUtilities.simpleDisplay(recipe.getEnergyConsumed())).getVisualOrderText(), GuiBook.PAGE_WIDTH / 2, recipeY + 25, ENERGY_CONSUMED_TEXT_COLOR);
+		parent.drawCenteredStringNoShadow(ms, new TranslationTextComponent("category.astromine.consuming.energy", EnergyUtilities.simpleDisplay(recipe.getEnergyConsumed())).getVisualOrderText(), GuiBook.PAGE_WIDTH / 2, recipeY + 25, ENERGY_CONSUMED_TEXT_COLOR);
 	}
 
 	@Override

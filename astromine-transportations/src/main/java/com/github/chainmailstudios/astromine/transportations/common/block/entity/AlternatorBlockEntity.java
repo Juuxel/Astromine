@@ -27,9 +27,9 @@ package com.github.chainmailstudios.astromine.transportations.common.block.entit
 import com.github.chainmailstudios.astromine.transportations.common.block.entity.base.AbstractConveyableBlockEntity;
 import com.github.chainmailstudios.astromine.transportations.registry.AstromineTransportationsBlockEntityTypes;
 import com.github.chainmailstudios.astromine.transportations.registry.AstromineTransportationsSoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.SoundCategory;
 
 public class AlternatorBlockEntity extends AbstractConveyableBlockEntity {
 	public boolean right = false;
@@ -38,7 +38,7 @@ public class AlternatorBlockEntity extends AbstractConveyableBlockEntity {
 		super(AstromineTransportationsBlockEntityTypes.ALTERNATOR);
 	}
 
-	public AlternatorBlockEntity(BlockEntityType type) {
+	public AlternatorBlockEntity(TileEntityType type) {
 		super(type);
 	}
 
@@ -59,6 +59,6 @@ public class AlternatorBlockEntity extends AbstractConveyableBlockEntity {
 			setLeftStack(stack);
 		}
 
-		getLevel().playSound(null, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), AstromineTransportationsSoundEvents.MACHINE_CLICK, SoundSource.BLOCKS, 1.0F, 1.0F);
+		getLevel().playSound(null, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), AstromineTransportationsSoundEvents.MACHINE_CLICK, SoundCategory.BLOCKS, 1.0F, 1.0F);
 	}
 }

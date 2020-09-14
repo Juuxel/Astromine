@@ -27,29 +27,29 @@ package com.github.chainmailstudios.astromine.technologies.common.block;
 import com.github.chainmailstudios.astromine.common.block.base.WrenchableHorizontalFacingBlockWithEntity;
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.HolographicBridgeProjectorBlockEntity;
 import com.github.vini2003.blade.common.miscellaneous.Color;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.DyeItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.item.DyeItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.world.World;
 
 public class HolographicBridgeProjectorBlock extends WrenchableHorizontalFacingBlockWithEntity {
-	public HolographicBridgeProjectorBlock(BlockBehaviour.Properties settings) {
+	public HolographicBridgeProjectorBlock(AbstractBlock.Properties settings) {
 		super(settings);
 	}
 
 	@Override
-	public InteractionResult onUse(BlockState state, Level world, BlockPos position, Player player, InteractionHand hand, BlockHitResult hit) {
+	public ActionResultType onUse(BlockState state, World world, BlockPos position, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
 		ItemStack stack = player.getItemInHand(hand);
 
 		if (stack.getItem() instanceof DyeItem) {
@@ -75,7 +75,7 @@ public class HolographicBridgeProjectorBlock extends WrenchableHorizontalFacingB
 			}
 		}
 
-		return InteractionResult.PASS;
+		return ActionResultType.PASS;
 	}
 
 	@Override
@@ -84,17 +84,17 @@ public class HolographicBridgeProjectorBlock extends WrenchableHorizontalFacingB
 	}
 
 	@Override
-	public BlockEntity createBlockEntity() {
+	public TileEntity createBlockEntity() {
 		return new HolographicBridgeProjectorBlockEntity();
 	}
 
 	@Override
-	public AbstractContainerMenu createScreenHandler(BlockState state, Level world, BlockPos pos, int syncId, Inventory playerInventory, Player player) {
+	public Container createScreenHandler(BlockState state, World world, BlockPos pos, int syncId, PlayerInventory playerInventory, PlayerEntity player) {
 		return null;
 	}
 
 	@Override
-	public void populateScreenHandlerBuffer(BlockState state, Level world, BlockPos pos, ServerPlayer player, FriendlyByteBuf buffer) {}
+	public void populateScreenHandlerBuffer(BlockState state, World world, BlockPos pos, ServerPlayerEntity player, PacketBuffer buffer) {}
 
 	@Override
 	protected boolean saveTagToDroppedItem() {

@@ -38,8 +38,8 @@ import com.github.chainmailstudios.astromine.technologies.common.block.entity.ma
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.SpeedProvider;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlockEntityTypes;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.nbt.CompoundNBT;
 import org.jetbrains.annotations.NotNull;
 
 public class BlockPlacerBlockEntity extends ComponentEnergyInventoryBlockEntity implements EnergySizeProvider, SpeedProvider, EnergyConsumedProvider {
@@ -118,13 +118,13 @@ public class BlockPlacerBlockEntity extends ComponentEnergyInventoryBlockEntity 
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
+	public CompoundNBT toTag(CompoundNBT tag) {
 		tag.put("cooldown", cooldown.toTag());
 		return super.toTag(tag);
 	}
 
 	@Override
-	public void fromTag(BlockState state, @NotNull CompoundTag tag) {
+	public void fromTag(BlockState state, @NotNull CompoundNBT tag) {
 		cooldown = Fraction.fromTag(tag.getCompound("cooldown"));
 		super.fromTag(state, tag);
 	}

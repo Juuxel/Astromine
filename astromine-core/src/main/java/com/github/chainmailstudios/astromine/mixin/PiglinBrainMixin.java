@@ -36,17 +36,17 @@ import com.github.chainmailstudios.astromine.registry.AstromineTags;
 
 import java.util.Iterator;
 import java.util.Optional;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.monster.piglin.Piglin;
-import net.minecraft.world.entity.monster.piglin.PiglinAi;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
+import net.minecraft.entity.monster.piglin.PiglinEntity;
+import net.minecraft.entity.monster.piglin.PiglinTasks;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 
-@Mixin(PiglinAi.class)
+@Mixin(PiglinTasks.class)
 public abstract class PiglinBrainMixin {
 	@Inject(method = "acceptsForBarter(Lnet/minecraft/item/Item;)Z", at = @At("RETURN"), cancellable = true)
 	private static void acceptsForBarterInject(Item item, CallbackInfoReturnable<Boolean> cir) {
@@ -69,11 +69,11 @@ public abstract class PiglinBrainMixin {
 	}
 
 	@Inject(method = "consumeOffHandItem(Lnet/minecraft/entity/mob/PiglinEntity;Z)V", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/mob/PiglinBrain;acceptsForBarter(Lnet/minecraft/item/Item;)Z"), locals = LocalCapture.CAPTURE_FAILHARD)
-	private static void triggerCriterion(Piglin entity, boolean bl, CallbackInfo ci, ItemStack stack, boolean bl2) {
+	private static void triggerCriterion(PiglinEntity entity, boolean bl, CallbackInfo ci, ItemStack stack, boolean bl2) {
 		if (bl && bl2 && stack.getItem().is(AstromineTags.TRICKS_PIGLINS)) {
-			Optional<Player> optional = entity.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_PLAYER);
-			if (optional.isPresent() && optional.get() instanceof ServerPlayer) {
-				AstromineCriteria.TRICKED_PIGLIN.trigger((ServerPlayer) optional.get());
+			Optional<PlayerEntity> optional = entity.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_PLAYER);
+			if (optional.isPresent() && optional.get() instanceof ServerPlayerEntity) {
+				AstromineCriteria.TRICKED_PIGLIN.trigger((ServerPlayerEntity) optional.get());
 			}
 		}
 	}

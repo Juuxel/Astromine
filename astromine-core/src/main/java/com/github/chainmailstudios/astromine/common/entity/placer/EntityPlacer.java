@@ -24,8 +24,8 @@
 
 package com.github.chainmailstudios.astromine.common.entity.placer;
 
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.portal.PortalInfo;
+import net.minecraft.block.PortalInfo;
+import net.minecraft.entity.Entity;
 
 public interface EntityPlacer {
 	PortalInfo placeEntity(Entity entity);

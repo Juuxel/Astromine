@@ -32,19 +32,19 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.chainmailstudios.astromine.discoveries.registry.AstromineDiscoveriesItems;
 import com.github.chainmailstudios.astromine.discoveries.registry.client.AstromineDiscoveriesClientModels;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.world.item.ItemStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
+import net.minecraft.item.ItemStack;
 
-@Mixin(BlockEntityWithoutLevelRenderer.class)
+@Mixin(ItemStackTileEntityRenderer.class)
 public class BuiltinModelItemRendererMixin {
 	@Unique
 	private final PrimitiveRocketEntityModel primitiveRocketEntityModel = new PrimitiveRocketEntityModel();
 
 	@Inject(method = "render", at = @At("HEAD"), cancellable = true)
-	private void render(ItemStack stack, ItemTransforms.TransformType mode, PoseStack matrices, MultiBufferSource vertexConsumerProvider, int i, int j, CallbackInfo ci) {
+	private void render(ItemStack stack, ItemCameraTransforms.TransformType mode, MatrixStack matrices, IRenderTypeBuffer vertexConsumerProvider, int i, int j, CallbackInfo ci) {
 		if (stack.getItem() == AstromineDiscoveriesItems.PRIMITIVE_ROCKET) {
 			ci.cancel();
 			AstromineDiscoveriesClientModels.renderRocket(primitiveRocketEntityModel, stack, mode, matrices, vertexConsumerProvider, i, j);

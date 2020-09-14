@@ -27,15 +27,15 @@ package com.github.chainmailstudios.astromine.common.widget.blade;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.client.BaseRenderer;
 import com.github.vini2003.blade.client.utilities.Layers;
 import com.github.vini2003.blade.client.utilities.Scissors;
 import com.github.vini2003.blade.common.widget.base.AbstractWidget;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import java.util.function.IntSupplier;
 
 public class HorizontalArrowWidget extends AbstractWidget {
@@ -71,7 +71,7 @@ public class HorizontalArrowWidget extends AbstractWidget {
 
 	@Environment(EnvType.CLIENT)
 	@Override
-	public void drawWidget(PoseStack matrices, MultiBufferSource provider) {
+	public void drawWidget(MatrixStack matrices, IRenderTypeBuffer provider) {
 		if (getHidden()) {
 			return;
 		}

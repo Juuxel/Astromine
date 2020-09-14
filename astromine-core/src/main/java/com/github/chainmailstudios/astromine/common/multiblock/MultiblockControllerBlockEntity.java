@@ -25,11 +25,11 @@
 package com.github.chainmailstudios.astromine.common.multiblock;
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.math.BlockPos;
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.Component;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
@@ -40,14 +40,14 @@ import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class MultiblockControllerBlockEntity extends BlockEntity implements ComponentProvider, BlockEntityClientSerializable {
+public abstract class MultiblockControllerBlockEntity extends TileEntity implements ComponentProvider, BlockEntityClientSerializable {
 	private final MultiblockType multiblockType;
 
 	private final ImmutableMap<ComponentType<?>, Component> components;
 
 	private final Map<BlockPos, MultiblockMemberBlockEntity> members = Maps.newHashMap();
 
-	public MultiblockControllerBlockEntity(BlockEntityType<?> blockEntityType, MultiblockType multiblockType) {
+	public MultiblockControllerBlockEntity(TileEntityType<?> blockEntityType, MultiblockType multiblockType) {
 		super(blockEntityType);
 		this.multiblockType = multiblockType;
 		this.components = multiblockType.getSuppliers();
@@ -105,16 +105,16 @@ public abstract class MultiblockControllerBlockEntity extends BlockEntity implem
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag tag) {
+	public CompoundNBT save(CompoundNBT tag) {
 		components.forEach((key, value) -> {
-			tag.put(key.getId().toString(), value.toTag(new CompoundTag()));
+			tag.put(key.getId().toString(), value.toTag(new CompoundNBT()));
 		});
 
 		return super.save(tag);
 	}
 
 	@Override
-	public void load(BlockState state, CompoundTag tag) {
+	public void load(BlockState state, CompoundNBT tag) {
 		components.forEach((key, value) -> {
 			value.fromTag(tag.getCompound(key.getId().toString()));
 		});
@@ -123,13 +123,13 @@ public abstract class MultiblockControllerBlockEntity extends BlockEntity implem
 	}
 
 	@Override
-	public CompoundTag toClientTag(CompoundTag tag) {
+	public CompoundNBT toClientTag(CompoundNBT tag) {
 		save(tag);
 		return tag;
 	}
 
 	@Override
-	public void fromClientTag(CompoundTag tag) {
+	public void fromClientTag(CompoundNBT tag) {
 		load(null, tag);
 	}
 }

@@ -25,11 +25,11 @@
 package com.github.chainmailstudios.astromine.common.volume.fluid;
 
 import com.google.common.base.Objects;
-import net.minecraft.core.Registry;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleFluidInventoryComponent;
 import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
@@ -161,15 +161,15 @@ public class FluidVolume extends Volume<ResourceLocation, Fraction> {
 	}
 
 	@Override
-	public CompoundTag toTag() {
-		CompoundTag tag = new CompoundTag();
+	public CompoundNBT toTag() {
+		CompoundNBT tag = new CompoundNBT();
 		tag.put("amount", getAmount().toTag());
 		tag.put("size", getSize().toTag());
 		tag.putString("fluid", Registry.FLUID.getKey(getFluid()).toString());
 		return tag;
 	}
 
-	public static FluidVolume fromTag(CompoundTag tag) {
+	public static FluidVolume fromTag(CompoundNBT tag) {
 		return new FluidVolume(Fraction.fromTag(tag.getCompound("amount")), Fraction.fromTag(tag.getCompound("size")), Registry.FLUID.get(new ResourceLocation(tag.getString("fluid"))));
 	}
 

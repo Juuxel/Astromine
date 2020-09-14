@@ -26,43 +26,43 @@ package com.github.chainmailstudios.astromine.discoveries.client.render.block;
 
 import com.github.chainmailstudios.astromine.discoveries.common.block.entity.AltarBlockEntity;
 import com.github.chainmailstudios.astromine.discoveries.common.block.entity.AltarPedestalBlockEntity;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import java.util.Random;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 
-public class AltarPedestalBlockEntityRenderer extends BlockEntityRenderer<AltarPedestalBlockEntity> {
+public class AltarPedestalBlockEntityRenderer extends TileEntityRenderer<AltarPedestalBlockEntity> {
 	public static final float HOVER_HEIGHT = 0f;
 	private final ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 	private final Random random = new Random();
 
-	public AltarPedestalBlockEntityRenderer(BlockEntityRenderDispatcher dispatcher) {
+	public AltarPedestalBlockEntityRenderer(TileEntityRendererDispatcher dispatcher) {
 		super(dispatcher);
 	}
 
 	@Override
-	public void render(AltarPedestalBlockEntity entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
+	public void render(AltarPedestalBlockEntity entity, float tickDelta, MatrixStack matrices, IRenderTypeBuffer vertexConsumers, int light, int overlay) {
 		matrices.pushPose();
 		ItemStack stack = entity.getItemComponent().getStack(0);
 		int j = stack.isEmpty() ? 187 : Item.getId(stack.getItem()) + stack.getDamageValue();
 		this.random.setSeed(j);
-		BakedModel bakedModel = this.itemRenderer.getModel(stack, entity.getLevel(), null);
+		IBakedModel bakedModel = this.itemRenderer.getModel(stack, entity.getLevel(), null);
 		boolean bl = bakedModel.isGui3d();
 		int k = 1;
 		float h = 0.25F;
 		float l = HOVER_HEIGHT + 0.1F;
-		float m = bakedModel.getTransforms().getTransform(ItemTransforms.TransformType.GROUND).scale.y();
+		float m = bakedModel.getTransforms().getTransform(ItemCameraTransforms.TransformType.GROUND).scale.y();
 		matrices.translate(0.5D, l + 1.0D + 0.25D * m, 0.5D);
 		double progress;
 		if (entity.parent != null) {
@@ -71,8 +71,8 @@ public class AltarPedestalBlockEntityRenderer extends BlockEntityRenderer<AltarP
 			progress = Math.min(1, parent.craftingTicksDelta / (double) AltarBlockEntity.CRAFTING_TIME);
 			BlockPos pos = entity.getBlockPos();
 			BlockPos parentPos = parent.getBlockPos();
-			Vec3 distance = new Vec3(parentPos.getX() - pos.getX(), parentPos.getY() + AltarBlockEntity.HOVER_HEIGHT - HOVER_HEIGHT + AltarBlockEntity.HEIGHT_OFFSET - pos.getY(), parentPos.getZ() - pos.getZ());
-			Vec3 multiply = distance.scale(progress);
+			Vector3d distance = new Vector3d(parentPos.getX() - pos.getX(), parentPos.getY() + AltarBlockEntity.HOVER_HEIGHT - HOVER_HEIGHT + AltarBlockEntity.HEIGHT_OFFSET - pos.getY(), parentPos.getZ() - pos.getZ());
+			Vector3d multiply = distance.scale(progress);
 			matrices.translate(multiply.x, multiply.y, multiply.z);
 		}
 		float n = getHeight(entity, tickDelta);
@@ -104,7 +104,7 @@ public class AltarPedestalBlockEntityRenderer extends BlockEntityRenderer<AltarP
 				}
 			}
 
-			this.itemRenderer.render(stack, ItemTransforms.TransformType.GROUND, false, matrices, vertexConsumers, light, OverlayTexture.NO_OVERLAY, bakedModel);
+			this.itemRenderer.render(stack, ItemCameraTransforms.TransformType.GROUND, false, matrices, vertexConsumers, light, OverlayTexture.NO_OVERLAY, bakedModel);
 			matrices.popPose();
 			if (!bl) {
 				matrices.translate(0.0F * o, 0.0F * p, 0.09375F * q);

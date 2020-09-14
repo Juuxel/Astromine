@@ -26,13 +26,13 @@ package com.github.chainmailstudios.astromine.common.utilities.capability.block;
 
 import com.zundrel.wrenchable.WrenchableUtilities;
 import com.zundrel.wrenchable.block.BlockWrenchable;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.world.World;
 
 public interface FacingBlockWrenchable extends BlockWrenchable {
 	@Override
-	default void onWrenched(Level world, Player playerEntity, BlockHitResult blockHitResult) {
+	default void onWrenched(World world, PlayerEntity playerEntity, BlockRayTraceResult blockHitResult) {
 		if (playerEntity.isShiftKeyDown()) {
 			world.destroyBlock(blockHitResult.getBlockPos(), true, playerEntity);
 		} else {

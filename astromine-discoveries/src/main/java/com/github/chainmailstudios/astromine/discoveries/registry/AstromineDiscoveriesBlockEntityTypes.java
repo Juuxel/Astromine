@@ -27,11 +27,11 @@ package com.github.chainmailstudios.astromine.discoveries.registry;
 import com.github.chainmailstudios.astromine.discoveries.common.block.entity.AltarBlockEntity;
 import com.github.chainmailstudios.astromine.discoveries.common.block.entity.AltarPedestalBlockEntity;
 import com.github.chainmailstudios.astromine.registry.AstromineBlockEntityTypes;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.tileentity.TileEntityType;
 
 public class AstromineDiscoveriesBlockEntityTypes extends AstromineBlockEntityTypes {
-	public static final BlockEntityType<AltarPedestalBlockEntity> ALTAR_PEDESTAL = register("altar_pedestal", AltarPedestalBlockEntity::new, AstromineDiscoveriesBlocks.ALTAR_PEDESTAL);
-	public static final BlockEntityType<AltarBlockEntity> ALTAR = register("altar", AltarBlockEntity::new, AstromineDiscoveriesBlocks.ALTAR);
+	public static final TileEntityType<AltarPedestalBlockEntity> ALTAR_PEDESTAL = register("altar_pedestal", AltarPedestalBlockEntity::new, AstromineDiscoveriesBlocks.ALTAR_PEDESTAL);
+	public static final TileEntityType<AltarBlockEntity> ALTAR = register("altar", AltarBlockEntity::new, AstromineDiscoveriesBlocks.ALTAR);
 
 	public static void initialize() {
 

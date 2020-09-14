@@ -25,16 +25,16 @@
 package com.github.chainmailstudios.astromine.mixin;
 
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.portal.PortalInfo;
+import net.minecraft.block.PortalInfo;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -58,13 +58,13 @@ import java.util.List;
 @Mixin(Entity.class)
 public abstract class EntityMixin implements GravityEntity {
 	@Shadow
-	public Level world;
+	public World world;
 	int lastY = 0;
 	@Unique
 	Entity lastVehicle = null;
 	@Unique
 	PortalInfo nextTeleportTarget = null;
-	private Level astromine_lastWorld = null;
+	private World astromine_lastWorld = null;
 
 	@Shadow
 	public abstract BlockPos getBlockPos();
@@ -76,7 +76,7 @@ public abstract class EntityMixin implements GravityEntity {
 
 	@Override
 	public double getGravity() {
-		Level world = ((Entity) (Object) this).level;
+		World world = ((Entity) (Object) this).level;
 		return getGravity(world);
 	}
 
@@ -91,11 +91,11 @@ public abstract class EntityMixin implements GravityEntity {
 			int topPortal = DimensionLayerRegistry.INSTANCE.getLevel(DimensionLayerRegistry.Type.TOP, entity.level.dimension());
 
 			if (lastY <= bottomPortal && bottomPortal != Integer.MIN_VALUE) {
-				ResourceKey<Level> worldKey = ResourceKey.create(Registry.DIMENSION_REGISTRY, DimensionLayerRegistry.INSTANCE.getDimension(DimensionLayerRegistry.Type.BOTTOM, entity.level.dimension()).location());
+				RegistryKey<World> worldKey = RegistryKey.create(Registry.DIMENSION_REGISTRY, DimensionLayerRegistry.INSTANCE.getDimension(DimensionLayerRegistry.Type.BOTTOM, entity.level.dimension()).location());
 
 				astromine_teleport(entity, worldKey, DimensionLayerRegistry.Type.BOTTOM);
 			} else if (lastY >= topPortal && topPortal != Integer.MIN_VALUE) {
-				ResourceKey<Level> worldKey = ResourceKey.create(Registry.DIMENSION_REGISTRY, DimensionLayerRegistry.INSTANCE.getDimension(DimensionLayerRegistry.Type.TOP, entity.level.dimension()).location());
+				RegistryKey<World> worldKey = RegistryKey.create(Registry.DIMENSION_REGISTRY, DimensionLayerRegistry.INSTANCE.getDimension(DimensionLayerRegistry.Type.TOP, entity.level.dimension()).location());
 
 				astromine_teleport(entity, worldKey, DimensionLayerRegistry.Type.TOP);
 			}
@@ -111,20 +111,20 @@ public abstract class EntityMixin implements GravityEntity {
 		}
 	}
 
-	void astromine_teleport(Entity entity, ResourceKey<Level> destinationKey, DimensionLayerRegistry.Type type) {
-		ServerLevel serverWorld = entity.level.getServer().getLevel(destinationKey);
+	void astromine_teleport(Entity entity, RegistryKey<World> destinationKey, DimensionLayerRegistry.Type type) {
+		ServerWorld serverWorld = entity.level.getServer().getLevel(destinationKey);
 
 		List<Entity> existingPassengers = Lists.newArrayList(entity.getPassengers());
 
-		List<SynchedEntityData.DataItem<?>> entries = Lists.newArrayList();
-		for (SynchedEntityData.DataItem<?> entry : entity.getEntityData().getAll()) {
+		List<EntityDataManager.DataEntry<?>> entries = Lists.newArrayList();
+		for (EntityDataManager.DataEntry<?> entry : entity.getEntityData().getAll()) {
 			entries.add(entry.copy());
 		}
 
 		nextTeleportTarget = DimensionLayerRegistry.INSTANCE.getPlacer(type, entity.level.dimension()).placeEntity(entity);
 		Entity newEntity = entity.changeDimension(serverWorld);
 
-		for (SynchedEntityData.DataItem entry : entries) {
+		for (EntityDataManager.DataEntry entry : entries) {
 			newEntity.getEntityData().set(entry.getAccessor(), entry.getValue());
 		}
 
@@ -134,7 +134,7 @@ public abstract class EntityMixin implements GravityEntity {
 	}
 
 	@Inject(method = "getTeleportTarget", at = @At("HEAD"), cancellable = true)
-	protected void getTeleportTarget(ServerLevel destination, CallbackInfoReturnable<PortalInfo> cir) {
+	protected void getTeleportTarget(ServerWorld destination, CallbackInfoReturnable<PortalInfo> cir) {
 		if (nextTeleportTarget != null) {
 			cir.setReturnValue(nextTeleportTarget);
 			nextTeleportTarget = null;
@@ -144,17 +144,17 @@ public abstract class EntityMixin implements GravityEntity {
 	@Inject(at = @At("HEAD"), method = "tick()V")
 	void onThing(CallbackInfo ci) {
 		// TODO Make this sync all visible chunks around the player.
-		if (AstromineCommonCallbacks.atmosphereTickCounter == AstromineConfig.get().gasTickRate && ((Entity) (Object) this) instanceof ServerPlayer && world != astromine_lastWorld) {
+		if (AstromineCommonCallbacks.atmosphereTickCounter == AstromineConfig.get().gasTickRate && ((Entity) (Object) this) instanceof ServerPlayerEntity && world != astromine_lastWorld) {
 			astromine_lastWorld = world;
 
-			ServerSidePacketRegistry.INSTANCE.sendToPlayer(((Player) (Object) this), ClientAtmosphereManager.GAS_ERASED, ClientAtmosphereManager.ofGasErased());
+			ServerSidePacketRegistry.INSTANCE.sendToPlayer(((PlayerEntity) (Object) this), ClientAtmosphereManager.GAS_ERASED, ClientAtmosphereManager.ofGasErased());
 
 			ComponentProvider componentProvider = ComponentProvider.fromChunk(world.getChunk(getBlockPos()));
 
 			ChunkAtmosphereComponent atmosphereComponent = componentProvider.getComponent(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT);
 
 			atmosphereComponent.getVolumes().forEach(((blockPos, volume) -> {
-				ServerSidePacketRegistry.INSTANCE.sendToPlayer(((Player) (Object) this), ClientAtmosphereManager.GAS_ADDED, ClientAtmosphereManager.ofGasAdded(blockPos, volume));
+				ServerSidePacketRegistry.INSTANCE.sendToPlayer(((PlayerEntity) (Object) this), ClientAtmosphereManager.GAS_ADDED, ClientAtmosphereManager.ofGasAdded(blockPos, volume));
 			}));
 		}
 	}

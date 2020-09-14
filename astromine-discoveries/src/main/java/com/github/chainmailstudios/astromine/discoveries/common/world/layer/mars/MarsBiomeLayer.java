@@ -25,14 +25,14 @@
 package com.github.chainmailstudios.astromine.discoveries.common.world.layer.mars;
 
 import com.github.chainmailstudios.astromine.discoveries.registry.AstromineDiscoveriesBiomes;
-import net.minecraft.core.Registry;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.newbiome.area.Area;
-import net.minecraft.world.level.newbiome.context.BigContext;
-import net.minecraft.world.level.newbiome.layer.traits.AreaTransformer1;
-import net.minecraft.world.level.newbiome.layer.traits.DimensionOffset0Transformer;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.IExtendedNoiseRandom;
+import net.minecraft.world.gen.area.IArea;
+import net.minecraft.world.gen.layer.traits.IAreaTransformer1;
+import net.minecraft.world.gen.layer.traits.IDimOffset0Transformer;
 
-public class MarsBiomeLayer implements AreaTransformer1, DimensionOffset0Transformer {
+public class MarsBiomeLayer implements IAreaTransformer1, IDimOffset0Transformer {
 	private final Registry<Biome> biomeRegistry;
 	private final int riverId;
 	private final int marsId;
@@ -44,7 +44,7 @@ public class MarsBiomeLayer implements AreaTransformer1, DimensionOffset0Transfo
 	}
 
 	@Override
-	public int applyPixel(BigContext<?> context, Area parent, int x, int z) {
+	public int applyPixel(IExtendedNoiseRandom<?> context, IArea parent, int x, int z) {
 		int sample = parent.get(x, z);
 		if (sample == riverId) {
 			return riverId;

@@ -43,13 +43,13 @@ import com.github.chainmailstudios.astromine.technologies.registry.AstromineTech
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntityType;
 
 public abstract class AlloySmelterBlockEntity extends ComponentEnergyInventoryBlockEntity implements EnergySizeProvider, TierProvider, SpeedProvider {
 	public double progress = 0;
@@ -58,7 +58,7 @@ public abstract class AlloySmelterBlockEntity extends ComponentEnergyInventoryBl
 
 	private Optional<AlloySmeltingRecipe> optionalRecipe = Optional.empty();
 
-	public AlloySmelterBlockEntity(Block energyBlock, BlockEntityType<?> type) {
+	public AlloySmelterBlockEntity(Block energyBlock, TileEntityType<?> type) {
 		super(energyBlock, type);
 	}
 
@@ -163,14 +163,14 @@ public abstract class AlloySmelterBlockEntity extends ComponentEnergyInventoryBl
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
+	public CompoundNBT toTag(CompoundNBT tag) {
 		tag.putDouble("progress", progress);
 		tag.putInt("limit", limit);
 		return super.toTag(tag);
 	}
 
 	@Override
-	public void fromTag(BlockState state, @NotNull CompoundTag tag) {
+	public void fromTag(BlockState state, @NotNull CompoundNBT tag) {
 		progress = tag.getDouble("progress");
 		limit = tag.getInt("limit");
 		super.fromTag(state, tag);

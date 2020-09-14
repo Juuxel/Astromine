@@ -28,39 +28,39 @@ import com.github.chainmailstudios.astromine.foundations.registry.AstromineFound
 import com.github.chainmailstudios.astromine.foundations.registry.AstromineFoundationsCriteria;
 
 import java.util.Random;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.OreBlock;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.OreBlock;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 
 public class AstromineOreBlock extends OreBlock {
-	public AstromineOreBlock(BlockBehaviour.Properties settings) {
+	public AstromineOreBlock(AbstractBlock.Properties settings) {
 		super(settings);
 	}
 
 	@Override
 	protected int xpOnDrop(Random random) {
 		if (this == AstromineFoundationsBlocks.METEOR_METITE_ORE) {
-			return Mth.nextInt(random, 2, 3);
+			return MathHelper.nextInt(random, 2, 3);
 		} else {
 			return 0;
 		}
 	}
 
 	@Override
-	public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
+	public void playerWillDestroy(World world, BlockPos pos, BlockState state, PlayerEntity player) {
 		super.playerWillDestroy(world, pos, state, player);
-		if (this == AstromineFoundationsBlocks.METEOR_METITE_ORE && player instanceof ServerPlayer) {
-			ItemStack stack = player.getItemInHand(InteractionHand.MAIN_HAND);
+		if (this == AstromineFoundationsBlocks.METEOR_METITE_ORE && player instanceof ServerPlayerEntity) {
+			ItemStack stack = player.getItemInHand(Hand.MAIN_HAND);
 			if (!stack.isCorrectToolForDrops(state) && stack.isCorrectToolForDrops(Blocks.STONE.defaultBlockState())) {
-				AstromineFoundationsCriteria.UNDERESTIMATE_METITE.trigger((ServerPlayer) player);
+				AstromineFoundationsCriteria.UNDERESTIMATE_METITE.trigger((ServerPlayerEntity) player);
 			}
 		}
 	}

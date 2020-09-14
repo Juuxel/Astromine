@@ -25,26 +25,26 @@
 package com.github.chainmailstudios.astromine.common.block.base;
 
 import com.github.chainmailstudios.astromine.AstromineCommon;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.phys.BlockHitResult;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Random;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.particles.ParticleTypes;
+import net.minecraft.state.Property;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 
 public abstract class WrenchableHorizontalFacingTieredBlockWithEntity extends WrenchableHorizontalFacingBlockWithEntity {
 	public WrenchableHorizontalFacingTieredBlockWithEntity(Properties settings) {
@@ -52,7 +52,7 @@ public abstract class WrenchableHorizontalFacingTieredBlockWithEntity extends Wr
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
 		ResourceLocation blockId = Registry.BLOCK.getKey(this);
 		Tier blockTier = Tier.fromId(blockId);
 		if (blockTier != null) {
@@ -67,15 +67,15 @@ public abstract class WrenchableHorizontalFacingTieredBlockWithEntity extends Wr
 
 					if (newBlock.isPresent()) {
 						if (world.isClientSide) {
-							Random random = world.random;
+							Random random = world.getFreeMapId();
 							double x = pos.getX() - 0.3;
 							double y = pos.getY() - 0.3;
 							double z = pos.getZ() - 0.3;
 							for (int i = 0; i < 20; i++) {
 								world.addParticle(ParticleTypes.COMPOSTER, x + random.nextDouble() * 1.6, y + random.nextDouble() * 1.6, z + random.nextDouble() * 1.6, -0.2 + random.nextDouble() * 0.4, -0.2 + random.nextDouble() * 0.4, -0.2 + random.nextDouble() * 0.4);
 							}
-							world.playLocalSound(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.BLOCKS, 1, 1, false);
-							return InteractionResult.CONSUME;
+							world.playLocalSound(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 1, 1, false);
+							return ActionResultType.CONSUME;
 						}
 
 						if(!player.isCreative()) {
@@ -84,10 +84,10 @@ public abstract class WrenchableHorizontalFacingTieredBlockWithEntity extends Wr
 							player.setItemInHand(hand, copy);
 						}
 
-						BlockEntity blockEntity = world.getBlockEntity(pos);
-						CompoundTag beTag = null;
+						TileEntity blockEntity = world.getBlockEntity(pos);
+						CompoundNBT beTag = null;
 						if (blockEntity != null) {
-							beTag = blockEntity.save(new CompoundTag());
+							beTag = blockEntity.save(new CompoundNBT());
 							beTag.putInt("x", pos.getX());
 							beTag.putInt("y", pos.getY());
 							beTag.putInt("z", pos.getZ());
@@ -102,12 +102,12 @@ public abstract class WrenchableHorizontalFacingTieredBlockWithEntity extends Wr
 						}
 
 						world.setBlock(pos, newState, 3, 512);
-						BlockEntity newBlockEntity = world.getBlockEntity(pos);
+						TileEntity newBlockEntity = world.getBlockEntity(pos);
 						if (newBlockEntity != null && beTag != null) {
 							newBlockEntity.load(newState, beTag);
 						}
 
-						return InteractionResult.SUCCESS;
+						return ActionResultType.SUCCESS;
 					}
 				}
 			}

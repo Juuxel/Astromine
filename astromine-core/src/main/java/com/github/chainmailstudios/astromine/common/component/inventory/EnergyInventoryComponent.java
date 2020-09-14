@@ -29,12 +29,12 @@ import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import com.github.chainmailstudios.astromine.registry.AstromineItems;
 import nerdhub.cardinal.components.api.ComponentType;
 import net.fabricmc.fabric.api.util.NbtType;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.text.TranslationTextComponent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,8 +51,8 @@ public interface EnergyInventoryComponent extends NameableComponent {
 		return AstromineItems.ENERGY.asItem();
 	}
 
-	default TranslatableComponent getName() {
-		return new TranslatableComponent("text.astromine.energy");
+	default TranslationTextComponent getName() {
+		return new TranslationTextComponent("text.astromine.energy");
 	}
 
 	default EnergyVolume getSimulated() {
@@ -75,21 +75,21 @@ public interface EnergyInventoryComponent extends NameableComponent {
 		return true;
 	}
 
-	default InteractionResultHolder<EnergyVolume> insert(Direction direction, EnergyVolume volume) {
+	default ActionResult<EnergyVolume> insert(Direction direction, EnergyVolume volume) {
 		if (this.canInsert(direction)) {
 			return this.insert(direction, volume);
 		} else {
-			return new InteractionResultHolder<>(InteractionResult.FAIL, volume);
+			return new ActionResult<>(ActionResultType.FAIL, volume);
 		}
 	}
 
-	default InteractionResultHolder<EnergyVolume> insert(Direction direction, double amount) {
+	default ActionResult<EnergyVolume> insert(Direction direction, double amount) {
 		EnergyVolume volume = getVolume();
 		if (canInsert(direction, amount)) {
 			volume.add(amount);
-			return new InteractionResultHolder<>(InteractionResult.SUCCESS, volume);
+			return new ActionResult<>(ActionResultType.SUCCESS, volume);
 		}
-		return new InteractionResultHolder<>(InteractionResult.FAIL, null);
+		return new ActionResult<>(ActionResultType.FAIL, null);
 	}
 
 	default void setVolume(EnergyVolume volume) {
@@ -103,11 +103,11 @@ public interface EnergyInventoryComponent extends NameableComponent {
 
 	List<Runnable> getListeners();
 
-	default InteractionResultHolder<Collection<EnergyVolume>> extractMatching(Direction direction, Predicate<EnergyVolume> predicate) {
+	default ActionResult<Collection<EnergyVolume>> extractMatching(Direction direction, Predicate<EnergyVolume> predicate) {
 		HashSet<EnergyVolume> extractedVolumes = new HashSet<>();
 		EnergyVolume volume = getVolume();
 		if (canExtract(direction) && predicate.test(volume)) {
-			InteractionResultHolder<EnergyVolume> extractionResult = this.extract(direction);
+			ActionResult<EnergyVolume> extractionResult = this.extract(direction);
 
 			if (extractionResult.getResult().consumesAction()) {
 				extractedVolumes.add(extractionResult.getObject());
@@ -115,19 +115,19 @@ public interface EnergyInventoryComponent extends NameableComponent {
 		}
 
 		if (!extractedVolumes.isEmpty()) {
-			return new InteractionResultHolder<>(InteractionResult.SUCCESS, extractedVolumes);
+			return new ActionResult<>(ActionResultType.SUCCESS, extractedVolumes);
 		} else {
-			return new InteractionResultHolder<>(InteractionResult.FAIL, extractedVolumes);
+			return new ActionResult<>(ActionResultType.FAIL, extractedVolumes);
 		}
 	}
 
-	default InteractionResultHolder<EnergyVolume> extract(Direction direction) {
+	default ActionResult<EnergyVolume> extract(Direction direction) {
 		EnergyVolume volume = this.getVolume();
 
 		if (!volume.isEmpty() && this.canExtract(direction)) {
 			return this.extract(direction, volume.getAmount());
 		} else {
-			return new InteractionResultHolder<>(InteractionResult.FAIL, EnergyVolume.empty());
+			return new ActionResult<>(ActionResultType.FAIL, EnergyVolume.empty());
 		}
 	}
 
@@ -152,27 +152,27 @@ public interface EnergyInventoryComponent extends NameableComponent {
 		return null;
 	}
 
-	default InteractionResultHolder<EnergyVolume> extract(Direction direction, double amount) {
+	default ActionResult<EnergyVolume> extract(Direction direction, double amount) {
 		EnergyVolume volume = this.getVolume();
 
 		if (canExtract(direction, amount)) {
-			return new InteractionResultHolder<>(InteractionResult.SUCCESS, volume.minus(amount));
+			return new ActionResult<>(ActionResultType.SUCCESS, volume.minus(amount));
 		} else {
-			return new InteractionResultHolder<>(InteractionResult.FAIL, EnergyVolume.empty());
+			return new ActionResult<>(ActionResultType.FAIL, EnergyVolume.empty());
 		}
 	}
 
-	default CompoundTag write() {
-		CompoundTag tag = new CompoundTag();
+	default CompoundNBT write() {
+		CompoundNBT tag = new CompoundNBT();
 		this.write(tag);
 		return tag;
 	}
 
-	default void write(CompoundTag tag) {
+	default void write(CompoundNBT tag) {
 		tag.putDouble("energy", getVolume().getAmount());
 	}
 
-	default void read(CompoundTag tag) {
+	default void read(CompoundNBT tag) {
 		clear();
 		EnergyVolume volume = getVolume();
 		if (tag.contains("energy", NbtType.COMPOUND)) {

@@ -25,21 +25,21 @@
 package com.github.chainmailstudios.astromine.common.utilities;
 
 import com.github.chainmailstudios.astromine.AstromineCommon;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
-import net.minecraft.network.protocol.game.ClientboundLevelChunkPacket;
-import net.minecraft.server.level.ServerChunkCache;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.network.play.server.SChunkDataPacket;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.SectionPos;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.server.ServerChunkProvider;
 
 public class ExplosionUtilities {
 	private static final BlockState AIR = Blocks.AIR.defaultBlockState();
 
-	public static void attemptExplosion(Level world, int x, int y, int z, int power) {
+	public static void attemptExplosion(World world, int x, int y, int z, int power) {
 		if (!world.isClientSide) {
 			long start = System.currentTimeMillis();
 			long blocks = explode(world, x, y, z, power);
@@ -48,7 +48,7 @@ public class ExplosionUtilities {
 		}
 	}
 
-	private static long explode(Level access, int x, int y, int z, int radius) {
+	private static long explode(World access, int x, int y, int z, int radius) {
 		int cr = radius >> 4;
 		long blocks = 0;
 		for (int cox = -cr; cox <= cr + 1; cox++) {
@@ -56,11 +56,11 @@ public class ExplosionUtilities {
 				int box = cox * 16, boz = coz * 16;
 				if (touchesOrIsIn(box, 0, boz, box + 15, 255, boz + 15, radius)) {
 					int cx = (x >> 4) + cox, cz = (z >> 4) + coz;
-					LevelChunk chunk = access.getChunk(cx, cz);
+					Chunk chunk = access.getChunk(cx, cz);
 					blocks += forSubchunks(chunk, box, boz, x, y, z, radius);
 					chunk.markUnsaved();
-					ServerChunkCache manager = (ServerChunkCache) access.getChunkSource();
-					manager.chunkMap.getPlayers(new ChunkPos(cx, cz), false).forEach(s -> s.connection.send(new ClientboundLevelChunkPacket(chunk, 65535)));
+					ServerChunkProvider manager = (ServerChunkProvider) access.getChunkSource();
+					manager.chunkMap.getPlayers(new ChunkPos(cx, cz), false).forEach(s -> s.connection.send(new SChunkDataPacket(chunk, 65535)));
 				}
 			}
 		}
@@ -91,16 +91,16 @@ public class ExplosionUtilities {
 		return squared > 0;
 	}
 
-	private static long forSubchunks(LevelChunk chunk, int bx, int bz, int x, int y, int z, int radius) {
+	private static long forSubchunks(Chunk chunk, int bx, int bz, int x, int y, int z, int radius) {
 		int scr = radius >> 4;
 		int sc = y >> 4;
 		long destroyed = 0;
-		LevelChunkSection[] sections = chunk.getSections();
+		ChunkSection[] sections = chunk.getSections();
 		for (int i = -scr; i <= scr; i++) {
 			int by = i * 16;
 			int val = i + sc;
 			if (val >= 0 && val < 16) {
-				LevelChunkSection section = sections[val];
+				ChunkSection section = sections[val];
 				if (section != null) {
 					for (int ox = 0; ox < 16; ox++) {
 						for (int oy = 0; oy < 16; oy++) {

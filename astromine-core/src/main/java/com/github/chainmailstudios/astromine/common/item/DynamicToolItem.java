@@ -25,34 +25,34 @@
 package com.github.chainmailstudios.astromine.common.item;
 
 import net.fabricmc.fabric.api.tool.attribute.v1.DynamicAttributeTool;
-import net.minecraft.core.BlockPos;
-import net.minecraft.tags.Tag;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.DiggerItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Tier;
-import net.minecraft.world.item.Vanishable;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.enchantment.IVanishable;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.IItemTier;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUseContext;
+import net.minecraft.item.ToolItem;
+import net.minecraft.tags.ITag;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import com.github.chainmailstudios.astromine.common.utilities.ToolUtilities;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
-public class DynamicToolItem extends Item implements DynamicAttributeTool, Vanishable, DiggerTool {
-	public final DiggerItem first;
-	public final DiggerItem second;
-	private final Tier material;
+public class DynamicToolItem extends Item implements DynamicAttributeTool, IVanishable, DiggerTool {
+	public final ToolItem first;
+	public final ToolItem second;
+	private final IItemTier material;
 	private final Multimap<Attribute, AttributeModifier> attributeModifiers;
 
-	public DynamicToolItem(DiggerItem first, DiggerItem second, Tier material, Properties settings) {
+	public DynamicToolItem(ToolItem first, ToolItem second, IItemTier material, Properties settings) {
 		super(settings.defaultDurability((int) (material.getUses() * 1.1)));
 		this.first = first;
 		this.second = second;
@@ -76,41 +76,41 @@ public class DynamicToolItem extends Item implements DynamicAttributeTool, Vanis
 	@Override
 	public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
 		stack.hurtAndBreak(2, attacker, (e) -> {
-			e.broadcastBreakEvent(EquipmentSlot.MAINHAND);
+			e.broadcastBreakEvent(EquipmentSlotType.MAINHAND);
 		});
 		return true;
 	}
 
 	@Override
-	public boolean mineBlock(ItemStack stack, Level world, BlockState state, BlockPos pos, LivingEntity miner) {
+	public boolean mineBlock(ItemStack stack, World world, BlockState state, BlockPos pos, LivingEntity miner) {
 		if (!world.isClientSide && state.getDestroySpeed(world, pos) != 0.0F) {
 			stack.hurtAndBreak(1, miner, (e) -> {
-				e.broadcastBreakEvent(EquipmentSlot.MAINHAND);
+				e.broadcastBreakEvent(EquipmentSlotType.MAINHAND);
 			});
 		}
 		return true;
 	}
 
 	@Override
-	public InteractionResult useOn(UseOnContext context) {
-		InteractionResult result = first.useOn(context);
+	public ActionResultType useOn(ItemUseContext context) {
+		ActionResultType result = first.useOn(context);
 		return result.consumesAction() ? result : second.useOn(context);
 	}
 
 	@Override
-	public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
-		return slot == EquipmentSlot.MAINHAND ? this.attributeModifiers : super.getDefaultAttributeModifiers(slot);
+	public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlotType slot) {
+		return slot == EquipmentSlotType.MAINHAND ? this.attributeModifiers : super.getDefaultAttributeModifiers(slot);
 	}
 
 	@Override
-	public float getMiningSpeedMultiplier(Tag<Item> tag, BlockState state, ItemStack stack, LivingEntity user) {
+	public float getMiningSpeedMultiplier(ITag<Item> tag, BlockState state, ItemStack stack, LivingEntity user) {
 		if (first.is(tag) || second.is(tag))
 			return material.getSpeed();
 		return 1;
 	}
 
 	@Override
-	public int getMiningLevel(Tag<Item> tag, BlockState state, ItemStack stack, LivingEntity user) {
+	public int getMiningLevel(ITag<Item> tag, BlockState state, ItemStack stack, LivingEntity user) {
 		if (first.is(tag) || second.is(tag))
 			return material.getLevel();
 		return 0;

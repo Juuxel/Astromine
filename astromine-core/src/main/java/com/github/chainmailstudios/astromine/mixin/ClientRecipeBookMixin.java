@@ -29,9 +29,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.github.chainmailstudios.astromine.common.recipe.AstromineRecipeType;
-import net.minecraft.client.ClientRecipeBook;
-import net.minecraft.client.RecipeBookCategories;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.client.util.ClientRecipeBook;
+import net.minecraft.client.util.RecipeBookCategories;
+import net.minecraft.item.crafting.IRecipe;
 
 @Mixin(ClientRecipeBook.class)
 public class ClientRecipeBookMixin {
@@ -39,7 +39,7 @@ public class ClientRecipeBookMixin {
 	 * @reason We are doing this to tell minecraft to shut up
 	 */
 	@Inject(method = "getGroupForRecipe", cancellable = true, at = @At("HEAD"))
-	private static void getGroupForRecipe(Recipe<?> recipe, CallbackInfoReturnable<RecipeBookCategories> cir) {
+	private static void getGroupForRecipe(IRecipe<?> recipe, CallbackInfoReturnable<RecipeBookCategories> cir) {
 		if (recipe.getType() instanceof AstromineRecipeType)
 			cir.setReturnValue(RecipeBookCategories.UNKNOWN);
 	}

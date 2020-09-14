@@ -30,14 +30,14 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import com.github.chainmailstudios.astromine.common.entity.GravityEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.goal.RemoveBlockGoal;
+import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.ai.goal.BreakBlockGoal;
 
-@Mixin(RemoveBlockGoal.class)
+@Mixin(BreakBlockGoal.class)
 public class StepAndDestroyBlockGoalMixin {
 	@Shadow
 	@Final
-	private Mob stepAndDestroyMob;
+	private MobEntity stepAndDestroyMob;
 
 	@ModifyConstant(method = "tick()V", constant = @Constant(doubleValue = 0.08D))
 	double getGravity(double original) {

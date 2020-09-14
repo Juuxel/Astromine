@@ -25,13 +25,13 @@
 package com.github.chainmailstudios.astromine.common.recipe.base;
 
 import com.github.chainmailstudios.astromine.common.block.entity.base.ComponentBlockEntity;
-import net.minecraft.core.NonNullList;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.Level;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.util.NonNullList;
+import net.minecraft.world.World;
 
-public interface AdvancedRecipe<C extends Container> extends AstromineRecipe<C> {
+public interface AdvancedRecipe<C extends IInventory> extends AstromineRecipe<C> {
 	<T extends ComponentBlockEntity> boolean canCraft(T t);
 
 	<T extends ComponentBlockEntity> void craft(T t);
@@ -39,7 +39,7 @@ public interface AdvancedRecipe<C extends Container> extends AstromineRecipe<C> 
 	<T extends RecipeConsumer> void tick(T t);
 
 	@Override
-	default boolean matches(C inventory, Level world) {
+	default boolean matches(C inventory, World world) {
 		return false;
 	}
 

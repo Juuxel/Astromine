@@ -24,17 +24,17 @@
 
 package com.github.chainmailstudios.astromine.client.render.sprite;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Matrix3f;
+import net.minecraft.util.math.vector.Matrix4f;
 
 @Environment(EnvType.CLIENT)
 public class SpriteRenderer {
@@ -63,31 +63,31 @@ public class SpriteRenderer {
 		float nY = 0;
 		float nZ = 0;
 		TextureAtlasSprite sprite;
-		VertexConsumer consumer;
-		MultiBufferSource consumers;
-		PoseStack matrices;
+		IVertexBuilder consumer;
+		IRenderTypeBuffer consumers;
+		MatrixStack matrices;
 		Matrix4f model;
 		Matrix3f normal;
 		RenderType layer;
 
 		private RenderPass() {}
 
-		public RenderPass setup(MultiBufferSource consumers, RenderType layer) {
+		public RenderPass setup(IRenderTypeBuffer consumers, RenderType layer) {
 			this.consumers = consumers;
 			this.setup(consumers.getBuffer(layer), layer);
 
 			return this;
 		}
 
-		public RenderPass setup(VertexConsumer consumer, RenderType layer) {
+		public RenderPass setup(IVertexBuilder consumer, RenderType layer) {
 			this.consumer = consumer;
-			this.matrices = new PoseStack();
+			this.matrices = new MatrixStack();
 			this.layer = layer;
 
 			return this;
 		}
 
-		public RenderPass setup(MultiBufferSource consumers, PoseStack matrices, RenderType layer) {
+		public RenderPass setup(IRenderTypeBuffer consumers, MatrixStack matrices, RenderType layer) {
 			this.consumers = consumers;
 			this.consumer = consumers.getBuffer(layer);
 			this.matrices = matrices;

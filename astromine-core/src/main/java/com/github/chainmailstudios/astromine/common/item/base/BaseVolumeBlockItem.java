@@ -25,8 +25,8 @@
 package com.github.chainmailstudios.astromine.common.item.base;
 
 import com.github.chainmailstudios.astromine.common.volume.base.Volume;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.block.Block;
+import net.minecraft.item.BlockItem;
 
 public abstract class BaseVolumeBlockItem<V extends Volume<?, ?>> extends BlockItem {
 	public BaseVolumeBlockItem(Block block, Properties settings) {

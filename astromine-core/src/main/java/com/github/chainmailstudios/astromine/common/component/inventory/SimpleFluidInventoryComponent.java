@@ -26,9 +26,6 @@ package com.github.chainmailstudios.astromine.common.component.inventory;
 
 import com.github.chainmailstudios.astromine.common.utilities.data.predicate.TriPredicate;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-
 import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,6 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 
 public class SimpleFluidInventoryComponent implements FluidInventoryComponent {
 	private final Map<Integer, FluidVolume> contents = new Int2ObjectOpenHashMap<>();
@@ -97,12 +96,12 @@ public class SimpleFluidInventoryComponent implements FluidInventoryComponent {
 	}
 
 	@Override
-	public void fromTag(CompoundTag compoundTag) {
+	public void fromTag(CompoundNBT compoundTag) {
 		read(this, compoundTag, Optional.empty(), Optional.empty());
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag compoundTag) {
+	public CompoundNBT toTag(CompoundNBT compoundTag) {
 		write(this, compoundTag, Optional.empty(), Optional.empty());
 		return compoundTag;
 	}
@@ -110,7 +109,7 @@ public class SimpleFluidInventoryComponent implements FluidInventoryComponent {
 	@Override
 	public SimpleFluidInventoryComponent copy() {
 		SimpleFluidInventoryComponent component = new SimpleFluidInventoryComponent(getSize());
-		component.fromTag(toTag(new CompoundTag()));
+		component.fromTag(toTag(new CompoundNBT()));
 		return component;
 	}
 }

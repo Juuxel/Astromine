@@ -24,11 +24,11 @@
 
 package com.github.chainmailstudios.astromine.common.recipe.base;
 
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 
-public interface AstromineRecipe<C extends Container> extends Recipe<C> {
+public interface AstromineRecipe<C extends IInventory> extends IRecipe<C> {
 	@Override
 	ItemStack getToastSymbol();
 }

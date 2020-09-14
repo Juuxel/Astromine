@@ -26,9 +26,9 @@ package com.github.chainmailstudios.astromine.common.widget.blade;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.client.BaseRenderer;
 import com.github.chainmailstudios.astromine.common.utilities.EnergyUtilities;
@@ -40,7 +40,7 @@ import com.github.vini2003.blade.common.widget.base.AbstractWidget;
 import org.jetbrains.annotations.NotNull;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -52,7 +52,7 @@ public class EnergyVerticalBarWidget extends AbstractWidget {
 
 	@Environment(EnvType.CLIENT)
 	@Override
-	public @NotNull List<Component> getTooltip() {
+	public @NotNull List<ITextComponent> getTooltip() {
 		return Lists.newArrayList(EnergyUtilities.compoundDisplay(volumeSupplier.get().getAmount(), volumeSupplier.get().getSize()));
 	}
 
@@ -62,7 +62,7 @@ public class EnergyVerticalBarWidget extends AbstractWidget {
 
 	@Environment(EnvType.CLIENT)
 	@Override
-	public void drawWidget(@NotNull PoseStack matrices, @NotNull MultiBufferSource provider) {
+	public void drawWidget(@NotNull MatrixStack matrices, @NotNull IRenderTypeBuffer provider) {
 		if (getHidden())
 			return;
 

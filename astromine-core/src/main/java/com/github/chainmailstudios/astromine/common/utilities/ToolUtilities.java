@@ -27,23 +27,23 @@ package com.github.chainmailstudios.astromine.common.utilities;
 import com.github.chainmailstudios.astromine.registry.AstromineItems;
 
 import java.util.UUID;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.DiggerItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ToolItem;
 
 public class ToolUtilities {
-	public static float getAttackDamage(DiggerItem first, DiggerItem second) {
+	public static float getAttackDamage(ToolItem first, ToolItem second) {
 		return (first.getAttackDamage() + second.getAttackDamage()) / 2f;
 	}
 
-	public static float getAttackSpeed(DiggerItem first, DiggerItem second) {
+	public static float getAttackSpeed(ToolItem first, ToolItem second) {
 		return (getAttackSpeed(first) + getAttackSpeed(second)) / 3f;
 	}
 
-	private static float getAttackSpeed(DiggerItem item) {
-		return item.getDefaultAttributeModifiers(EquipmentSlot.MAINHAND).get(Attributes.ATTACK_SPEED).stream().filter((AttributeModifier modifier) -> modifier.getId().equals(UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3"))).map(
+	private static float getAttackSpeed(ToolItem item) {
+		return item.getDefaultAttributeModifiers(EquipmentSlotType.MAINHAND).get(Attributes.ATTACK_SPEED).stream().filter((AttributeModifier modifier) -> modifier.getId().equals(UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3"))).map(
 			AttributeModifier::getAmount).findFirst().orElse(0d).floatValue();
 	}
 

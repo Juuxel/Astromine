@@ -27,39 +27,39 @@ package com.github.chainmailstudios.astromine.discoveries.client.render.entity;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.discoveries.client.model.SuperSpaceSlimeEntityModel;
 import com.github.chainmailstudios.astromine.discoveries.common.entity.SuperSpaceSlimeEntity;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.client.renderer.entity.layers.SlimeOuterLayer;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
+import net.minecraft.client.renderer.entity.layers.SlimeGelLayer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 
 public class SuperSpaceSlimeEntityRenderer extends MobRenderer<SuperSpaceSlimeEntity, SuperSpaceSlimeEntityModel> {
 
 	private static final ResourceLocation TEXTURE = AstromineCommon.identifier("textures/entity/space_slime/space_slime.png");
 	private static final ResourceLocation EXPLODING_TEXTURE = AstromineCommon.identifier("textures/entity/space_slime/space_slime_exploding.png");
 
-	public SuperSpaceSlimeEntityRenderer(EntityRenderDispatcher entityRenderDispatcher) {
+	public SuperSpaceSlimeEntityRenderer(EntityRendererManager entityRenderDispatcher) {
 		super(entityRenderDispatcher, new SuperSpaceSlimeEntityModel(16), 0.25F);
-		this.addLayer(new SlimeOuterLayer(this));
+		this.addLayer(new SlimeGelLayer(this));
 	}
 
 	@Override
-	public void render(SuperSpaceSlimeEntity slimeEntity, float f, float g, PoseStack matrices, MultiBufferSource vertexConsumerProvider, int i) {
+	public void render(SuperSpaceSlimeEntity slimeEntity, float f, float g, MatrixStack matrices, IRenderTypeBuffer vertexConsumerProvider, int i) {
 		this.shadowRadius = 2.5f;
 		super.render(slimeEntity, f, g, matrices, vertexConsumerProvider, i);
 	}
 
 	@Override
-	public void scale(SuperSpaceSlimeEntity slimeEntity, PoseStack matrices, float f) {
+	public void scale(SuperSpaceSlimeEntity slimeEntity, MatrixStack matrices, float f) {
 		float scale = 0.999F;
 		matrices.scale(scale, scale, scale);
 		matrices.translate(0.0D, -0.525D, 0.0D);
 
 		// calculate stretch slime size
 		float slimeSize = 10f;
-		float i = Mth.lerp(f, slimeEntity.lastStretch, slimeEntity.stretch) / (slimeSize * 0.5F + 1.0F);
+		float i = MathHelper.lerp(f, slimeEntity.lastStretch, slimeEntity.stretch) / (slimeSize * 0.5F + 1.0F);
 		float j = 1.0F / (i + 1.0F);
 
 		// scale matrix based on slime size

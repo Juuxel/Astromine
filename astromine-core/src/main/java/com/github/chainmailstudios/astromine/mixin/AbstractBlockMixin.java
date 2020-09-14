@@ -13,26 +13,26 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BucketItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.world.World;
 
-@Mixin(BlockBehaviour.class)
+@Mixin(AbstractBlock.class)
 public class AbstractBlockMixin {
 	@SuppressWarnings("all")
 	@Inject(at = @At("HEAD"), method = "onUse(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;", cancellable = true)
-	void astromine_onUse(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result, CallbackInfoReturnable<InteractionResult> cir) 	{
+	void astromine_onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result, CallbackInfoReturnable<ActionResultType> cir) 	{
 		final ItemStack stack = player.getItemInHand(hand);
 
 		final Item stackItem = stack.getItem();
@@ -67,7 +67,7 @@ public class AbstractBlockMixin {
 			final Block block = state.getBlock();
 
 			if (block.isEntityBlock()) {
-				final BlockEntity blockEntity = world.getBlockEntity(pos);
+				final TileEntity blockEntity = world.getBlockEntity(pos);
 
 				FluidHandler.ofOptional(blockEntity).ifPresent(blockEntityHandler -> {
 					stackHandler.withVolume(0, (optionalStackVolume) -> {
@@ -126,7 +126,7 @@ public class AbstractBlockMixin {
 		});
 
 		if (shouldSkip.get()) {
-			cir.setReturnValue(InteractionResult.SUCCESS);
+			cir.setReturnValue(ActionResultType.SUCCESS);
 		}
 	}
 }

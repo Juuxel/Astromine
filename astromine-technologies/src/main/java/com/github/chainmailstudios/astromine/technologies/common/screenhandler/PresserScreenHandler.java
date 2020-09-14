@@ -32,13 +32,13 @@ import com.github.chainmailstudios.astromine.technologies.registry.AstromineTech
 import com.github.vini2003.blade.common.miscellaneous.Position;
 import com.github.vini2003.blade.common.miscellaneous.Size;
 import com.github.vini2003.blade.common.widget.base.SlotWidget;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.BlockPos;
 
 public class PresserScreenHandler extends ComponentBlockEntityEnergyItemScreenHandler {
 	private PresserBlockEntity sorter;
 
-	public PresserScreenHandler(int syncId, Player player, BlockPos position) {
+	public PresserScreenHandler(int syncId, PlayerEntity player, BlockPos position) {
 		super(AstromineTechnologiesScreenHandlers.PRESSER, syncId, player, position);
 
 		sorter = (PresserBlockEntity) blockEntity;

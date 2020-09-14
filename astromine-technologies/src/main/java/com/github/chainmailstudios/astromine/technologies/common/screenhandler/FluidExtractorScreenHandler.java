@@ -26,11 +26,11 @@ package com.github.chainmailstudios.astromine.technologies.common.screenhandler;
 
 import com.github.chainmailstudios.astromine.common.screenhandler.base.block.ComponentBlockEntityEnergyFluidScreenHandler;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesScreenHandlers;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.BlockPos;
 
 public class FluidExtractorScreenHandler extends ComponentBlockEntityEnergyFluidScreenHandler {
-	public FluidExtractorScreenHandler(int syncId, Player player, BlockPos position) {
+	public FluidExtractorScreenHandler(int syncId, PlayerEntity player, BlockPos position) {
 		super(AstromineTechnologiesScreenHandlers.FLUID_EXTRACTOR, syncId, player, position);
 	}
 }

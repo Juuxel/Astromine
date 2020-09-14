@@ -31,24 +31,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.core.Direction;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Direction;
 
 /**
  * An InventoryComponentFromInventory is a wrapper over an Inventory that provides the functions and utilities of an
  * InventoryComponent.
  */
 public class ItemInventoryComponentFromItemInventory extends SimpleItemInventoryComponent {
-	Container inventory;
+	IInventory inventory;
 	List<Runnable> listeners = new ArrayList<>();
 
-	private ItemInventoryComponentFromItemInventory(Container inventory) {
+	private ItemInventoryComponentFromItemInventory(IInventory inventory) {
 		super(inventory.getContainerSize());
 		this.inventory = inventory;
 	}
 
-	public static ItemInventoryComponentFromItemInventory of(Container inventory) {
+	public static ItemInventoryComponentFromItemInventory of(IInventory inventory) {
 		return new ItemInventoryComponentFromItemInventory(inventory);
 	}
 

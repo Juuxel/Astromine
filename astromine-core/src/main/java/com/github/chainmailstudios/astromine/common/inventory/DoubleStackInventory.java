@@ -24,18 +24,18 @@
 
 package com.github.chainmailstudios.astromine.common.inventory;
 
-import net.minecraft.core.NonNullList;
-import net.minecraft.world.Container;
-import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ItemStackHelper;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 
 /**
  * A simple {@code Inventory} implementation with only default methods + an item list getter.
  * <p>
  * Originally by Juuz
  */
-public interface DoubleStackInventory extends Container {
+public interface DoubleStackInventory extends IInventory {
 	/**
 	 * Creates an inventory from the item list.
 	 */
@@ -115,7 +115,7 @@ public interface DoubleStackInventory extends Container {
 	 */
 	@Override
 	default ItemStack removeItem(int slot, int count) {
-		ItemStack result = ContainerHelper.removeItem(getItems(), slot, count);
+		ItemStack result = ItemStackHelper.removeItem(getItems(), slot, count);
 		if (!result.isEmpty()) {
 			setChanged();
 		}
@@ -127,7 +127,7 @@ public interface DoubleStackInventory extends Container {
 	 */
 	@Override
 	default ItemStack removeItemNoUpdate(int slot) {
-		ItemStack stack = ContainerHelper.takeItem(getItems(), slot);
+		ItemStack stack = ItemStackHelper.takeItem(getItems(), slot);
 		setChanged();
 		return stack;
 	}
@@ -170,7 +170,7 @@ public interface DoubleStackInventory extends Container {
 	}
 
 	@Override
-	default boolean stillValid(Player player) {
+	default boolean stillValid(PlayerEntity player) {
 		return true;
 	}
 }

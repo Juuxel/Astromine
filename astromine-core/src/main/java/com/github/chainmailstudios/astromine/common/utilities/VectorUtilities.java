@@ -24,16 +24,16 @@
 
 package com.github.chainmailstudios.astromine.common.utilities;
 
-import com.mojang.math.Vector3f;
-import net.minecraft.core.Vec3i;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.math.vector.Vector3i;
 
 public class VectorUtilities {
-	public static Vector3f toVector3f(Vec3 vec3d) {
+	public static Vector3f toVector3f(Vector3d vec3d) {
 		return new Vector3f((float) vec3d.x(), (float) vec3d.y(), (float) vec3d.z());
 	}
 
-	public static Vector3f toVector3f(Vec3i vec3i) {
+	public static Vector3f toVector3f(Vector3i vec3i) {
 		return new Vector3f(vec3i.getX(), vec3i.getY(), vec3i.getZ());
 	}
 }

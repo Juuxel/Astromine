@@ -24,9 +24,8 @@
 
 package com.github.chainmailstudios.astromine.common.volume.base;
 
-import net.minecraft.nbt.CompoundTag;
-
 import java.util.Objects;
+import net.minecraft.nbt.CompoundNBT;
 
 public abstract class Volume<T, N extends Number> {
 	private T t;
@@ -265,7 +264,7 @@ public abstract class Volume<T, N extends Number> {
 		return result;
 	}
 
-	public abstract CompoundTag toTag();
+	public abstract CompoundNBT toTag();
 
 	public abstract <V extends Volume<T, N>> V add(V v, N n);
 

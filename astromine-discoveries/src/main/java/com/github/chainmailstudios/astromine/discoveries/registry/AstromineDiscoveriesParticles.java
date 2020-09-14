@@ -25,12 +25,12 @@
 package com.github.chainmailstudios.astromine.discoveries.registry;
 
 import com.github.chainmailstudios.astromine.registry.AstromineParticles;
-import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.particles.BasicParticleType;
 
 public class AstromineDiscoveriesParticles extends AstromineParticles {
-	public static final SimpleParticleType SPACE_SLIME = register("space_slime", false);
-	public static final SimpleParticleType ROCKET_FLAME = register("rocket_flame", true);
-	public static final SimpleParticleType MARS_DUST = register("mars_dust", false);
+	public static final BasicParticleType SPACE_SLIME = register("space_slime", false);
+	public static final BasicParticleType ROCKET_FLAME = register("rocket_flame", true);
+	public static final BasicParticleType MARS_DUST = register("mars_dust", false);
 
 	public static void initialize() {
 

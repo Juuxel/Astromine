@@ -34,38 +34,38 @@ import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
 import nerdhub.cardinal.components.api.component.extension.CopyableComponent;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.IChunk;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ChunkAtmosphereComponent implements CopyableComponent, TickableBlockEntity {
+public class ChunkAtmosphereComponent implements CopyableComponent, ITickableTileEntity {
 	private final List<Direction> directions = Lists.newArrayList(Direction.values());
 
 	private final Map<BlockPos, FluidVolume> volumes = new ConcurrentHashMap<>();
 
-	private final Level world;
-	private final ChunkAccess chunk;
+	private final World world;
+	private final IChunk chunk;
 
-	public ChunkAtmosphereComponent(Level world, ChunkAccess chunk) {
+	public ChunkAtmosphereComponent(World world, IChunk chunk) {
 		this.world = world;
 		this.chunk = chunk;
 	}
 
-	public Level getWorld() {
+	public World getWorld() {
 		return world;
 	}
 
-	public ChunkAccess getChunk() {
+	public IChunk getChunk() {
 		return chunk;
 	}
 
@@ -181,13 +181,13 @@ public class ChunkAtmosphereComponent implements CopyableComponent, TickableBloc
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
-		CompoundTag dataTag = new CompoundTag();
+	public CompoundNBT toTag(CompoundNBT tag) {
+		CompoundNBT dataTag = new CompoundNBT();
 
 		int i = 0;
 
 		for (Map.Entry<BlockPos, FluidVolume> entry : volumes.entrySet()) {
-			CompoundTag pointTag = new CompoundTag();
+			CompoundNBT pointTag = new CompoundNBT();
 			pointTag.putLong("pos", entry.getKey().asLong());
 			pointTag.put("volume", entry.getValue().toTag());
 
@@ -201,11 +201,11 @@ public class ChunkAtmosphereComponent implements CopyableComponent, TickableBloc
 	}
 
 	@Override
-	public void fromTag(CompoundTag tag) {
-		CompoundTag dataTag = tag.getCompound("data");
+	public void fromTag(CompoundNBT tag) {
+		CompoundNBT dataTag = tag.getCompound("data");
 
 		for (String key : dataTag.getAllKeys()) {
-			CompoundTag pointTag = dataTag.getCompound(key);
+			CompoundNBT pointTag = dataTag.getCompound(key);
 
 			volumes.put(BlockPos.of(pointTag.getLong("pos")), FluidVolume.fromTag(pointTag.getCompound("volume")));
 		}

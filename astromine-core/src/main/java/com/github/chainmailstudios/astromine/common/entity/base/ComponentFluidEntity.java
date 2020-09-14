@@ -27,11 +27,11 @@ package com.github.chainmailstudios.astromine.common.entity.base;
 import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.EntityType;
+import net.minecraft.world.World;
 
 public abstract class ComponentFluidEntity extends ComponentEntity {
-	public ComponentFluidEntity(EntityType<?> type, Level world) {
+	public ComponentFluidEntity(EntityType<?> type, World world) {
 		super(type, world);
 	}
 

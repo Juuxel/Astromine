@@ -25,10 +25,10 @@
 package com.github.chainmailstudios.astromine.discoveries.common.entity.ai.superspaceslime;
 
 import com.github.chainmailstudios.astromine.discoveries.common.entity.SuperSpaceSlimeEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.control.MoveControl;
+import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.ai.controller.MovementController;
 
-public class SuperSpaceSlimeMoveControl extends MoveControl {
+public class SuperSpaceSlimeMoveControl extends MovementController {
 
 	private final SuperSpaceSlimeEntity slime;
 	private float targetYaw;
@@ -47,10 +47,10 @@ public class SuperSpaceSlimeMoveControl extends MoveControl {
 		this.mob.yHeadRot = this.mob.yRot;
 		this.mob.yBodyRot = this.mob.yRot;
 
-		if (this.operation != MoveControl.Operation.MOVE_TO) {
+		if (this.operation != MovementController.Action.MOVE_TO) {
 			this.mob.setZza(0.0F);
 		} else {
-			this.operation = MoveControl.Operation.WAIT;
+			this.operation = MovementController.Action.WAIT;
 
 			if (this.mob.isOnGround()) {
 				this.mob.setSpeed((float) (this.speedModifier * this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED)));
@@ -81,6 +81,6 @@ public class SuperSpaceSlimeMoveControl extends MoveControl {
 
 	public void move(double speed) {
 		this.speedModifier = speed;
-		this.operation = MoveControl.Operation.MOVE_TO;
+		this.operation = MovementController.Action.MOVE_TO;
 	}
 }

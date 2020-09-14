@@ -6,9 +6,9 @@ import com.github.chainmailstudios.astromine.technologies.common.screenhandler.*
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import me.shedaniel.rei.server.*;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
-import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.util.ResourceLocation;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,14 +42,14 @@ public class AstromineTechnologiesServerContainerPlugin implements Runnable {
 		}
 
 		@Override
-		public Class<? extends AbstractContainerMenu> getContainerClass() {
+		public Class<? extends Container> getContainerClass() {
 			return clazz;
 		}
 
 		@Override
 		public List<StackAccessor> getGridStacks(ContainerContext<T> context) {
 			return gridStacks.stream()
-				.map(slotIndex -> new InventoryStackAccessor((Container) context.getContainer().syncBlockEntity, slotIndex))
+				.map(slotIndex -> new InventoryStackAccessor((IInventory) context.getContainer().syncBlockEntity, slotIndex))
 				.collect(Collectors.toList());
 		}
 

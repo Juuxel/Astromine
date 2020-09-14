@@ -27,10 +27,10 @@ package com.github.chainmailstudios.astromine.common.registry;
 import com.github.chainmailstudios.astromine.common.registry.base.BiRegistry;
 
 import java.util.Optional;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.world.World;
 
-public class GravityRegistry extends BiRegistry<ResourceKey<Level>, Double> {
+public class GravityRegistry extends BiRegistry<RegistryKey<World>, Double> {
 	public static final GravityRegistry INSTANCE = new GravityRegistry();
 
 	private GravityRegistry() {
@@ -38,7 +38,7 @@ public class GravityRegistry extends BiRegistry<ResourceKey<Level>, Double> {
 	}
 
 	@Override
-	public Double get(ResourceKey<Level> worldRegistryKey) {
+	public Double get(RegistryKey<World> worldRegistryKey) {
 		return Optional.ofNullable(super.get(worldRegistryKey)).orElse(0.08D);
 	}
 }

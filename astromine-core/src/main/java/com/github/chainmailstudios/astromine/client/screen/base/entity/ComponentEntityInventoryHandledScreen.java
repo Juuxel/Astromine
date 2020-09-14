@@ -26,11 +26,11 @@ package com.github.chainmailstudios.astromine.client.screen.base.entity;
 
 import com.github.chainmailstudios.astromine.common.screenhandler.base.entity.ComponentEntityItemScreenHandler;
 import com.github.vini2003.blade.common.handler.BaseScreenHandler;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.util.text.ITextComponent;
 
 public abstract class ComponentEntityInventoryHandledScreen<T extends ComponentEntityItemScreenHandler> extends ComponentEntityHandledScreen<T> {
-	public ComponentEntityInventoryHandledScreen(BaseScreenHandler handler, Inventory inventory, Component title) {
+	public ComponentEntityInventoryHandledScreen(BaseScreenHandler handler, PlayerInventory inventory, ITextComponent title) {
 		super(handler, inventory, title);
 	}
 }

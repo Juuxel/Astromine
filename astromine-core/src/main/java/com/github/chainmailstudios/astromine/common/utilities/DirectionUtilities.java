@@ -24,7 +24,7 @@
 
 package com.github.chainmailstudios.astromine.common.utilities;
 
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
 
 public class DirectionUtilities {
 	public static Direction byNameOrId(String name) {

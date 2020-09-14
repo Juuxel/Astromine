@@ -26,33 +26,27 @@ package com.github.chainmailstudios.astromine.transportations.common.block;
 
 import com.github.chainmailstudios.astromine.common.utilities.capability.block.FacingBlockWrenchable;
 import net.minecraft.block.*;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.Containers;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.state.StateContainer;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import com.github.chainmailstudios.astromine.transportations.common.block.entity.InserterBlockEntity;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.ConveyableBlock;
 
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public class InserterBlock extends HorizontalDirectionalBlock implements EntityBlock, ConveyableBlock, FacingBlockWrenchable, SimpleWaterloggedBlock {
+public class InserterBlock extends HorizontalBlock implements ITileEntityProvider, ConveyableBlock, FacingBlockWrenchable, IWaterLoggable {
 	private String type;
 	private int speed;
 
@@ -74,17 +68,17 @@ public class InserterBlock extends HorizontalDirectionalBlock implements EntityB
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter blockView) {
+	public TileEntity newBlockEntity(IBlockReader blockView) {
 		return new InserterBlockEntity();
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> stateManagerBuilder) {
+	protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> stateManagerBuilder) {
 		stateManagerBuilder.add(FACING, BlockStateProperties.POWERED, BlockStateProperties.WATERLOGGED);
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext context) {
+	public BlockState getStateForPlacement(BlockItemUseContext context) {
 		return this.defaultBlockState().setValue(BlockStateProperties.POWERED, false).setValue(FACING, context.getPlayer().isShiftKeyDown() ? context.getHorizontalDirection().getOpposite() : context.getHorizontalDirection()).setValue(BlockStateProperties.WATERLOGGED, context.getLevel().getBlockState(context.getClickedPos()).getBlock() == Blocks.WATER);
 	}
 
@@ -95,7 +89,7 @@ public class InserterBlock extends HorizontalDirectionalBlock implements EntityB
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos neighborPos, boolean moved) {
+	public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos neighborPos, boolean moved) {
 		if (!world.isClientSide) {
 			boolean bl = state.getValue(BlockStateProperties.POWERED);
 			if (bl != world.hasNeighborSignal(pos)) {
@@ -109,23 +103,23 @@ public class InserterBlock extends HorizontalDirectionalBlock implements EntityB
 	}
 
 	@Override
-	public void tick(BlockState state, ServerLevel world, BlockPos pos, Random random) {
+	public void tick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
 		if (state.getValue(BlockStateProperties.POWERED) && !world.hasNeighborSignal(pos)) {
 			world.setBlock(pos, state.cycle(BlockStateProperties.POWERED), 2);
 		}
 	}
 
 	@Override
-	public void onPlace(BlockState blockState, Level world, BlockPos blockPos, BlockState blockState2, boolean boolean_1) {
+	public void onPlace(BlockState blockState, World world, BlockPos blockPos, BlockState blockState2, boolean boolean_1) {
 		updateDiagonals(world, this, blockPos);
 	}
 
 	@Override
-	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean notify) {
+	public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean notify) {
 		if (state.getBlock() != newState.getBlock()) {
-			BlockEntity blockEntity = world.getBlockEntity(pos);
+			TileEntity blockEntity = world.getBlockEntity(pos);
 			if (blockEntity instanceof InserterBlockEntity) {
-				Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), ((InserterBlockEntity) blockEntity).getStack());
+				InventoryHelper.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), ((InserterBlockEntity) blockEntity).getStack());
 			}
 
 			super.onRemove(state, world, pos, newState, notify);
@@ -135,7 +129,7 @@ public class InserterBlock extends HorizontalDirectionalBlock implements EntityB
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-		return Shapes.box(0, 0, 0, 1, 0.5, 1);
+	public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context) {
+		return VoxelShapes.box(0, 0, 0, 1, 0.5, 1);
 	}
 }

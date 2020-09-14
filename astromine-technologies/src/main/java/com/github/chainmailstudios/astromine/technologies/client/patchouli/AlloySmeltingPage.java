@@ -24,11 +24,11 @@
 
 package com.github.chainmailstudios.astromine.technologies.client.patchouli;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.TranslationTextComponent;
 import com.github.chainmailstudios.astromine.client.patchouli.BasicEnergyConsumingPage;
 import com.github.chainmailstudios.astromine.common.utilities.EnergyUtilities;
 import com.github.chainmailstudios.astromine.technologies.common.recipe.AlloySmeltingRecipe;
@@ -41,17 +41,17 @@ public class AlloySmeltingPage extends PageDoubleRecipeRegistry<AlloySmeltingRec
 	}
 
 	@Override
-	public void drawRecipe(PoseStack ms, AlloySmeltingRecipe recipe, int recipeX, int recipeY, int mouseX, int mouseY, boolean second) {
+	public void drawRecipe(MatrixStack ms, AlloySmeltingRecipe recipe, int recipeX, int recipeY, int mouseX, int mouseY, boolean second) {
 		mc.getTextureManager().bind(book.craftingTexture);
 		RenderSystem.enableBlend();
-		GuiComponent.blit(ms, recipeX, recipeY, 11, 135, 96, 43, 128, 256);
+		AbstractGui.blit(ms, recipeX, recipeY, 11, 135, 96, 43, 128, 256);
 		parent.drawCenteredStringNoShadow(ms, getTitle(second).getVisualOrderText(), GuiBook.PAGE_WIDTH / 2, recipeY - 10, book.headerColor);
 
 		parent.renderIngredient(ms, recipeX + 4, recipeY + 4, mouseX, mouseY, recipe.getFirstInput().asIngredient());
 		parent.renderIngredient(ms, recipeX + 4, recipeY + 23, mouseX, mouseY, recipe.getSecondInput().asIngredient());
 		parent.renderItemStack(ms, recipeX + 40, recipeY + 13, mouseX, mouseY, recipe.getRecipeKindIcon());
 		parent.renderItemStack(ms, recipeX + 76, recipeY + 13, mouseX, mouseY, recipe.getOutput());
-		parent.drawCenteredStringNoShadow(ms, new TranslatableComponent("category.astromine.consuming.energy", EnergyUtilities.simpleDisplay(recipe.getEnergyConsumed())).getVisualOrderText(), GuiBook.PAGE_WIDTH / 2, recipeY + 45, BasicEnergyConsumingPage.ENERGY_CONSUMED_TEXT_COLOR);
+		parent.drawCenteredStringNoShadow(ms, new TranslationTextComponent("category.astromine.consuming.energy", EnergyUtilities.simpleDisplay(recipe.getEnergyConsumed())).getVisualOrderText(), GuiBook.PAGE_WIDTH / 2, recipeY + 45, BasicEnergyConsumingPage.ENERGY_CONSUMED_TEXT_COLOR);
 	}
 
 	@Override

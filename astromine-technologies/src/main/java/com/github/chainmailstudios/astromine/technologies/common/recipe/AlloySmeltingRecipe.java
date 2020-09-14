@@ -42,17 +42,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
-import net.minecraft.core.NonNullList;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 
-public class AlloySmeltingRecipe implements EnergyConsumingRecipe<Container> {
+public class AlloySmeltingRecipe implements EnergyConsumingRecipe<IInventory> {
 	final ResourceLocation identifier;
 	final ArrayIngredient firstInput;
 	final ArrayIngredient secondInput;
@@ -70,7 +70,7 @@ public class AlloySmeltingRecipe implements EnergyConsumingRecipe<Container> {
 	}
 
 	@Override
-	public boolean matches(Container inventory, Level world) {
+	public boolean matches(IInventory inventory, World world) {
 		ItemInventoryComponent component = ItemInventoryComponentFromItemInventory.of(inventory);
 		if (component.getItemSize() < 2)
 			return false;
@@ -84,7 +84,7 @@ public class AlloySmeltingRecipe implements EnergyConsumingRecipe<Container> {
 	}
 
 	@Override
-	public ItemStack craft(Container inventory) {
+	public ItemStack craft(IInventory inventory) {
 		return output.copy();
 	}
 
@@ -104,12 +104,12 @@ public class AlloySmeltingRecipe implements EnergyConsumingRecipe<Container> {
 	}
 
 	@Override
-	public RecipeSerializer<?> getSerializer() {
+	public IRecipeSerializer<?> getSerializer() {
 		return Serializer.INSTANCE;
 	}
 
 	@Override
-	public RecipeType<?> getType() {
+	public IRecipeType<?> getType() {
 		return Type.INSTANCE;
 	}
 
@@ -142,7 +142,7 @@ public class AlloySmeltingRecipe implements EnergyConsumingRecipe<Container> {
 		return energyConsumed;
 	}
 
-	public static final class Serializer implements RecipeSerializer<AlloySmeltingRecipe> {
+	public static final class Serializer implements IRecipeSerializer<AlloySmeltingRecipe> {
 		public static final ResourceLocation ID = AstromineCommon.identifier("alloy_smelting");
 
 		public static final Serializer INSTANCE = new Serializer();
@@ -160,12 +160,12 @@ public class AlloySmeltingRecipe implements EnergyConsumingRecipe<Container> {
 		}
 
 		@Override
-		public AlloySmeltingRecipe read(ResourceLocation identifier, FriendlyByteBuf buffer) {
+		public AlloySmeltingRecipe read(ResourceLocation identifier, PacketBuffer buffer) {
 			return new AlloySmeltingRecipe(identifier, IngredientUtilities.fromBetterPacket(buffer), IngredientUtilities.fromBetterPacket(buffer), StackUtilities.fromPacket(buffer), EnergyUtilities.fromPacket(buffer), PacketUtilities.fromPacket(buffer, Integer.class));
 		}
 
 		@Override
-		public void write(FriendlyByteBuf buffer, AlloySmeltingRecipe recipe) {
+		public void write(PacketBuffer buffer, AlloySmeltingRecipe recipe) {
 			IngredientUtilities.toBetterPacket(buffer, recipe.firstInput);
 			IngredientUtilities.toBetterPacket(buffer, recipe.secondInput);
 			StackUtilities.toPacket(buffer, recipe.output);

@@ -28,12 +28,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BlockModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.util.LazyLoadedValue;
+import net.minecraft.client.renderer.model.BlockModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.resources.IResource;
+import net.minecraft.util.LazyValue;
+import net.minecraft.util.ResourceLocation;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 
 import java.io.BufferedReader;
@@ -42,11 +42,11 @@ import java.io.InputStreamReader;
 
 @Environment(EnvType.CLIENT)
 public class AstromineClientModels {
-	public static final LazyLoadedValue<ItemTransforms> ITEM_HANDHELD = new LazyLoadedValue<>(() -> {
+	public static final LazyValue<ItemCameraTransforms> ITEM_HANDHELD = new LazyValue<>(() -> {
 		try {
-			Resource resource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation("minecraft:models/item/handheld.json"));
+			IResource resource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation("minecraft:models/item/handheld.json"));
 			InputStream stream = resource.getInputStream();
-			ItemTransforms model = BlockModel.fromStream(new BufferedReader(new InputStreamReader(stream))).getTransforms();
+			ItemCameraTransforms model = BlockModel.fromStream(new BufferedReader(new InputStreamReader(stream))).getTransforms();
 			stream.close();
 			return model;
 		} catch (Throwable throwable) {

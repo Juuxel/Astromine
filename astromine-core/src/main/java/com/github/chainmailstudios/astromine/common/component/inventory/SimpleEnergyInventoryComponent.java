@@ -25,10 +25,9 @@
 package com.github.chainmailstudios.astromine.common.component.inventory;
 
 import com.github.chainmailstudios.astromine.common.volume.energy.EnergyVolume;
-import net.minecraft.nbt.CompoundTag;
-
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.nbt.CompoundNBT;
 
 public class SimpleEnergyInventoryComponent implements EnergyInventoryComponent {
 	private final EnergyVolume content;
@@ -59,12 +58,12 @@ public class SimpleEnergyInventoryComponent implements EnergyInventoryComponent 
 	}
 
 	@Override
-	public void fromTag(CompoundTag compoundTag) {
+	public void fromTag(CompoundNBT compoundTag) {
 		read(compoundTag);
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag compoundTag) {
+	public CompoundNBT toTag(CompoundNBT compoundTag) {
 		write(compoundTag);
 		return compoundTag;
 	}
@@ -72,7 +71,7 @@ public class SimpleEnergyInventoryComponent implements EnergyInventoryComponent 
 	@Override
 	public SimpleEnergyInventoryComponent copy() {
 		SimpleEnergyInventoryComponent component = new SimpleEnergyInventoryComponent();
-		component.fromTag(toTag(new CompoundTag()));
+		component.fromTag(toTag(new CompoundNBT()));
 		return component;
 	}
 }

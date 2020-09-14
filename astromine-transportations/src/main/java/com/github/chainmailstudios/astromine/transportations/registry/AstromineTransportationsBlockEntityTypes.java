@@ -33,18 +33,18 @@ import com.github.chainmailstudios.astromine.transportations.common.block.entity
 import com.github.chainmailstudios.astromine.transportations.common.block.entity.SplitterBlockEntity;
 import com.github.chainmailstudios.astromine.transportations.common.block.entity.VerticalConveyorBlockEntity;
 import com.github.chainmailstudios.astromine.transportations.common.block.entity.base.AbstractConveyableBlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.tileentity.TileEntityType;
 
 public class AstromineTransportationsBlockEntityTypes extends AstromineBlockEntityTypes {
-	public static final BlockEntityType<AbstractConveyableBlockEntity> ALTERNATOR = register("alternator", AlternatorBlockEntity::new, AstromineTransportationsBlocks.ALTERNATOR);
-	public static final BlockEntityType<AbstractConveyableBlockEntity> SPLITTER = register("splitter", SplitterBlockEntity::new, AstromineTransportationsBlocks.SPLITTER);
-	public static final BlockEntityType<IncineratorBlockEntity> INCINERATOR = register("incinerator", IncineratorBlockEntity::new, AstromineTransportationsBlocks.INCINERATOR);
-	public static final BlockEntityType<InserterBlockEntity> INSERTER = register("inserter", InserterBlockEntity::new, AstromineTransportationsBlocks.INSERTER, AstromineTransportationsBlocks.FAST_INSERTER);
+	public static final TileEntityType<AbstractConveyableBlockEntity> ALTERNATOR = register("alternator", AlternatorBlockEntity::new, AstromineTransportationsBlocks.ALTERNATOR);
+	public static final TileEntityType<AbstractConveyableBlockEntity> SPLITTER = register("splitter", SplitterBlockEntity::new, AstromineTransportationsBlocks.SPLITTER);
+	public static final TileEntityType<IncineratorBlockEntity> INCINERATOR = register("incinerator", IncineratorBlockEntity::new, AstromineTransportationsBlocks.INCINERATOR);
+	public static final TileEntityType<InserterBlockEntity> INSERTER = register("inserter", InserterBlockEntity::new, AstromineTransportationsBlocks.INSERTER, AstromineTransportationsBlocks.FAST_INSERTER);
 
-	public static final BlockEntityType<ConveyorBlockEntity> CONVEYOR = register("conveyor", ConveyorBlockEntity::new, AstromineTransportationsBlocks.BASIC_CONVEYOR, AstromineTransportationsBlocks.ADVANCED_CONVEYOR, AstromineTransportationsBlocks.ELITE_CONVEYOR);
-	public static final BlockEntityType<VerticalConveyorBlockEntity> VERTICAL_CONVEYOR = register("vertical_conveyor", VerticalConveyorBlockEntity::new, AstromineTransportationsBlocks.BASIC_VERTICAL_CONVEYOR, AstromineTransportationsBlocks.ADVANCED_VERTICAL_CONVEYOR,
+	public static final TileEntityType<ConveyorBlockEntity> CONVEYOR = register("conveyor", ConveyorBlockEntity::new, AstromineTransportationsBlocks.BASIC_CONVEYOR, AstromineTransportationsBlocks.ADVANCED_CONVEYOR, AstromineTransportationsBlocks.ELITE_CONVEYOR);
+	public static final TileEntityType<VerticalConveyorBlockEntity> VERTICAL_CONVEYOR = register("vertical_conveyor", VerticalConveyorBlockEntity::new, AstromineTransportationsBlocks.BASIC_VERTICAL_CONVEYOR, AstromineTransportationsBlocks.ADVANCED_VERTICAL_CONVEYOR,
 		AstromineTransportationsBlocks.ELITE_VERTICAL_CONVEYOR);
-	public static final BlockEntityType<DownVerticalConveyorBlockEntity> DOWNWARD_VERTICAL_CONVEYOR = register("downward_vertical_conveyor", DownVerticalConveyorBlockEntity::new, AstromineTransportationsBlocks.BASIC_DOWNWARD_VERTICAL_CONVEYOR,
+	public static final TileEntityType<DownVerticalConveyorBlockEntity> DOWNWARD_VERTICAL_CONVEYOR = register("downward_vertical_conveyor", DownVerticalConveyorBlockEntity::new, AstromineTransportationsBlocks.BASIC_DOWNWARD_VERTICAL_CONVEYOR,
 		AstromineTransportationsBlocks.ADVANCED_DOWNWARD_VERTICAL_CONVEYOR, AstromineTransportationsBlocks.ELITE_DOWNWARD_VERTICAL_CONVEYOR);
 
 	public static void initialize() {

@@ -40,45 +40,45 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
-import net.minecraft.core.NonNullList;
-import net.minecraft.core.Registry;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.LazyLoadedValue;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.Fluid;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.LazyValue;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 
-public class FluidMixingRecipe implements Recipe<Container>, EnergyConsumingRecipe<Container> {
+public class FluidMixingRecipe implements IRecipe<IInventory>, EnergyConsumingRecipe<IInventory> {
 	final ResourceLocation identifier;
-	final ResourceKey<Fluid> firstInputFluidKey;
-	final LazyLoadedValue<Fluid> firstInputFluid;
+	final RegistryKey<Fluid> firstInputFluidKey;
+	final LazyValue<Fluid> firstInputFluid;
 	final Fraction firstInputAmount;
-	final ResourceKey<Fluid> secondInputFluidKey;
-	final LazyLoadedValue<Fluid> secondInputFluid;
+	final RegistryKey<Fluid> secondInputFluidKey;
+	final LazyValue<Fluid> secondInputFluid;
 	final Fraction secondInputAmount;
-	final ResourceKey<Fluid> outputFluidKey;
-	final LazyLoadedValue<Fluid> outputFluid;
+	final RegistryKey<Fluid> outputFluidKey;
+	final LazyValue<Fluid> outputFluid;
 	final Fraction outputAmount;
 	final double energyConsumed;
 	final int time;
 
-	public FluidMixingRecipe(ResourceLocation identifier, ResourceKey<Fluid> firstInputFluidKey, Fraction firstInputAmount, ResourceKey<Fluid> secondInputFluidKey, Fraction secondInputAmount, ResourceKey<Fluid> outputFluidKey, Fraction outputAmount, double energyConsumed, int time) {
+	public FluidMixingRecipe(ResourceLocation identifier, RegistryKey<Fluid> firstInputFluidKey, Fraction firstInputAmount, RegistryKey<Fluid> secondInputFluidKey, Fraction secondInputAmount, RegistryKey<Fluid> outputFluidKey, Fraction outputAmount, double energyConsumed, int time) {
 		this.identifier = identifier;
 		this.firstInputFluidKey = firstInputFluidKey;
-		this.firstInputFluid = new LazyLoadedValue<>(() -> Registry.FLUID.get(this.firstInputFluidKey));
+		this.firstInputFluid = new LazyValue<>(() -> Registry.FLUID.get(this.firstInputFluidKey));
 		this.firstInputAmount = firstInputAmount;
 		this.secondInputFluidKey = secondInputFluidKey;
-		this.secondInputFluid = new LazyLoadedValue<>(() -> Registry.FLUID.get(this.secondInputFluidKey));
+		this.secondInputFluid = new LazyValue<>(() -> Registry.FLUID.get(this.secondInputFluidKey));
 		this.secondInputAmount = secondInputAmount;
 		this.outputFluidKey = outputFluidKey;
-		this.outputFluid = new LazyLoadedValue<>(() -> Registry.FLUID.get(this.outputFluidKey));
+		this.outputFluid = new LazyValue<>(() -> Registry.FLUID.get(this.outputFluidKey));
 		this.outputAmount = outputAmount;
 		this.energyConsumed = energyConsumed;
 		this.time = time;
@@ -120,22 +120,22 @@ public class FluidMixingRecipe implements Recipe<Container>, EnergyConsumingReci
 	}
 
 	@Override
-	public RecipeSerializer<?> getSerializer() {
+	public IRecipeSerializer<?> getSerializer() {
 		return Serializer.INSTANCE;
 	}
 
 	@Override
-	public RecipeType<?> getType() {
+	public IRecipeType<?> getType() {
 		return Type.INSTANCE;
 	}
 
 	@Override
-	public boolean matches(Container inventory, Level world) {
+	public boolean matches(IInventory inventory, World world) {
 		return false;
 	}
 
 	@Override
-	public ItemStack assemble(Container inventory) {
+	public ItemStack assemble(IInventory inventory) {
 		return ItemStack.EMPTY;
 	}
 
@@ -195,7 +195,7 @@ public class FluidMixingRecipe implements Recipe<Container>, EnergyConsumingReci
 		return time;
 	}
 
-	public static final class Serializer implements RecipeSerializer<FluidMixingRecipe> {
+	public static final class Serializer implements IRecipeSerializer<FluidMixingRecipe> {
 		public static final ResourceLocation ID = AstromineCommon.identifier("fluid_mixing");
 
 		public static final Serializer INSTANCE = new Serializer();
@@ -208,18 +208,18 @@ public class FluidMixingRecipe implements Recipe<Container>, EnergyConsumingReci
 		public FluidMixingRecipe fromJson(ResourceLocation identifier, JsonObject object) {
 			FluidMixingRecipe.Format format = new Gson().fromJson(object, FluidMixingRecipe.Format.class);
 
-			return new FluidMixingRecipe(identifier, ResourceKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.firstInput)), FractionUtilities.fromJson(format.firstInputAmount), ResourceKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.secondInput)), FractionUtilities.fromJson(
-				format.secondInputAmount), ResourceKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.output)), FractionUtilities.fromJson(format.outputAmount), EnergyUtilities.fromJson(format.energyGenerated), ParsingUtilities.fromJson(format.time, Integer.class));
+			return new FluidMixingRecipe(identifier, RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.firstInput)), FractionUtilities.fromJson(format.firstInputAmount), RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.secondInput)), FractionUtilities.fromJson(
+				format.secondInputAmount), RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.output)), FractionUtilities.fromJson(format.outputAmount), EnergyUtilities.fromJson(format.energyGenerated), ParsingUtilities.fromJson(format.time, Integer.class));
 		}
 
 		@Override
-		public FluidMixingRecipe fromNetwork(ResourceLocation identifier, FriendlyByteBuf buffer) {
-			return new FluidMixingRecipe(identifier, ResourceKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), ResourceKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), ResourceKey.create(
+		public FluidMixingRecipe fromNetwork(ResourceLocation identifier, PacketBuffer buffer) {
+			return new FluidMixingRecipe(identifier, RegistryKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), RegistryKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), RegistryKey.create(
 				Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), EnergyUtilities.fromPacket(buffer), PacketUtilities.fromPacket(buffer, Integer.class));
 		}
 
 		@Override
-		public void write(FriendlyByteBuf buffer, FluidMixingRecipe recipe) {
+		public void write(PacketBuffer buffer, FluidMixingRecipe recipe) {
 			buffer.writeResourceLocation(recipe.firstInputFluidKey.location());
 			FractionUtilities.toPacket(buffer, recipe.firstInputAmount);
 			buffer.writeResourceLocation(recipe.secondInputFluidKey.location());

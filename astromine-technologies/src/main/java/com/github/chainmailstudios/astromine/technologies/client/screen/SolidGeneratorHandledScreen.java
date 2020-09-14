@@ -27,11 +27,11 @@ package com.github.chainmailstudios.astromine.technologies.client.screen;
 import com.github.chainmailstudios.astromine.client.screen.base.block.ComponentBlockEntityEnergyItemHandledScreen;
 import com.github.chainmailstudios.astromine.technologies.common.screenhandler.SolidGeneratorScreenHandler;
 import com.github.vini2003.blade.common.handler.BaseScreenHandler;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.util.text.ITextComponent;
 
 public class SolidGeneratorHandledScreen extends ComponentBlockEntityEnergyItemHandledScreen<SolidGeneratorScreenHandler> {
-	public SolidGeneratorHandledScreen(BaseScreenHandler handler, Inventory inventory, Component title) {
+	public SolidGeneratorHandledScreen(BaseScreenHandler handler, PlayerInventory inventory, ITextComponent title) {
 		super(handler, inventory, title);
 	}
 }

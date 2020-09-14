@@ -28,14 +28,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import net.minecraft.core.NonNullList;
-import net.minecraft.world.Container;
-import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.ContainerListener;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.StackedContents;
-import net.minecraft.world.inventory.StackedContentsCompatible;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.IInventoryChangedListener;
+import net.minecraft.inventory.IRecipeHelperPopulator;
+import net.minecraft.inventory.ItemStackHelper;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.RecipeItemHelper;
+import net.minecraft.util.NonNullList;
 
 /**
  * A BaseInventory is a class responsible for
@@ -43,10 +43,10 @@ import net.minecraft.world.item.ItemStack;
  * does, however, allowing stack sizes
  * higher than the default of 64.
  */
-public class BaseInventory implements Container, StackedContentsCompatible {
+public class BaseInventory implements IInventory, IRecipeHelperPopulator {
 	protected int size;
 	protected NonNullList<ItemStack> stacks;
-	protected List<ContainerListener> listeners = new ArrayList<>();
+	protected List<IInventoryChangedListener> listeners = new ArrayList<>();
 
 	public BaseInventory(int size) {
 		this.size = size;
@@ -66,11 +66,11 @@ public class BaseInventory implements Container, StackedContentsCompatible {
 		return new BaseInventory(items);
 	}
 
-	public void addListener(ContainerListener... listeners) {
+	public void addListener(IInventoryChangedListener... listeners) {
 		this.listeners.addAll(Arrays.asList(listeners));
 	}
 
-	public void removeListener(ContainerListener... listeners) {
+	public void removeListener(IInventoryChangedListener... listeners) {
 		this.listeners.removeAll(Arrays.asList(listeners));
 	}
 
@@ -91,7 +91,7 @@ public class BaseInventory implements Container, StackedContentsCompatible {
 
 	@Override
 	public ItemStack removeItem(int slot, int amount) {
-		ItemStack stack = ContainerHelper.removeItem(this.stacks, slot, amount);
+		ItemStack stack = ItemStackHelper.removeItem(this.stacks, slot, amount);
 		if (!stack.isEmpty()) {
 			this.setChanged();
 		}
@@ -120,13 +120,13 @@ public class BaseInventory implements Container, StackedContentsCompatible {
 
 	@Override
 	public void setChanged() {
-		for (ContainerListener listener : listeners) {
+		for (IInventoryChangedListener listener : listeners) {
 			listener.containerChanged(this);
 		}
 	}
 
 	@Override
-	public boolean stillValid(Player player) {
+	public boolean stillValid(PlayerEntity player) {
 		return true;
 	}
 
@@ -141,5 +141,5 @@ public class BaseInventory implements Container, StackedContentsCompatible {
 	}
 
 	@Override
-	public void fillStackedContents(StackedContents recipeFinder) {}
+	public void fillStackedContents(RecipeItemHelper recipeFinder) {}
 }

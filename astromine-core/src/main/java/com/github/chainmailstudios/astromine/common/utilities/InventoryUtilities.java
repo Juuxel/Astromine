@@ -26,9 +26,9 @@ package com.github.chainmailstudios.astromine.common.utilities;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.world.Container;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.Ingredient;
 import com.github.chainmailstudios.astromine.common.inventory.BaseInventory;
 
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class InventoryUtilities {
 		return Arrays.asList(array);
 	}
 
-	public static List<ItemStack> toListNonEmpty(Container inventory) {
+	public static List<ItemStack> toListNonEmpty(IInventory inventory) {
 		List<ItemStack> stackSet = new ArrayList<>();
 		for (ItemStack stack : toList(inventory)) {
 			if (stack.isEmpty()) {
@@ -64,7 +64,7 @@ public class InventoryUtilities {
 		return stackSet;
 	}
 
-	public static List<ItemStack> toList(Container inventory) {
+	public static List<ItemStack> toList(IInventory inventory) {
 		List<ItemStack> stackSet = new ArrayList();
 		for (int i = 0; i < inventory.getContainerSize(); ++i) {
 			stackSet.add(inventory.getItem(i));
@@ -72,11 +72,11 @@ public class InventoryUtilities {
 		return stackSet;
 	}
 
-	public static BaseInventory singleOf(Container origin, int slot) {
+	public static BaseInventory singleOf(IInventory origin, int slot) {
 		return rangedOf(origin, new int[]{ slot });
 	}
 
-	public static BaseInventory rangedOf(Container origin, int[] slots) {
+	public static BaseInventory rangedOf(IInventory origin, int[] slots) {
 		BaseInventory recipeInventory = new BaseInventory(slots.length);
 		int k = 0;
 		for (int i : slots) {
@@ -91,7 +91,7 @@ public class InventoryUtilities {
 	 * @param inventory
 	 *        the specified inventory.
 	 */
-	public static void sort(Container inventory) {
+	public static void sort(IInventory inventory) {
 		TreeMap<String, ArrayList<ItemStack>> byType = new TreeMap<>();
 
 		for (int i = 0; i < inventory.getContainerSize(); ++i) {

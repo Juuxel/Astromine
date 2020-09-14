@@ -24,18 +24,18 @@
 
 package com.github.chainmailstudios.astromine.discoveries.client.render.sky.skybox;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.math.Vector3f;
+import net.minecraft.client.AbstractOption;
+import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Option;
-import net.minecraft.client.Options;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.world.World;
 import com.github.chainmailstudios.astromine.client.render.sky.skybox.Skybox;
 
 import com.google.common.collect.ImmutableMap;
@@ -68,16 +68,16 @@ public class SpaceSkybox extends Skybox {
 	}
 
 	@Override
-	public void render(PoseStack matrices, float tickDelta) {
+	public void render(MatrixStack matrices, float tickDelta) {
 		Minecraft client = Minecraft.getInstance();
 
 		TextureManager textureManager = client.getTextureManager();
 
-		Tesselator tessellator = Tesselator.getInstance();
+		Tessellator tessellator = Tessellator.getInstance();
 
 		BufferBuilder buffer = tessellator.getBuilder();
 
-		Level world = client.level;
+		World world = client.level;
 
 		if (world == null) {
 			return;
@@ -142,11 +142,11 @@ public class SpaceSkybox extends Skybox {
 				}
 			}
 
-			buffer.begin(7, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
+			buffer.begin(7, DefaultVertexFormats.POSITION_COLOR_TEX_LIGHTMAP);
 
-			Options options = Minecraft.getInstance().options;
+			GameSettings options = Minecraft.getInstance().options;
 
-			float distance = 16F * (float) Option.RENDER_DISTANCE.get(options) - 8F;
+			float distance = 16F * (float) AbstractOption.RENDER_DISTANCE.get(options) - 8F;
 			
 			buffer.vertex(matrices.last().pose(), -distance, -distance, -distance).color(255, 255, 255, 255).uv(0.0F, 0.0F).uv2(vertexLight).endVertex();
 			buffer.vertex(matrices.last().pose(), -distance, -distance, distance).color(255, 255, 255, 255).uv(0.0F, 1.0F).uv2(vertexLight).endVertex();
@@ -162,7 +162,7 @@ public class SpaceSkybox extends Skybox {
 
 		matrices.pushPose();
 
-		buffer.begin(7, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
+		buffer.begin(7, DefaultVertexFormats.POSITION_COLOR_TEX_LIGHTMAP);
 
 		buffer.vertex(matrices.last().pose(), -100.0F, (float) (-64.0F - (client.player.getY() < 0 ? client.player.getY() : client.player.getY())), -100.0F).color(255, 255, 255, 255).uv(u0P, 0.0F).uv2(vertexLight).endVertex();
 		buffer.vertex(matrices.last().pose(), -100.0F, (float) (-64.0F - (client.player.getY() < 0 ? client.player.getY() : client.player.getY())), 100.0F).color(255, 255, 255, 255).uv(u0P, 1.0F).uv2(vertexLight).endVertex();
@@ -177,7 +177,7 @@ public class SpaceSkybox extends Skybox {
 
 		matrices.pushPose();
 
-		buffer.begin(7, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
+		buffer.begin(7, DefaultVertexFormats.POSITION_COLOR_TEX_LIGHTMAP);
 
 		RenderSystem.enableBlend();
 		RenderSystem.enableDepthTest();

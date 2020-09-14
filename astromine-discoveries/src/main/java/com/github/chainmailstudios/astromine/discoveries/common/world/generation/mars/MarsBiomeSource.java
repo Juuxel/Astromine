@@ -33,19 +33,19 @@ import com.github.chainmailstudios.astromine.discoveries.common.world.layer.util
 
 import com.google.common.collect.ImmutableList;
 import java.util.function.LongFunction;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.RegistryLookupCodec;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.newbiome.area.Area;
-import net.minecraft.world.level.newbiome.area.AreaFactory;
-import net.minecraft.world.level.newbiome.context.BigContext;
-import net.minecraft.world.level.newbiome.context.LazyAreaContext;
-import net.minecraft.world.level.newbiome.layer.Layer;
-import net.minecraft.world.level.newbiome.layer.RiverInitLayer;
-import net.minecraft.world.level.newbiome.layer.ZoomLayer;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryLookupCodec;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.provider.BiomeProvider;
+import net.minecraft.world.gen.IExtendedNoiseRandom;
+import net.minecraft.world.gen.LazyAreaLayerContext;
+import net.minecraft.world.gen.area.IArea;
+import net.minecraft.world.gen.area.IAreaFactory;
+import net.minecraft.world.gen.layer.Layer;
+import net.minecraft.world.gen.layer.StartRiverLayer;
+import net.minecraft.world.gen.layer.ZoomLayer;
 
-public class MarsBiomeSource extends BiomeSource {
+public class MarsBiomeSource extends BiomeProvider {
 	public static Codec<MarsBiomeSource> CODEC = RecordCodecBuilder.create(instance -> instance.group(Codec.LONG.fieldOf("seed").stable().forGetter(source -> source.seed), RegistryLookupCodec.create(Registry.BIOME_REGISTRY).forGetter(source -> source.biomeRegistry)).apply(instance,
 		instance.stable(MarsBiomeSource::new)));
 	private final long seed;
@@ -60,12 +60,12 @@ public class MarsBiomeSource extends BiomeSource {
 	}
 
 	@Override
-	protected Codec<? extends BiomeSource> codec() {
-		return CODEC;
+	protected Codec<? extends BiomeProvider> codec() {
+		return withSeed(long);
 	}
 
 	@Override
-	public BiomeSource withSeed(long seed) {
+	public BiomeProvider withSeed(long seed) {
 		return new MarsBiomeSource(seed, biomeRegistry);
 	}
 
@@ -75,11 +75,11 @@ public class MarsBiomeSource extends BiomeSource {
 	}
 
 	public Layer build(long seed) {
-		return new Layer(build((salt) -> new LazyAreaContext(25, seed, salt)));
+		return new Layer(build((salt) -> new LazyAreaLayerContext(25, seed, salt)));
 	}
 
-	private <T extends Area, C extends BigContext<T>> AreaFactory<T> build(LongFunction<C> contextProvider) {
-		AreaFactory<T> mainLayer = RiverInitLayer.INSTANCE.run(contextProvider.apply(432L), PlainsOnlyLayer.INSTANCE.run(contextProvider.apply(543L)));
+	private <T extends IArea, C extends IExtendedNoiseRandom<T>> IAreaFactory<T> build(LongFunction<C> contextProvider) {
+		IAreaFactory<T> mainLayer = StartRiverLayer.INSTANCE.run(contextProvider.apply(432L), PlainsOnlyLayer.INSTANCE.run(contextProvider.apply(543L)));
 		for (int i = 0; i < 7; i++) {
 			mainLayer = ZoomLayer.NORMAL.run(contextProvider.apply(43 + i), mainLayer);
 		}

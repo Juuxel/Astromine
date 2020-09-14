@@ -26,16 +26,17 @@ package com.github.chainmailstudios.astromine.mixin;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderBuffers;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.client.renderer.RenderTypeBuffers;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector3d;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -48,12 +49,11 @@ import com.github.chainmailstudios.astromine.client.render.layer.Layer;
 import com.github.chainmailstudios.astromine.client.render.sky.skybox.Skybox;
 import com.github.chainmailstudios.astromine.common.fluid.ExtendedFluid;
 import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 
-@Mixin(LevelRenderer.class)
+@Mixin(WorldRenderer.class)
 @Environment(EnvType.CLIENT)
 public abstract class WorldRendererMixin {
 	@Shadow
@@ -61,14 +61,14 @@ public abstract class WorldRendererMixin {
 	private Minecraft client;
 
 	@Shadow
-	private ClientLevel world;
+	private ClientWorld world;
 
 	@Shadow
 	@Final
-	private RenderBuffers bufferBuilders;
+	private RenderTypeBuffers bufferBuilders;
 
 	@Inject(at = @At("HEAD"), method = "renderSky(Lnet/minecraft/client/util/math/MatrixStack;F)V", cancellable = true)
-	void onRenderSky(PoseStack matrices, float tickDelta, CallbackInfo callbackInformation) {
+	void onRenderSky(MatrixStack matrices, float tickDelta, CallbackInfo callbackInformation) {
 		Skybox skybox = SkyboxRegistry.INSTANCE.get(this.client.level.dimension());
 
 		if (skybox != null) {
@@ -79,16 +79,16 @@ public abstract class WorldRendererMixin {
 
 	@Inject(at = @At(value = "HEAD", target = "Lnet/minecraft/client/render/WorldRenderer;checkEmpty(Lnet/minecraft/client/util/math/MatrixStack;)V"),
 		method = "render(Lnet/minecraft/client/util/math/MatrixStack;FJZLnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/GameRenderer;Lnet/minecraft/client/render/LightmapTextureManager;Lnet/minecraft/util/math/Matrix4f;)V")
-	void onRender(PoseStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
-		Vec3 cameraPosition = camera.getPosition();
+	void onRender(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, ActiveRenderInfo camera, GameRenderer gameRenderer, LightTexture lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
+		Vector3d cameraPosition = camera.getPosition();
 
 		float cX = (float) cameraPosition.x;
 		float cY = (float) cameraPosition.y;
 		float cZ = (float) cameraPosition.z;
 
-		MultiBufferSource.BufferSource immediate = this.bufferBuilders.bufferSource();
+		IRenderTypeBuffer.Impl immediate = this.bufferBuilders.bufferSource();
 
-		VertexConsumer consumer = immediate.getBuffer(Layer.getFlatNoCutout());
+		IVertexBuilder consumer = immediate.getBuffer(Layer.getFlatNoCutout());
 
 		for (Long2ObjectMap.Entry<FluidVolume> entry : ClientAtmosphereManager.getVolumes().long2ObjectEntrySet()) {
 			long blockPos = entry.getLongKey();

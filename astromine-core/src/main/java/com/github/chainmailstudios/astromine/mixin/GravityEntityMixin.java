@@ -28,11 +28,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import com.github.chainmailstudios.astromine.common.entity.GravityEntity;
-import net.minecraft.world.entity.item.FallingBlockEntity;
-import net.minecraft.world.entity.item.PrimedTnt;
-import net.minecraft.world.entity.projectile.ShulkerBullet;
+import net.minecraft.entity.item.FallingBlockEntity;
+import net.minecraft.entity.item.TNTEntity;
+import net.minecraft.entity.projectile.ShulkerBulletEntity;
 
-@Mixin({ FallingBlockEntity.class, ShulkerBullet.class, PrimedTnt.class })
+@Mixin({ FallingBlockEntity.class, ShulkerBulletEntity.class, TNTEntity.class })
 public abstract class GravityEntityMixin implements GravityEntity {
 	@ModifyConstant(method = "tick()V", constant = @Constant(doubleValue = -0.04D))
 	double getGravity(double original) {

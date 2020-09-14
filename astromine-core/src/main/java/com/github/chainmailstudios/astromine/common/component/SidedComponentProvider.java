@@ -26,8 +26,8 @@ package com.github.chainmailstudios.astromine.common.component;
 
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.Component;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +42,7 @@ public interface SidedComponentProvider extends nerdhub.cardinal.components.api.
 		return optional.orElse(null);
 	}
 
-	static SidedComponentProvider fromBlockEntity(BlockEntity blockEntity) {
+	static SidedComponentProvider fromBlockEntity(TileEntity blockEntity) {
 		return blockEntity instanceof SidedComponentProvider ? (SidedComponentProvider) blockEntity : null;
 	}
 }

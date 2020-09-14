@@ -43,7 +43,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.tileentity.TileEntity;
 
 public class EnergyNetworkType extends NetworkType {
 	@Override
@@ -54,7 +54,7 @@ public class EnergyNetworkType extends NetworkType {
 		for (NetworkMemberNode memberNode : instance.members) {
 			WorldPos memberPos = WorldPos.of(instance.getWorld(), memberNode.getBlockPos());
 			NetworkMember networkMember = NetworkMemberRegistry.get(memberPos);
-			BlockEntity blockEntity = memberPos.getBlockEntity();
+			TileEntity blockEntity = memberPos.getBlockEntity();
 
 			WorldPos nodePosition = memberPos.offset(memberNode.getDirection());
 

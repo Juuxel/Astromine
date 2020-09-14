@@ -24,19 +24,19 @@
 
 package com.github.chainmailstudios.astromine.common.component.inventory;
 
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.utilities.data.Range;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import com.github.chainmailstudios.astromine.registry.AstromineItems;
 import nerdhub.cardinal.components.api.ComponentType;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.text.TranslationTextComponent;
 import org.apache.logging.log4j.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,8 +56,8 @@ public interface ItemInventoryComponent extends NameableComponent {
 		return AstromineItems.ITEM;
 	}
 
-	default TranslatableComponent getName() {
-		return new TranslatableComponent("text.astromine.item");
+	default TranslationTextComponent getName() {
+		return new TranslationTextComponent("text.astromine.item");
 	}
 
 	/**
@@ -128,11 +128,11 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 *
 	 * @return SUCCESS w. empty if inserted; FAIL w. stack if not.
 	 */
-	default InteractionResultHolder<ItemStack> insert(Direction direction, ItemStack stack) {
+	default ActionResult<ItemStack> insert(Direction direction, ItemStack stack) {
 		if (this.canInsert()) {
 			return this.insert(direction, stack, stack.getCount());
 		} else {
-			return new InteractionResultHolder<>(InteractionResult.FAIL, stack);
+			return new ActionResult<>(ActionResultType.FAIL, stack);
 		}
 	}
 
@@ -147,7 +147,7 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 *
 	 * @return SUCCESS w. modified stack if inserted; FAIL w. unmodified stack if not.
 	 */
-	default InteractionResultHolder<ItemStack> insert(Direction direction, ItemStack stack, int count) {
+	default ActionResult<ItemStack> insert(Direction direction, ItemStack stack, int count) {
 		ItemStack finalStack = stack;
 		Optional<Map.Entry<Integer, ItemStack>> matchingStackOptional = this.getContents().entrySet().stream().filter(entry -> {
 			ItemStack storedStack = entry.getValue();
@@ -166,9 +166,9 @@ public interface ItemInventoryComponent extends NameableComponent {
 				matchingStack.grow(stack.getCount());
 				stack.shrink(stack.getCount());
 			}
-			return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
+			return new ActionResult<>(ActionResultType.SUCCESS, stack);
 		} else {
-			return new InteractionResultHolder<>(InteractionResult.FAIL, stack);
+			return new ActionResult<>(ActionResultType.FAIL, stack);
 		}
 	}
 
@@ -210,11 +210,11 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 *
 	 * @return SUCCESS w. the retrieved collection if extracted anything; FAIL w. empty if not.
 	 */
-	default InteractionResultHolder<Collection<ItemStack>> extractMatching(Direction direction, Predicate<ItemStack> predicate) {
+	default ActionResult<Collection<ItemStack>> extractMatching(Direction direction, Predicate<ItemStack> predicate) {
 		HashSet<ItemStack> extractedStacks = new HashSet<>();
 		this.getContents().forEach((slot, stack) -> {
 			if (predicate.test(stack)) {
-				InteractionResultHolder<ItemStack> extractionResult = this.extract(direction, slot);
+				ActionResult<ItemStack> extractionResult = this.extract(direction, slot);
 
 				if (extractionResult.getResult().consumesAction()) {
 					extractedStacks.add(extractionResult.getObject());
@@ -223,9 +223,9 @@ public interface ItemInventoryComponent extends NameableComponent {
 		});
 
 		if (!extractedStacks.isEmpty()) {
-			return new InteractionResultHolder<>(InteractionResult.SUCCESS, extractedStacks);
+			return new ActionResult<>(ActionResultType.SUCCESS, extractedStacks);
 		} else {
-			return new InteractionResultHolder<>(InteractionResult.FAIL, extractedStacks);
+			return new ActionResult<>(ActionResultType.FAIL, extractedStacks);
 		}
 	}
 
@@ -237,13 +237,13 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 *
 	 * @return SUCCESS w. the retrieved collection if extracted anything; FAIL w. empty if not.
 	 */
-	default InteractionResultHolder<ItemStack> extractFirstMatching(Direction direction, Predicate<ItemStack> predicate) {
+	default ActionResult<ItemStack> extractFirstMatching(Direction direction, Predicate<ItemStack> predicate) {
 		AtomicReference<ItemStack> extractedStack = new AtomicReference<>();
 		extractedStack.set(ItemStack.EMPTY);
 		for (int slot = 0; slot < this.getContents().size(); slot++) {
 			ItemStack stack = this.getContents().get(slot);
 			if (predicate.test(stack)) {
-				InteractionResultHolder<ItemStack> extractionResult = this.extract(direction, slot);
+				ActionResult<ItemStack> extractionResult = this.extract(direction, slot);
 
 				if (extractionResult.getResult().consumesAction()) {
 					extractedStack.set(extractionResult.getObject());
@@ -253,9 +253,9 @@ public interface ItemInventoryComponent extends NameableComponent {
 		}
 
 		if (!extractedStack.get().isEmpty()) {
-			return new InteractionResultHolder<>(InteractionResult.SUCCESS, extractedStack.get());
+			return new ActionResult<>(ActionResultType.SUCCESS, extractedStack.get());
 		} else {
-			return new InteractionResultHolder<>(InteractionResult.FAIL, extractedStack.get());
+			return new ActionResult<>(ActionResultType.FAIL, extractedStack.get());
 		}
 	}
 
@@ -267,13 +267,13 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 *
 	 * @return SUCCESS w. stack if extracted; FAIL w. empty if not.
 	 */
-	default InteractionResultHolder<ItemStack> extract(Direction direction, int slot) {
+	default ActionResult<ItemStack> extract(Direction direction, int slot) {
 		ItemStack matchingStack = this.getStack(slot);
 
 		if (this.canExtract(direction, matchingStack, slot)) {
 			return this.extract(slot, matchingStack.getCount());
 		} else {
-			return new InteractionResultHolder<>(InteractionResult.FAIL, ItemStack.EMPTY);
+			return new ActionResult<>(ActionResultType.FAIL, ItemStack.EMPTY);
 		}
 	}
 
@@ -295,7 +295,7 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 *
 	 * @return SUCCESS w. stack if extracted; FAIL w. empty if not.
 	 */
-	default InteractionResultHolder<ItemStack> extract(int slot, int count) {
+	default ActionResult<ItemStack> extract(int slot, int count) {
 		Optional<ItemStack> matchingStackOptional = Optional.ofNullable(this.getStack(slot));
 
 		if (matchingStackOptional.isPresent()) {
@@ -305,12 +305,12 @@ public interface ItemInventoryComponent extends NameableComponent {
 				remainingStack.shrink(count);
 				matchingStack.setCount(count);
 				this.setStack(slot, remainingStack);
-				return new InteractionResultHolder<>(InteractionResult.SUCCESS, matchingStack);
+				return new ActionResult<>(ActionResultType.SUCCESS, matchingStack);
 			} else {
-				return new InteractionResultHolder<>(InteractionResult.FAIL, ItemStack.EMPTY);
+				return new ActionResult<>(ActionResultType.FAIL, ItemStack.EMPTY);
 			}
 		} else {
-			return new InteractionResultHolder<>(InteractionResult.FAIL, ItemStack.EMPTY);
+			return new ActionResult<>(ActionResultType.FAIL, ItemStack.EMPTY);
 		}
 	}
 
@@ -326,8 +326,8 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 * @param range
 	 *        the optional range.
 	 */
-	default CompoundTag write(ItemInventoryComponent source, Optional<String> subtag, Optional<Range<Integer>> range) {
-		CompoundTag tag = new CompoundTag();
+	default CompoundNBT write(ItemInventoryComponent source, Optional<String> subtag, Optional<Range<Integer>> range) {
+		CompoundNBT tag = new CompoundNBT();
 		this.write(source, tag, subtag, range);
 		return tag;
 	}
@@ -344,7 +344,7 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 * @param range
 	 *        the optional range.
 	 */
-	default void write(ItemInventoryComponent source, CompoundTag tag, Optional<String> subtag, Optional<Range<Integer>> range) {
+	default void write(ItemInventoryComponent source, CompoundNBT tag, Optional<String> subtag, Optional<Range<Integer>> range) {
 		if (source == null || source.getItemSize() <= 0) {
 			return;
 		}
@@ -353,7 +353,7 @@ public interface ItemInventoryComponent extends NameableComponent {
 			return;
 		}
 
-		CompoundTag stacksTag = new CompoundTag();
+		CompoundNBT stacksTag = new CompoundNBT();
 
 		int minimum = range.isPresent() ? range.get().getMinimum() : 0;
 		int maximum = range.isPresent() ? range.get().getMaximum() : source.getItemSize();
@@ -361,11 +361,11 @@ public interface ItemInventoryComponent extends NameableComponent {
 		for (int position = minimum; position < maximum; ++position) {
 			ItemStack stack = source.getStack(position);
 
-			CompoundTag stackTag;
+			CompoundNBT stackTag;
 			if (stack != null && !stack.isEmpty()) {
-				stackTag = source.getStack(position).save(new CompoundTag());
+				stackTag = source.getStack(position).save(new CompoundNBT());
 			} else {
-				stackTag = ItemStack.EMPTY.save(new CompoundTag());
+				stackTag = ItemStack.EMPTY.save(new CompoundNBT());
 			}
 			if (!stackTag.isEmpty()) {
 				stacksTag.put(String.valueOf(position), stackTag);
@@ -373,7 +373,7 @@ public interface ItemInventoryComponent extends NameableComponent {
 		}
 
 		if (subtag.isPresent()) {
-			CompoundTag inventoryTag = new CompoundTag();
+			CompoundNBT inventoryTag = new CompoundNBT();
 
 			inventoryTag.putInt("size", source.getItemSize());
 			inventoryTag.put("stacks", stacksTag);
@@ -398,12 +398,12 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 * @param range
 	 *        the optional range.
 	 */
-	default void read(ItemInventoryComponent target, CompoundTag tag, Optional<String> subtag, Optional<Range<Integer>> range) {
+	default void read(ItemInventoryComponent target, CompoundNBT tag, Optional<String> subtag, Optional<Range<Integer>> range) {
 		if (tag == null) {
 			return;
 		}
 
-		Tag rawTag;
+		INBT rawTag;
 
 		if (subtag.isPresent()) {
 			rawTag = tag.get(subtag.get());
@@ -411,15 +411,15 @@ public interface ItemInventoryComponent extends NameableComponent {
 			rawTag = tag;
 		}
 
-		if (!(rawTag instanceof CompoundTag)) {
-			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + rawTag.getClass().getName() + " is not instance of " + CompoundTag.class.getName() + "!");
+		if (!(rawTag instanceof CompoundNBT)) {
+			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + rawTag.getClass().getName() + " is not instance of " + CompoundNBT.class.getName() + "!");
 			return;
 		}
 
-		CompoundTag compoundTag = (CompoundTag) rawTag;
+		CompoundNBT compoundTag = (CompoundNBT) rawTag;
 
 		if (!compoundTag.contains("size")) {
-			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + CompoundTag.class.getName() + " does not contain 'size' value! (" + getClass().getName() + ")");
+			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + CompoundNBT.class.getName() + " does not contain 'size' value! (" + getClass().getName() + ")");
 			return;
 		}
 
@@ -430,18 +430,18 @@ public interface ItemInventoryComponent extends NameableComponent {
 		}
 
 		if (!compoundTag.contains("stacks")) {
-			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + CompoundTag.class.getName() + " does not contain 'stacks' subtag!");
+			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + CompoundNBT.class.getName() + " does not contain 'stacks' subtag!");
 			return;
 		}
 
-		Tag rawStacksTag = compoundTag.get("stacks");
+		INBT rawStacksTag = compoundTag.get("stacks");
 
-		if (!(rawStacksTag instanceof CompoundTag)) {
-			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + rawStacksTag.getClass().getName() + " is not instance of " + CompoundTag.class.getName() + "!");
+		if (!(rawStacksTag instanceof CompoundNBT)) {
+			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + rawStacksTag.getClass().getName() + " is not instance of " + CompoundNBT.class.getName() + "!");
 			return;
 		}
 
-		CompoundTag stacksTag = (CompoundTag) rawStacksTag;
+		CompoundNBT stacksTag = (CompoundNBT) rawStacksTag;
 
 		int minimum = range.isPresent() ? range.get().getMinimum() : 0;
 		int maximum = range.isPresent() ? range.get().getMaximum() : target.getItemSize();
@@ -458,14 +458,14 @@ public interface ItemInventoryComponent extends NameableComponent {
 
 		for (int position = minimum; position < maximum; ++position) {
 			if (stacksTag.contains(String.valueOf(position))) {
-				Tag rawStackTag = stacksTag.get(String.valueOf(position));
+				INBT rawStackTag = stacksTag.get(String.valueOf(position));
 
-				if (!(rawStackTag instanceof CompoundTag)) {
-					AstromineCommon.LOGGER.log(Level.ERROR, "Inventory stack skipped: stored tag not instance of " + CompoundTag.class.getName() + "!");
+				if (!(rawStackTag instanceof CompoundNBT)) {
+					AstromineCommon.LOGGER.log(Level.ERROR, "Inventory stack skipped: stored tag not instance of " + CompoundNBT.class.getName() + "!");
 					return;
 				}
 
-				CompoundTag stackTag = (CompoundTag) rawStackTag;
+				CompoundNBT stackTag = (CompoundNBT) rawStackTag;
 
 				ItemStack stack = ItemStack.of(stackTag);
 

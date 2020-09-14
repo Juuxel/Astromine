@@ -28,10 +28,10 @@ import com.mojang.datafixers.util.Pair;
 
 import com.google.common.collect.Lists;
 import java.util.Collection;
-import net.minecraft.core.Direction;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 
 /*
  * From link: https://www.youtube.com/watch?v=I9Qn_oIx6Oo
@@ -45,9 +45,9 @@ public class VoxelShapeUtilities {
 	}
 
 	public static VoxelShape orAll(Collection<VoxelShape> shapes) {
-		VoxelShape collision = Shapes.empty();
+		VoxelShape collision = VoxelShapes.empty();
 		for (VoxelShape shape : shapes) {
-			collision = Shapes.or(shape, collision);
+			collision = VoxelShapes.or(shape, collision);
 		}
 		return collision;
 	}
@@ -68,21 +68,21 @@ public class VoxelShapeUtilities {
 	}
 
 	public static VoxelShape rotate(Direction.Axis axis, double radians, Collection<VoxelShape> shapes) {
-		VoxelShape collision = Shapes.empty();
+		VoxelShape collision = VoxelShapes.empty();
 		for (VoxelShape shape : shapes) {
-			collision = Shapes.or(collision, rotate(axis, radians, shape));
+			collision = VoxelShapes.or(collision, rotate(axis, radians, shape));
 		}
 		return collision;
 	}
 
 	public static VoxelShape rotate(Direction.Axis axis, double radians, VoxelShape shape) {
-		VoxelShape collision = Shapes.empty();
+		VoxelShape collision = VoxelShapes.empty();
 
-		for (AABB box : shape.toAabbs()) {
-			Pair<Double, Double> min = axis == Direction.Axis.X ? rotatePoint(box.minY, box.minZ, radians) : (axis == Direction.Axis.Z ? rotatePoint(box.minX, box.minY, radians) : rotatePoint(box.minX, box.minZ, radians));
-			Pair<Double, Double> max = axis == Direction.Axis.X ? rotatePoint(box.maxY, box.maxZ, radians) : (axis == Direction.Axis.Z ? rotatePoint(box.maxX, box.maxY, radians) : rotatePoint(box.maxX, box.maxZ, radians));
-			collision = Shapes.or(collision, axis == Direction.Axis.X ? Shapes.box(box.minX, min.getFirst(), min.getSecond(), box.maxX, max.getFirst(), max.getSecond()) : (axis == Direction.Axis.Z ? Shapes.box(min.getFirst(), min.getSecond(), box.minZ, max
-				.getFirst(), max.getSecond(), box.maxZ) : Shapes.box(min.getFirst(), box.minY, min.getSecond(), max.getFirst(), box.maxY, max.getSecond())));
+		for (AxisAlignedBB box : shape.toAabbs()) {
+			Pair<Double, Double> min = axis == Direction.Axis.choose(double,double,double) ? rotatePoint(box.minY, box.minZ, radians) : (axis == Direction.Axis.Z ? rotatePoint(box.minX, box.minY, radians) : rotatePoint(box.minX, box.minZ, radians));
+			Pair<Double, Double> max = axis == Direction.Axis.choose(double,double,double) ? rotatePoint(box.maxY, box.maxZ, radians) : (axis == Direction.Axis.Z ? rotatePoint(box.maxX, box.maxY, radians) : rotatePoint(box.maxX, box.maxZ, radians));
+			collision = VoxelShapes.or(collision, axis == Direction.Axis.choose(double,double,double) ? VoxelShapes.box(box.minX, min.getFirst(), min.getSecond(), box.maxX, max.getFirst(), max.getSecond()) : (axis == Direction.Axis.Z ? VoxelShapes.box(min.getFirst(), min.getSecond(), box.minZ, max
+				.getFirst(), max.getSecond(), box.maxZ) : VoxelShapes.box(min.getFirst(), box.minY, min.getSecond(), max.getFirst(), box.maxY, max.getSecond())));
 		}
 		return collision;
 	}

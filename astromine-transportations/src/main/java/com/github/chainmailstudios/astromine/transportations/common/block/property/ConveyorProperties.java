@@ -24,7 +24,7 @@
 
 package com.github.chainmailstudios.astromine.transportations.common.block.property;
 
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.state.BooleanProperty;
 
 public class ConveyorProperties {
 	public static final BooleanProperty FRONT = BooleanProperty.create("front");

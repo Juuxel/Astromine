@@ -26,19 +26,19 @@ package com.github.chainmailstudios.astromine.technologies.common.block;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockRenderType;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialColor;
+import net.minecraft.item.Items;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
 import com.github.chainmailstudios.astromine.common.component.world.WorldBridgeComponent;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
@@ -46,37 +46,37 @@ import nerdhub.cardinal.components.api.component.ComponentProvider;
 public class HolographicBridgeInvisibleBlock extends Block {
 	public static final Material MATERIAL = new Material.Builder(MaterialColor.NONE).build();
 
-	public HolographicBridgeInvisibleBlock(BlockBehaviour.Properties settings) {
+	public HolographicBridgeInvisibleBlock(AbstractBlock.Properties settings) {
 		super(settings);
 	}
 
 	@Override
-	public boolean propagatesSkylightDown(BlockState state, BlockGetter world, BlockPos pos) {
+	public boolean propagatesSkylightDown(BlockState state, IBlockReader world, BlockPos pos) {
 		return true;
 	}
 
 	@Override
-	public RenderShape getRenderShape(BlockState state) {
-		return RenderShape.INVISIBLE;
+	public BlockRenderType getRenderShape(BlockState state) {
+		return BlockRenderType.INVISIBLE;
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public float getShadeBrightness(BlockState state, BlockGetter world, BlockPos pos) {
+	public float getShadeBrightness(BlockState state, IBlockReader world, BlockPos pos) {
 		return 1.0F;
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos position, CollisionContext context) {
-		return context.isHoldingItem(Items.DEBUG_STICK) ? getCollisionShape(state, world, position, context) : Shapes.empty();
+	public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos position, ISelectionContext context) {
+		return context.isHoldingItem(Items.DEBUG_STICK) ? getCollisionShape(state, world, position, context) : VoxelShapes.empty();
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos position, CollisionContext context) {
-		if (!(world instanceof Level)) {
-			return Shapes.empty();
+	public VoxelShape getCollisionShape(BlockState state, IBlockReader world, BlockPos position, ISelectionContext context) {
+		if (!(world instanceof World)) {
+			return VoxelShapes.empty();
 		} else {
-			ComponentProvider componentProvider = ComponentProvider.fromWorld((Level) world);
+			ComponentProvider componentProvider = ComponentProvider.fromWorld((World) world);
 
 			WorldBridgeComponent bridgeComponent = componentProvider.getComponent(AstromineComponentTypes.WORLD_BRIDGE_COMPONENT);
 

@@ -26,36 +26,32 @@ package com.github.chainmailstudios.astromine.transportations.common.block;
 
 import com.github.chainmailstudios.astromine.transportations.common.block.property.ConveyorProperties;
 import net.minecraft.block.*;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.EntityCollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.Item;
+import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.StateContainer;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.shapes.EntitySelectionContext;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
 import com.zundrel.wrenchable.WrenchableUtilities;
 import com.zundrel.wrenchable.block.BlockWrenchable;
 import grondag.fermion.modkeys.api.ModKeys;
 
 import javax.annotation.Nullable;
 
-public class CatwalkBlock extends Block implements BlockWrenchable, SimpleWaterloggedBlock {
+public class CatwalkBlock extends Block implements BlockWrenchable, IWaterLoggable {
 	public CatwalkBlock(Properties settings) {
 		super(settings);
 
@@ -64,7 +60,7 @@ public class CatwalkBlock extends Block implements BlockWrenchable, SimpleWaterl
 
 	@Nullable
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext context) {
+	public BlockState getStateForPlacement(BlockItemUseContext context) {
 		return super.getStateForPlacement(context).setValue(BlockStateProperties.WATERLOGGED, context.getLevel().getBlockState(context.getClickedPos()).getBlock() == Blocks.WATER);
 	}
 
@@ -74,12 +70,12 @@ public class CatwalkBlock extends Block implements BlockWrenchable, SimpleWaterl
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
 		builder.add(ConveyorProperties.FLOOR, BlockStateProperties.NORTH, BlockStateProperties.EAST, BlockStateProperties.SOUTH, BlockStateProperties.WEST, BlockStateProperties.WATERLOGGED);
 	}
 
 	@Override
-	public void onWrenched(Level world, Player playerEntity, BlockHitResult blockHitResult) {
+	public void onWrenched(World world, PlayerEntity playerEntity, BlockRayTraceResult blockHitResult) {
 		BlockPos pos = blockHitResult.getBlockPos();
 		if (ModKeys.isControlPressed(playerEntity)) {
 			world.setBlockAndUpdate(pos, world.getBlockState(pos).cycle(ConveyorProperties.FLOOR));
@@ -109,7 +105,7 @@ public class CatwalkBlock extends Block implements BlockWrenchable, SimpleWaterl
 	}
 
 	@Override
-	public BlockState updateShape(BlockState state, Direction facing, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+	public BlockState updateShape(BlockState state, Direction facing, BlockState neighborState, IWorld world, BlockPos pos, BlockPos neighborPos) {
 		BlockState newState = state;
 		boolean neighborSameType = neighborState.getBlock() instanceof CatwalkBlock;
 
@@ -126,16 +122,16 @@ public class CatwalkBlock extends Block implements BlockWrenchable, SimpleWaterl
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter view, BlockPos pos, CollisionContext context) {
-		AABB bottom = new AABB(0, 0, 0, 1, (1F / 16F), 1);
-		AABB north = new AABB(0, 0, 0, 1, 1, (1F / 16F));
-		AABB east = new AABB((15F / 16F), 0, 0, 1, 1, 1);
-		AABB south = new AABB(0, 0, (15F / 16F), 1, 1, 1);
-		AABB west = new AABB(0, 0, 0, (1F / 16F), 1, 1);
-		VoxelShape fullShape = Shapes.or(Shapes.create(bottom), Shapes.create(north), Shapes.create(east), Shapes.create(south), Shapes.create(west));
+	public VoxelShape getShape(BlockState state, IBlockReader view, BlockPos pos, ISelectionContext context) {
+		AxisAlignedBB bottom = new AxisAlignedBB(0, 0, 0, 1, (1F / 16F), 1);
+		AxisAlignedBB north = new AxisAlignedBB(0, 0, 0, 1, 1, (1F / 16F));
+		AxisAlignedBB east = new AxisAlignedBB((15F / 16F), 0, 0, 1, 1, 1);
+		AxisAlignedBB south = new AxisAlignedBB(0, 0, (15F / 16F), 1, 1, 1);
+		AxisAlignedBB west = new AxisAlignedBB(0, 0, 0, (1F / 16F), 1, 1);
+		VoxelShape fullShape = VoxelShapes.or(VoxelShapes.create(bottom), VoxelShapes.create(north), VoxelShapes.create(east), VoxelShapes.create(south), VoxelShapes.create(west));
 
-		if (context instanceof EntityCollisionContext) {
-			Item heldItem = ((EntityCollisionContext) context).heldItem;
+		if (context instanceof EntitySelectionContext) {
+			Item heldItem = ((EntitySelectionContext) context).heldItem;
 
 			if (WrenchableUtilities.isWrench(heldItem)) {
 				return fullShape;
@@ -146,24 +142,24 @@ public class CatwalkBlock extends Block implements BlockWrenchable, SimpleWaterl
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, BlockGetter view, BlockPos pos, CollisionContext entityContext) {
-		AABB bottom = new AABB(0, 0, 0, 1, (1F / 16F), 1);
-		AABB north = new AABB(0, 0, 0, 1, 1, (1F / 16F));
-		AABB east = new AABB((15F / 16F), 0, 0, 1, 1, 1);
-		AABB south = new AABB(0, 0, (15F / 16F), 1, 1, 1);
-		AABB west = new AABB(0, 0, 0, (1F / 16F), 1, 1);
-		VoxelShape shape = Shapes.empty();
+	public VoxelShape getCollisionShape(BlockState state, IBlockReader view, BlockPos pos, ISelectionContext entityContext) {
+		AxisAlignedBB bottom = new AxisAlignedBB(0, 0, 0, 1, (1F / 16F), 1);
+		AxisAlignedBB north = new AxisAlignedBB(0, 0, 0, 1, 1, (1F / 16F));
+		AxisAlignedBB east = new AxisAlignedBB((15F / 16F), 0, 0, 1, 1, 1);
+		AxisAlignedBB south = new AxisAlignedBB(0, 0, (15F / 16F), 1, 1, 1);
+		AxisAlignedBB west = new AxisAlignedBB(0, 0, 0, (1F / 16F), 1, 1);
+		VoxelShape shape = VoxelShapes.empty();
 
 		if (state.getValue(ConveyorProperties.FLOOR))
-			shape = Shapes.or(shape, Shapes.create(bottom));
+			shape = VoxelShapes.or(shape, VoxelShapes.create(bottom));
 		if (!state.getValue(BlockStateProperties.NORTH))
-			shape = Shapes.or(shape, Shapes.create(north));
+			shape = VoxelShapes.or(shape, VoxelShapes.create(north));
 		if (!state.getValue(BlockStateProperties.EAST))
-			shape = Shapes.or(shape, Shapes.create(east));
+			shape = VoxelShapes.or(shape, VoxelShapes.create(east));
 		if (!state.getValue(BlockStateProperties.SOUTH))
-			shape = Shapes.or(shape, Shapes.create(south));
+			shape = VoxelShapes.or(shape, VoxelShapes.create(south));
 		if (!state.getValue(BlockStateProperties.WEST))
-			shape = Shapes.or(shape, Shapes.create(west));
+			shape = VoxelShapes.or(shape, VoxelShapes.create(west));
 
 		return shape;
 	}

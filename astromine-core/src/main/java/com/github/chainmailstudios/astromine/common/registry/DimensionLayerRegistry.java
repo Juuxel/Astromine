@@ -28,23 +28,23 @@ import com.github.chainmailstudios.astromine.common.entity.placer.EntityPlacer;
 
 import java.util.HashMap;
 import java.util.Map;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.Tuple;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 
 public class DimensionLayerRegistry {
 	public static final DimensionLayerRegistry INSTANCE = new DimensionLayerRegistry();
 
-	private final Map<ResourceKey<Level>, Tuple<Integer, ResourceKey<Level>>> TOP_ENTRIES = new HashMap<>();
-	private final Map<ResourceKey<Level>, Tuple<Integer, ResourceKey<Level>>> BOTTOM_ENTRIES = new HashMap<>();
-	private final Map<ResourceKey<Level>, Tuple<EntityPlacer, EntityPlacer>> PLACERS = new HashMap<>();
+	private final Map<RegistryKey<World>, Tuple<Integer, RegistryKey<World>>> TOP_ENTRIES = new HashMap<>();
+	private final Map<RegistryKey<World>, Tuple<Integer, RegistryKey<World>>> BOTTOM_ENTRIES = new HashMap<>();
+	private final Map<RegistryKey<World>, Tuple<EntityPlacer, EntityPlacer>> PLACERS = new HashMap<>();
 
 	private DimensionLayerRegistry() {
 
 	}
 
-	public void register(Type type, ResourceKey<Level> dimension, Integer levelY, ResourceKey<Level> newDimension, EntityPlacer placer) {
-		final Map<ResourceKey<Level>, Tuple<Integer, ResourceKey<Level>>> ENTRIES = type == Type.TOP ? this.TOP_ENTRIES : this.BOTTOM_ENTRIES;
+	public void register(Type type, RegistryKey<World> dimension, Integer levelY, RegistryKey<World> newDimension, EntityPlacer placer) {
+		final Map<RegistryKey<World>, Tuple<Integer, RegistryKey<World>>> ENTRIES = type == Type.TOP ? this.TOP_ENTRIES : this.BOTTOM_ENTRIES;
 
 		ENTRIES.put(dimension, new Tuple<>(levelY, newDimension));
 
@@ -55,23 +55,23 @@ public class DimensionLayerRegistry {
 		}
 	}
 
-	public int getLevel(Type type, ResourceKey<Level> dimension) {
-		final Map<ResourceKey<Level>, Tuple<Integer, ResourceKey<Level>>> ENTRIES = type == Type.TOP ? this.TOP_ENTRIES : this.BOTTOM_ENTRIES;
+	public int getLevel(Type type, RegistryKey<World> dimension) {
+		final Map<RegistryKey<World>, Tuple<Integer, RegistryKey<World>>> ENTRIES = type == Type.TOP ? this.TOP_ENTRIES : this.BOTTOM_ENTRIES;
 
-		final Tuple<Integer, ResourceKey<Level>> pair = ENTRIES.get(dimension);
+		final Tuple<Integer, RegistryKey<World>> pair = ENTRIES.get(dimension);
 
 		return pair == null ? Integer.MIN_VALUE : pair.getA();
 	}
 
-	public ResourceKey<Level> getDimension(Type type, ResourceKey<Level> dimension) {
-		final Map<ResourceKey<Level>, Tuple<Integer, ResourceKey<Level>>> ENTRIES = type == Type.TOP ? this.TOP_ENTRIES : this.BOTTOM_ENTRIES;
+	public RegistryKey<World> getDimension(Type type, RegistryKey<World> dimension) {
+		final Map<RegistryKey<World>, Tuple<Integer, RegistryKey<World>>> ENTRIES = type == Type.TOP ? this.TOP_ENTRIES : this.BOTTOM_ENTRIES;
 
-		final Tuple<Integer, ResourceKey<Level>> pair = ENTRIES.get(dimension);
+		final Tuple<Integer, RegistryKey<World>> pair = ENTRIES.get(dimension);
 
 		return pair == null ? null : pair.getB();
 	}
 
-	public EntityPlacer getPlacer(Type type, ResourceKey<Level> dimension) {
+	public EntityPlacer getPlacer(Type type, RegistryKey<World> dimension) {
 		return type == Type.TOP ? PLACERS.get(dimension).getA() : PLACERS.get(dimension).getB();
 	}
 

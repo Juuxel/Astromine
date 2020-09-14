@@ -36,15 +36,15 @@ import java.util.Collections;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import net.minecraft.core.Registry;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.SerializationTags;
-import net.minecraft.tags.Tag;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.tags.ITag;
+import net.minecraft.tags.TagCollectionManager;
+import net.minecraft.util.JSONUtils;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 
 public class ArrayIngredient implements Predicate<ItemStack> {
 	private final Entry[] entries;
@@ -77,7 +77,7 @@ public class ArrayIngredient implements Predicate<ItemStack> {
 					throw new JsonSyntaxException("Item array cannot be empty, at least one item must be defined");
 				} else {
 					return ofEntries(StreamSupport.stream(jsonArray.spliterator(), false).map((jsonElement) -> {
-						return entryFromJson(GsonHelper.convertToJsonObject(jsonElement, "item"));
+						return entryFromJson(JSONUtils.convertToJsonObject(jsonElement, "item"));
 					}));
 				}
 			} else {
@@ -94,17 +94,17 @@ public class ArrayIngredient implements Predicate<ItemStack> {
 		} else {
 			int count = 1;
 			if (json.has("count")) {
-				count = GsonHelper.getAsInt(json, "count");
+				count = JSONUtils.getAsInt(json, "count");
 			}
 			if (json.has("item")) {
-				ResourceLocation itemId = new ResourceLocation(GsonHelper.getAsString(json, "item"));
+				ResourceLocation itemId = new ResourceLocation(JSONUtils.getAsString(json, "item"));
 				Item item = Registry.ITEM.getOptional(itemId).orElseThrow(() -> {
 					return new JsonSyntaxException("Unknown item '" + itemId + "'");
 				});
 				return new SimpleEntry(new ItemStack(item, count));
 			} else if (json.has("tag")) {
-				ResourceLocation tagId = new ResourceLocation(GsonHelper.getAsString(json, "tag"));
-				Tag<Item> tag = SerializationTags.getInstance().getItems().getTag(tagId);
+				ResourceLocation tagId = new ResourceLocation(JSONUtils.getAsString(json, "tag"));
+				ITag<Item> tag = TagCollectionManager.getInstance().getItems().getTag(tagId);
 				if (tag == null) {
 					throw new JsonSyntaxException("Unknown item tag '" + tagId + "'");
 				} else {
@@ -116,7 +116,7 @@ public class ArrayIngredient implements Predicate<ItemStack> {
 		}
 	}
 
-	public static ArrayIngredient fromPacket(FriendlyByteBuf buffer) {
+	public static ArrayIngredient fromPacket(PacketBuffer buffer) {
 		int i = buffer.readVarInt();
 		return ofEntries(Stream.generate(() -> {
 			return new SimpleEntry(buffer.readItem());
@@ -159,7 +159,7 @@ public class ArrayIngredient implements Predicate<ItemStack> {
 		return null;
 	}
 
-	public void write(FriendlyByteBuf buffer) {
+	public void write(PacketBuffer buffer) {
 		this.cacheMatchingStacks();
 		buffer.writeVarInt(this.matchingStacks.length);
 
@@ -190,15 +190,15 @@ public class ArrayIngredient implements Predicate<ItemStack> {
 	}
 
 	private static class TagEntry implements Entry {
-		private final Tag<Item> tag;
+		private final ITag<Item> tag;
 		private final int count;
 
-		private TagEntry(Tag<Item> tag, int count) {
+		private TagEntry(ITag<Item> tag, int count) {
 			this.tag = tag;
 			this.count = count;
 		}
 
-		private TagEntry(Tag<Item> tag) {
+		private TagEntry(ITag<Item> tag) {
 			this(tag, 1);
 		}
 

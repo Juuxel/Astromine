@@ -43,12 +43,12 @@ import nerdhub.cardinal.components.api.event.ItemComponentCallbackV2;
 import nerdhub.cardinal.components.api.event.WorldComponentCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
-import net.minecraft.core.Registry;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.material.Fluids;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.item.Item;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.chunk.Chunk;
 import java.util.function.Consumer;
 
 public class AstromineCommonCallbacks {
@@ -65,7 +65,7 @@ public class AstromineCommonCallbacks {
 		});
 
 		ServerTickEvents.START_SERVER_TICK.register((server) -> {
-			for (Player playerEntity : server.getPlayerList().getPlayers()) {
+			for (PlayerEntity playerEntity : server.getPlayerList().getPlayers()) {
 				if (playerEntity.containerMenu instanceof ComponentBlockEntityScreenHandler) {
 					ComponentBlockEntityScreenHandler screenHandler = (ComponentBlockEntityScreenHandler) playerEntity.containerMenu;
 
@@ -87,8 +87,8 @@ public class AstromineCommonCallbacks {
 		}));
 
 		ChunkComponentCallback.EVENT.register((chunk, components) -> {
-			if (chunk instanceof LevelChunk) {
-				components.put(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT, new ChunkAtmosphereComponent(((LevelChunk) chunk).getLevel(), chunk));
+			if (chunk instanceof Chunk) {
+				components.put(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT, new ChunkAtmosphereComponent(((Chunk) chunk).getLevel(), chunk));
 			}
 		});
 

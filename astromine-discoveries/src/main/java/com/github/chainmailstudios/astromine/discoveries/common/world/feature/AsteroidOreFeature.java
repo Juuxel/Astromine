@@ -41,22 +41,22 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
-import net.minecraft.core.BlockPos;
+import net.minecraft.block.Block;
 import net.minecraft.util.Tuple;
-import net.minecraft.world.entity.ai.behavior.WeightedList;
-import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.util.WeightedList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.ISeedReader;
+import net.minecraft.world.gen.ChunkGenerator;
+import net.minecraft.world.gen.feature.Feature;
+import net.minecraft.world.gen.feature.NoFeatureConfig;
 
-public class AsteroidOreFeature extends Feature<NoneFeatureConfiguration> {
-	public AsteroidOreFeature(Codec<NoneFeatureConfiguration> codec) {
+public class AsteroidOreFeature extends Feature<NoFeatureConfig> {
+	public AsteroidOreFeature(Codec<NoFeatureConfig> codec) {
 		super(codec);
 	}
 
 	@Override
-	public boolean generate(WorldGenLevel world, ChunkGenerator generator, Random random, BlockPos featurePosition, NoneFeatureConfiguration config) {
+	public boolean generate(ISeedReader world, ChunkGenerator generator, Random random, BlockPos featurePosition, NoFeatureConfig config) {
 		featurePosition = new BlockPos(featurePosition.getX(), random.nextInt(256), featurePosition.getZ());
 
 		WeightedList<Block> ores = new WeightedList<>();

@@ -25,13 +25,13 @@
 package com.github.chainmailstudios.astromine.discoveries.common.world.layer.moon;
 
 import com.github.chainmailstudios.astromine.discoveries.registry.AstromineDiscoveriesBiomes;
-import net.minecraft.core.Registry;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.newbiome.context.Context;
-import net.minecraft.world.level.newbiome.layer.traits.AreaTransformer0;
-import net.minecraft.world.level.newbiome.layer.traits.DimensionOffset0Transformer;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.INoiseRandom;
+import net.minecraft.world.gen.layer.traits.IAreaTransformer0;
+import net.minecraft.world.gen.layer.traits.IDimOffset0Transformer;
 
-public class MoonBiomeLayer implements AreaTransformer0, DimensionOffset0Transformer {
+public class MoonBiomeLayer implements IAreaTransformer0, IDimOffset0Transformer {
 	private final Registry<Biome> biomeRegistry;
 
 	public MoonBiomeLayer(Registry<Biome> biomeRegistry) {
@@ -39,7 +39,7 @@ public class MoonBiomeLayer implements AreaTransformer0, DimensionOffset0Transfo
 	}
 
 	@Override
-	public int applyPixel(Context context, int x, int y) {
+	public int applyPixel(INoiseRandom context, int x, int y) {
 		switch (context.nextRandom(3)) {
 			case 0:
 				return biomeRegistry.getId(biomeRegistry.get(AstromineDiscoveriesBiomes.LUNAR_PLAINS));

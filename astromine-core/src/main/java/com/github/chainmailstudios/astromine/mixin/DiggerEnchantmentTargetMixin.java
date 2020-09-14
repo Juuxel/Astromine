@@ -29,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.github.chainmailstudios.astromine.common.item.DiggerTool;
-import net.minecraft.world.item.Item;
+import net.minecraft.item.Item;
 
 /**
  * for future reference, the inner class numbers of the EnchantmentTarget enum: 1 = armor 2 = breakable 3 = bow 4 =

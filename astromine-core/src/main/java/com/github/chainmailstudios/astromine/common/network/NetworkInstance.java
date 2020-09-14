@@ -24,10 +24,6 @@
 
 package com.github.chainmailstudios.astromine.common.network;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.network.type.base.NetworkType;
 import com.github.chainmailstudios.astromine.common.registry.NetworkTypeRegistry;
@@ -35,32 +31,36 @@ import com.github.chainmailstudios.astromine.common.registry.NetworkTypeRegistry
 import com.google.common.collect.Sets;
 import java.util.Iterator;
 import java.util.Set;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
-public class NetworkInstance implements Iterable<NetworkNode>, TickableBlockEntity {
+public class NetworkInstance implements Iterable<NetworkNode>, ITickableTileEntity {
 	public static final NetworkInstance EMPTY = new NetworkInstance();
 
 	public final Set<NetworkMemberNode> members = Sets.newConcurrentHashSet();
 	public final Set<NetworkNode> nodes = Sets.newConcurrentHashSet();
 
-	private final Level world;
+	private final World world;
 	public NetworkType type;
-	private CompoundTag additionalData = new CompoundTag();
+	private CompoundNBT additionalData = new CompoundNBT();
 
 	private NetworkInstance() {
 		this.type = NetworkType.EMPTY;
 		this.world = null;
 	}
 
-	public NetworkInstance(Level world, NetworkType type) {
+	public NetworkInstance(World world, NetworkType type) {
 		this.type = type;
 		this.world = world;
 	}
 
-	public CompoundTag getAdditionalData() {
+	public CompoundNBT getAdditionalData() {
 		return additionalData;
 	}
 
-	public void setAdditionalData(CompoundTag additionalData) {
+	public void setAdditionalData(CompoundNBT additionalData) {
 		this.additionalData = additionalData;
 	}
 
@@ -105,7 +105,7 @@ public class NetworkInstance implements Iterable<NetworkNode>, TickableBlockEnti
 		return this;
 	}
 
-	public Level getWorld() {
+	public World getWorld() {
 		return world;
 	}
 

@@ -25,19 +25,19 @@
 package com.github.chainmailstudios.astromine.discoveries.client.model;
 
 import com.github.chainmailstudios.astromine.discoveries.common.entity.PrimitiveRocketEntity;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.geom.ModelPart;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.renderer.entity.model.EntityModel;
+import net.minecraft.client.renderer.model.ModelRenderer;
 
 public class PrimitiveRocketEntityModel extends EntityModel<PrimitiveRocketEntity> {
-	private final ModelPart model;
+	private final ModelRenderer model;
 
 	public PrimitiveRocketEntityModel() {
 		texWidth = 128;
 		texHeight = 128;
 
-		model = new ModelPart(this);
+		model = new ModelRenderer(this);
 
 		model.setPos(0.0F, 24.0F, 0.0F);
 
@@ -58,7 +58,7 @@ public class PrimitiveRocketEntityModel extends EntityModel<PrimitiveRocketEntit
 		model.addBox("rocket", 6.0F, -48.0F, -1.0F, 5, 15, 2, 0.0F, 102, 11);
 	}
 
-	public void setRotationAngle(ModelPart modelRenderer, float x, float y, float z) {
+	public void setRotationAngle(ModelRenderer modelRenderer, float x, float y, float z) {
 		modelRenderer.xRot = x;
 		modelRenderer.yRot = y;
 		modelRenderer.zRot = z;
@@ -70,7 +70,7 @@ public class PrimitiveRocketEntityModel extends EntityModel<PrimitiveRocketEntit
 	}
 
 	@Override
-	public void renderToBuffer(PoseStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+	public void renderToBuffer(MatrixStack matrices, IVertexBuilder vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 		model.render(matrices, vertices, light, overlay);
 	}
 }

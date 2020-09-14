@@ -25,10 +25,10 @@
 package com.github.chainmailstudios.astromine.foundations.registry;
 
 import com.github.chainmailstudios.astromine.registry.AstromineItemGroups;
-import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.item.ItemGroup;
 
 public class AstromineFoundationsItemGroups extends AstromineItemGroups {
-	public static final CreativeModeTab FOUNDATIONS = register("foundations", () -> AstromineFoundationsItems.UNIVITE_AXE);
+	public static final ItemGroup FOUNDATIONS = register("foundations", () -> AstromineFoundationsItems.UNIVITE_AXE);
 
 	public static void initialize() {
 

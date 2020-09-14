@@ -26,13 +26,13 @@ package com.github.chainmailstudios.astromine.common.utilities;
 
 import com.google.gson.JsonObject;
 import java.util.function.Consumer;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.data.IFinishedRecipe;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.util.ResourceLocation;
 
 public class GeneratorUtilities {
 	public static final class Providers {
-		public static DefaultedRecipeJsonProvider createProvider(RecipeSerializer<?> type, ResourceLocation id, Consumer<JsonObject> serializer) {
+		public static DefaultedRecipeJsonProvider createProvider(IRecipeSerializer<?> type, ResourceLocation id, Consumer<JsonObject> serializer) {
 			return new DefaultedRecipeJsonProvider(type, id) {
 				@Override
 				public void serializeRecipeData(JsonObject json) {
@@ -41,11 +41,11 @@ public class GeneratorUtilities {
 			};
 		}
 
-		private static abstract class DefaultedRecipeJsonProvider implements FinishedRecipe {
-			private final RecipeSerializer<?> type;
+		private static abstract class DefaultedRecipeJsonProvider implements IFinishedRecipe {
+			private final IRecipeSerializer<?> type;
 			private final ResourceLocation id;
 
-			public DefaultedRecipeJsonProvider(RecipeSerializer<?> type, ResourceLocation id) {
+			public DefaultedRecipeJsonProvider(IRecipeSerializer<?> type, ResourceLocation id) {
 				this.type = type;
 				this.id = id;
 			}
@@ -56,7 +56,7 @@ public class GeneratorUtilities {
 			}
 
 			@Override
-			public RecipeSerializer<?> getType() {
+			public IRecipeSerializer<?> getType() {
 				return type;
 			}
 

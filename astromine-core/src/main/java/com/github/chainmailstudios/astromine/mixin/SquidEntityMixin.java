@@ -28,9 +28,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import com.github.chainmailstudios.astromine.common.entity.GravityEntity;
-import net.minecraft.world.entity.animal.Squid;
+import net.minecraft.entity.passive.SquidEntity;
 
-@Mixin(Squid.class)
+@Mixin(SquidEntity.class)
 public abstract class SquidEntityMixin implements GravityEntity {
 	@ModifyConstant(method = "tickMovement()V", constant = @Constant(doubleValue = 0.08D))
 	double getGravity(double original) {

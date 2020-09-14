@@ -28,9 +28,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import com.github.chainmailstudios.astromine.common.entity.GravityEntity;
-import net.minecraft.world.entity.projectile.ThrownEgg;
+import net.minecraft.entity.projectile.EggEntity;
 
-@Mixin(ThrownEgg.class)
+@Mixin(EggEntity.class)
 public abstract class EggEntityMixin implements GravityEntity {
 	@ModifyConstant(method = "handleStatus(B)V", constant = @Constant(doubleValue = 0.08D))
 	double getGravity(double original) {

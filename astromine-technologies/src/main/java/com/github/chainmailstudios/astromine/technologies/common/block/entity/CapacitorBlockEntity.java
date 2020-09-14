@@ -37,14 +37,14 @@ import com.github.chainmailstudios.astromine.technologies.common.block.entity.ma
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.TierProvider;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlockEntityTypes;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.block.Block;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntityType;
 import team.reborn.energy.Energy;
 import team.reborn.energy.EnergyHandler;
 
 public abstract class CapacitorBlockEntity extends ComponentEnergyInventoryBlockEntity implements EnergySizeProvider, TierProvider, SpeedProvider {
-	public CapacitorBlockEntity(Block energyBlock, BlockEntityType<?> type) {
+	public CapacitorBlockEntity(Block energyBlock, TileEntityType<?> type) {
 		super(energyBlock, type);
 	}
 

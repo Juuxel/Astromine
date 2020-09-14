@@ -34,19 +34,19 @@ import com.github.chainmailstudios.astromine.common.callback.ServerChunkManagerC
 
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
-import net.minecraft.server.level.ServerChunkCache;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.progress.ChunkProgressListener;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
-import net.minecraft.world.level.storage.DimensionDataStorage;
-import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.chunk.listener.IChunkStatusListener;
+import net.minecraft.world.gen.ChunkGenerator;
+import net.minecraft.world.gen.feature.template.TemplateManager;
+import net.minecraft.world.server.ServerChunkProvider;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.DimensionSavedDataManager;
+import net.minecraft.world.storage.SaveFormat;
 
-@Mixin(ServerChunkCache.class)
+@Mixin(ServerChunkProvider.class)
 public class ServerChunkManagerMixin {
 	@Inject(method = "<init>", at = @At("RETURN"))
-	private void handleConstructor(ServerLevel world, LevelStorageSource.LevelStorageAccess session, DataFixer dataFixer, StructureManager structureManager, Executor workerExecutor, ChunkGenerator chunkGenerator, int viewDistance, boolean bl,
-		ChunkProgressListener worldGenerationProgressListener, Supplier<DimensionDataStorage> supplier, CallbackInfo ci) {
-		ServerChunkManagerCallback.EVENT.invoker().handle((ServerChunkCache) (Object) this);
+	private void handleConstructor(ServerWorld world, SaveFormat.LevelSave session, DataFixer dataFixer, TemplateManager structureManager, Executor workerExecutor, ChunkGenerator chunkGenerator, int viewDistance, boolean bl,
+		IChunkStatusListener worldGenerationProgressListener, Supplier<DimensionSavedDataManager> supplier, CallbackInfo ci) {
+		ServerChunkManagerCallback.EVENT.invoker().handle((ServerChunkProvider) (Object) this);
 	}
 }

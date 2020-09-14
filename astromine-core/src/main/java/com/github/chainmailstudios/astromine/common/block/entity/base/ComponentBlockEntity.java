@@ -28,17 +28,17 @@ import com.github.chainmailstudios.astromine.common.block.base.BlockWithEntity;
 import com.github.chainmailstudios.astromine.common.utilities.capability.inventory.ExtendedComponentSidedInventoryProvider;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.DirectionalBlock;
+import net.minecraft.block.HorizontalBlock;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraft.world.level.block.DirectionalBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.util.math.BlockPos;
 import alexiil.mc.lib.attributes.SearchOptions;
 import alexiil.mc.lib.attributes.item.ItemAttributes;
 import alexiil.mc.lib.attributes.item.ItemExtractable;
@@ -69,12 +69,12 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-public abstract class ComponentBlockEntity extends net.minecraft.world.level.block.entity.BlockEntity implements SidedComponentProvider, PacketConsumer, BlockEntityClientSerializable, TickableBlockEntity {
+public abstract class ComponentBlockEntity extends net.minecraft.tileentity.TileEntity implements SidedComponentProvider, PacketConsumer, BlockEntityClientSerializable, ITickableTileEntity {
 	protected final BlockEntityTransferComponent transferComponent = new BlockEntityTransferComponent();
 
 	protected final Map<ComponentType<?>, Component> allComponents = Maps.newHashMap();
 
-	protected final Map<ResourceLocation, BiConsumer<FriendlyByteBuf, PacketContext>> allHandlers = Maps.newHashMap();
+	protected final Map<ResourceLocation, BiConsumer<PacketBuffer, PacketContext>> allHandlers = Maps.newHashMap();
 
 	protected boolean skipInventory = true;
 
@@ -84,7 +84,7 @@ public abstract class ComponentBlockEntity extends net.minecraft.world.level.blo
 
 	public static final ResourceLocation TRANSFER_UPDATE_PACKET = AstromineCommon.identifier("transfer_update_packet");
 
-	public ComponentBlockEntity(BlockEntityType<?> type) {
+	public ComponentBlockEntity(TileEntityType<?> type) {
 		super(type);
 
 		addConsumer(TRANSFER_UPDATE_PACKET, ((buffer, context) -> {
@@ -107,12 +107,12 @@ public abstract class ComponentBlockEntity extends net.minecraft.world.level.blo
 		transferComponent.add(type);
 	}
 
-	public void addConsumer(ResourceLocation identifier, BiConsumer<FriendlyByteBuf, PacketContext> consumer) {
+	public void addConsumer(ResourceLocation identifier, BiConsumer<PacketBuffer, PacketContext> consumer) {
 		allHandlers.put(identifier, consumer);
 	}
 
 	@Override
-	public void consumePacket(ResourceLocation identifier, FriendlyByteBuf buffer, PacketContext context) {
+	public void consumePacket(ResourceLocation identifier, PacketBuffer buffer, PacketContext context) {
 		allHandlers.get(identifier).accept(buffer, context);
 	}
 
@@ -121,7 +121,7 @@ public abstract class ComponentBlockEntity extends net.minecraft.world.level.blo
 		if (direction == null) {
 			return (Collection<T>) allComponents.values();
 		} else {
-			if (getBlockState().hasProperty(HorizontalDirectionalBlock.FACING)) {
+			if (getBlockState().hasProperty(HorizontalBlock.FACING)) {
 				return (Collection<T>) getComponentTypes().stream().map(type -> new Tuple<>((ComponentType) type, (Component) getComponent(type))).filter(pair -> !transferComponent.get(pair.getA()).get(direction).isNone()).map(Tuple::getB).collect(Collectors.toList());
 			} else if (getBlockState().hasProperty(DirectionalBlock.FACING)) {
 				return (Collection<T>) getComponentTypes().stream().map(type -> new Tuple<>((ComponentType) type, (Component) getComponent(type))).filter(pair -> !transferComponent.get(pair.getA()).get(direction).isNone()).map(Tuple::getB).collect(Collectors.toList());
@@ -147,18 +147,18 @@ public abstract class ComponentBlockEntity extends net.minecraft.world.level.blo
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag tag) {
-		tag.put("transfer", transferComponent.toTag(new CompoundTag()));
+	public CompoundNBT save(CompoundNBT tag) {
+		tag.put("transfer", transferComponent.toTag(new CompoundNBT()));
 
 		allComponents.forEach((type, component) -> {
-			tag.put(type.getId().toString(), component.toTag(new CompoundTag()));
+			tag.put(type.getId().toString(), component.toTag(new CompoundNBT()));
 		});
 
 		return super.save(tag);
 	}
 
 	@Override
-	public void load(BlockState state, @NotNull CompoundTag tag) {
+	public void load(BlockState state, @NotNull CompoundNBT tag) {
 		transferComponent.fromTag(tag.getCompound("transfer"));
 
 		allComponents.forEach((type, component) -> {
@@ -171,7 +171,7 @@ public abstract class ComponentBlockEntity extends net.minecraft.world.level.blo
 	}
 
 	@Override
-	public CompoundTag toClientTag(CompoundTag compoundTag) {
+	public CompoundNBT toClientTag(CompoundNBT compoundTag) {
 		compoundTag = save(compoundTag);
 		if (skipInventory) {
 			compoundTag.remove(AstromineComponentTypes.ITEM_INVENTORY_COMPONENT.getId().toString());
@@ -182,7 +182,7 @@ public abstract class ComponentBlockEntity extends net.minecraft.world.level.blo
 	}
 
 	@Override
-	public void fromClientTag(CompoundTag compoundTag) {
+	public void fromClientTag(CompoundNBT compoundTag) {
 		load(null, compoundTag);
 	}
 
@@ -199,7 +199,7 @@ public abstract class ComponentBlockEntity extends net.minecraft.world.level.blo
 			BlockPos neighborPos = getBlockPos().relative(offsetDirection);
 			BlockState neighborState = level.getBlockState(neighborPos);
 
-			net.minecraft.world.level.block.entity.BlockEntity neighborBlockEntity = level.getBlockEntity(neighborPos);
+			net.minecraft.tileentity.TileEntity neighborBlockEntity = level.getBlockEntity(neighborPos);
 			if (neighborBlockEntity != null) {
 				SidedComponentProvider neighborProvider = SidedComponentProvider.fromBlockEntity(neighborBlockEntity);
 				Direction neighborDirection = offsetDirection.getOpposite();

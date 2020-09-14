@@ -25,22 +25,22 @@
 package com.github.chainmailstudios.astromine.registry;
 
 import java.util.function.Supplier;
-import net.minecraft.util.LazyLoadedValue;
-import net.minecraft.world.item.Tier;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.item.IItemTier;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.util.LazyValue;
 
 public class AstromineToolMaterials {
-	public static Tier register(int miningLevel, int itemDurability, float miningSpeed, float attackDamage, int enchantibility, Supplier<Ingredient> repairIngredient) {
+	public static IItemTier register(int miningLevel, int itemDurability, float miningSpeed, float attackDamage, int enchantibility, Supplier<Ingredient> repairIngredient) {
 		return new AstromineToolMaterial(miningLevel, itemDurability, miningSpeed, attackDamage, enchantibility, repairIngredient);
 	}
 
-	public static class AstromineToolMaterial implements Tier {
+	public static class AstromineToolMaterial implements IItemTier {
 		private final int miningLevel;
 		private final int itemDurability;
 		private final float miningSpeed;
 		private final float attackDamage;
 		private final int enchantability;
-		private final LazyLoadedValue<Ingredient> repairIngredient;
+		private final LazyValue<Ingredient> repairIngredient;
 
 		AstromineToolMaterial(int miningLevel, int itemDurability, float miningSpeed, float attackDamage, int enchantibility, Supplier<Ingredient> repairIngredient) {
 			this.miningLevel = miningLevel;
@@ -48,7 +48,7 @@ public class AstromineToolMaterials {
 			this.miningSpeed = miningSpeed;
 			this.attackDamage = attackDamage;
 			this.enchantability = enchantibility;
-			this.repairIngredient = new LazyLoadedValue(repairIngredient);
+			this.repairIngredient = new LazyValue(repairIngredient);
 		}
 
 		@Override

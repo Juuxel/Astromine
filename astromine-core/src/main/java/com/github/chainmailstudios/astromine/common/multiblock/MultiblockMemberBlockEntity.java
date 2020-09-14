@@ -27,17 +27,17 @@ package com.github.chainmailstudios.astromine.common.multiblock;
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.Component;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.math.BlockPos;
 import java.util.Set;
 
-public abstract class MultiblockMemberBlockEntity extends BlockEntity implements ComponentProvider {
+public abstract class MultiblockMemberBlockEntity extends TileEntity implements ComponentProvider {
 	private MultiblockControllerBlockEntity controller;
 
 	private BlockPos relative;
 
-	public MultiblockMemberBlockEntity(BlockEntityType<?> type) {
+	public MultiblockMemberBlockEntity(TileEntityType<?> type) {
 		super(type);
 	}
 

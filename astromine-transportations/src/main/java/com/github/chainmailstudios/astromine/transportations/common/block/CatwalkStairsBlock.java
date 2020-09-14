@@ -27,26 +27,21 @@ package com.github.chainmailstudios.astromine.transportations.common.block;
 import com.github.chainmailstudios.astromine.common.utilities.RotationUtilities;
 import com.github.chainmailstudios.astromine.transportations.common.block.property.ConveyorProperties;
 import net.minecraft.block.*;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.state.StateContainer;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
 
-public class CatwalkStairsBlock extends HorizontalDirectionalBlock implements SimpleWaterloggedBlock {
+public class CatwalkStairsBlock extends HorizontalBlock implements IWaterLoggable {
 	public CatwalkStairsBlock(Properties settings) {
 		super(settings);
 
@@ -54,7 +49,7 @@ public class CatwalkStairsBlock extends HorizontalDirectionalBlock implements Si
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
 		builder.add(FACING, ConveyorProperties.LEFT, ConveyorProperties.RIGHT, BlockStateProperties.WATERLOGGED);
 	}
 
@@ -64,11 +59,11 @@ public class CatwalkStairsBlock extends HorizontalDirectionalBlock implements Si
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext context) {
+	public BlockState getStateForPlacement(BlockItemUseContext context) {
 		return this.defaultBlockState().setValue(FACING, context.getPlayer().isShiftKeyDown() ? context.getHorizontalDirection().getOpposite() : context.getHorizontalDirection()).setValue(BlockStateProperties.WATERLOGGED, context.getLevel().getBlockState(context.getClickedPos()).getBlock() == Blocks.WATER);
 	}
 
-	public boolean isAdjacentBlockOfMyType(LevelAccessor world, BlockPos position, Direction direction) {
+	public boolean isAdjacentBlockOfMyType(IWorld world, BlockPos position, Direction direction) {
 
 		assert null != world : "world cannot be null";
 		assert null != position : "position cannot be null";
@@ -82,7 +77,7 @@ public class CatwalkStairsBlock extends HorizontalDirectionalBlock implements Si
 	}
 
 	@Override
-	public BlockState updateShape(BlockState state, Direction facing, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
+	public BlockState updateShape(BlockState state, Direction facing, BlockState neighborState, IWorld world, BlockPos pos, BlockPos neighborPos) {
 		BlockState newState = state;
 
 		newState = state.setValue(ConveyorProperties.RIGHT, this.isAdjacentBlockOfMyType(world, pos, state.getValue(FACING).getClockWise())).setValue(ConveyorProperties.LEFT, this.isAdjacentBlockOfMyType(world, pos, state.getValue(FACING).getCounterClockWise()));
@@ -91,13 +86,13 @@ public class CatwalkStairsBlock extends HorizontalDirectionalBlock implements Si
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter view, BlockPos pos, CollisionContext entityContext) {
+	public VoxelShape getShape(BlockState state, IBlockReader view, BlockPos pos, ISelectionContext entityContext) {
 		Direction facing = state.getValue(FACING);
-		AABB step1 = new AABB(0, 0, (12F / 16F), 1, (3F / 16F), 1);
-		AABB step2 = new AABB(0, 0, (8F / 16F), 1, (7F / 16F), (12F / 16F));
-		AABB step3 = new AABB(0, 0, (4F / 16F), 1, (11F / 16F), (8F / 16F));
-		AABB step4 = new AABB(0, 0, 0, 1, (15F / 16F), (4F / 16F));
-		VoxelShape shape = Shapes.or(RotationUtilities.getRotatedShape(step1, facing), RotationUtilities.getRotatedShape(step2, facing), RotationUtilities.getRotatedShape(step3, facing), RotationUtilities.getRotatedShape(step4, facing));
+		AxisAlignedBB step1 = new AxisAlignedBB(0, 0, (12F / 16F), 1, (3F / 16F), 1);
+		AxisAlignedBB step2 = new AxisAlignedBB(0, 0, (8F / 16F), 1, (7F / 16F), (12F / 16F));
+		AxisAlignedBB step3 = new AxisAlignedBB(0, 0, (4F / 16F), 1, (11F / 16F), (8F / 16F));
+		AxisAlignedBB step4 = new AxisAlignedBB(0, 0, 0, 1, (15F / 16F), (4F / 16F));
+		VoxelShape shape = VoxelShapes.or(RotationUtilities.getRotatedShape(step1, facing), RotationUtilities.getRotatedShape(step2, facing), RotationUtilities.getRotatedShape(step3, facing), RotationUtilities.getRotatedShape(step4, facing));
 
 		return shape;
 	}

@@ -24,12 +24,12 @@
 
 package com.github.chainmailstudios.astromine.common.widget.vanilla;
 
-import net.minecraft.world.Container;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
 
 public class ExtractionSlot extends Slot {
-	public ExtractionSlot(Container inventory, int index, int x, int y) {
+	public ExtractionSlot(IInventory inventory, int index, int x, int y) {
 		super(inventory, index, x, y);
 	}
 

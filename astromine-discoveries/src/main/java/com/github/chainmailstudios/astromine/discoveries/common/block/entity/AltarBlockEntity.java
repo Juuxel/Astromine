@@ -26,21 +26,21 @@ package com.github.chainmailstudios.astromine.discoveries.common.block.entity;
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.util.NbtType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.LongTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.LazyLoadedValue;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LightningBolt;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.effect.LightningBoltEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.LongNBT;
+import net.minecraft.particles.RedstoneParticleData;
+import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.LazyValue;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.server.ServerWorld;
 import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.compatibility.ItemInventoryFromInventoryComponent;
@@ -57,7 +57,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromInventoryComponent, TickableBlockEntity, BlockEntityClientSerializable {
+public class AltarBlockEntity extends TileEntity implements ItemInventoryFromInventoryComponent, ITickableTileEntity, BlockEntityClientSerializable {
 	public static final int CRAFTING_TIME = 100;
 	public static final int CRAFTING_TIME_SPIN = 80;
 	public static final int CRAFTING_TIME_FALL = 60;
@@ -124,11 +124,11 @@ public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromIn
 					}
 
 					recipe = null;
-					LightningBolt entity = EntityType.LIGHTNING_BOLT.create(level);
+					LightningBoltEntity entity = EntityType.LIGHTNING_BOLT.create(level);
 					entity.moveTo(worldPosition.getX() + 0.5, worldPosition.getY() + 1 + HEIGHT_OFFSET, worldPosition.getZ() + 0.5);
 					entity.setVisualOnly(true);
 					level.addFreshEntity(entity);
-					level.playSound(null, getBlockPos(), AstromineDiscoveriesSoundEvents.ALTAR_FINISH, SoundSource.BLOCKS, 1.5F, 1);
+					level.playSound(null, getBlockPos(), AstromineDiscoveriesSoundEvents.ALTAR_FINISH, SoundCategory.BLOCKS, 1.5F, 1);
 				}
 				if (craftingTicks >= CRAFTING_TIME + CRAFTING_TIME_SPIN + CRAFTING_TIME_FALL) {
 					onRemove();
@@ -144,8 +144,8 @@ public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromIn
 	public void spawnParticles() {
 		double yProgress = getYProgress(craftingTicks);
 		float l = AltarBlockEntity.HOVER_HEIGHT + 0.1F;
-		DustParticleOptions effect = new DustParticleOptions(1, 1, 1, 1);
-		((ServerLevel) level).sendParticles(effect, getBlockPos().getX() + 0.5D, getBlockPos().getY() + l + 1.0D - 0.1D + AltarBlockEntity.HEIGHT_OFFSET * yProgress, getBlockPos().getZ() + 0.5D, 2, 0.1D, 0D, 0.1D, 0);
+		RedstoneParticleData effect = new RedstoneParticleData(1, 1, 1, 1);
+		((ServerWorld) level).sendParticles(effect, getBlockPos().getX() + 0.5D, getBlockPos().getY() + l + 1.0D - 0.1D + AltarBlockEntity.HEIGHT_OFFSET * yProgress, getBlockPos().getZ() + 0.5D, 2, 0.1D, 0D, 0.1D, 0);
 	}
 
 	public double getYProgress(double craftingTicksDelta) {
@@ -194,7 +194,7 @@ public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromIn
 				child.get().sync();
 			}
 
-			level.playSound(null, getBlockPos(), AstromineDiscoveriesSoundEvents.ALTAR_START, SoundSource.BLOCKS, 1, 1);
+			level.playSound(null, getBlockPos(), AstromineDiscoveriesSoundEvents.ALTAR_START, SoundCategory.BLOCKS, 1, 1);
 
 			return true;
 		} else {
@@ -209,38 +209,38 @@ public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromIn
 	}
 
 	@Override
-	public void fromClientTag(CompoundTag compoundTag) {
+	public void fromClientTag(CompoundNBT compoundTag) {
 		load(null, compoundTag);
 	}
 
 	@Override
-	public CompoundTag toClientTag(CompoundTag compoundTag) {
+	public CompoundNBT toClientTag(CompoundNBT compoundTag) {
 		return save(compoundTag);
 	}
 
 	@Override
-	public void load(BlockState state, CompoundTag tag) {
+	public void load(BlockState state, CompoundNBT tag) {
 		super.load(state, tag);
 		inventory.fromTag(tag);
 		craftingTicks = tag.getInt("craftingTicks");
 		if (craftingTicksDelta == 0 || craftingTicks == 0 || craftingTicks == 1)
 			craftingTicksDelta = craftingTicks;
 		children.clear();
-		ListTag children = tag.getList("children", NbtType.LONG);
-		for (Tag child : children) {
-			long pos = ((LongTag) child).getAsLong();
-			LazyLoadedValue<AltarPedestalBlockEntity> lazy = new LazyLoadedValue<>(() -> (AltarPedestalBlockEntity) level.getBlockEntity(BlockPos.of(pos)));
+		ListNBT children = tag.getList("children", NbtType.LONG);
+		for (INBT child : children) {
+			long pos = ((LongNBT) child).getAsLong();
+			LazyValue<AltarPedestalBlockEntity> lazy = new LazyValue<>(() -> (AltarPedestalBlockEntity) level.getBlockEntity(BlockPos.of(pos)));
 			this.children.add(lazy::get);
 		}
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag tag) {
+	public CompoundNBT save(CompoundNBT tag) {
 		inventory.toTag(tag);
 		tag.putInt("craftingTicks", craftingTicks);
-		ListTag childrenTag = new ListTag();
+		ListNBT childrenTag = new ListNBT();
 		for (Supplier<AltarPedestalBlockEntity> child : children) {
-			childrenTag.add(LongTag.valueOf(child.get().getBlockPos().asLong()));
+			childrenTag.add(LongNBT.valueOf(child.get().getBlockPos().asLong()));
 		}
 		tag.put("children", childrenTag);
 		return super.save(tag);

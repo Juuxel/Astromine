@@ -25,14 +25,14 @@
 package com.github.chainmailstudios.astromine.common.utilities.capability.inventory;
 
 import nerdhub.cardinal.components.api.component.ComponentProvider;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.WorldlyContainer;
-import net.minecraft.world.WorldlyContainerHolder;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.inventory.ISidedInventoryProvider;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 import com.github.chainmailstudios.astromine.common.component.SidedComponentProvider;
 import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.compatibility.ItemInventoryFromInventoryComponent;
@@ -43,14 +43,14 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 
 import java.util.stream.IntStream;
 
-public interface ExtendedComponentSidedInventoryProvider extends SidedComponentProvider, WorldlyContainerHolder, WorldlyContainer, ItemInventoryFromInventoryComponent {
+public interface ExtendedComponentSidedInventoryProvider extends SidedComponentProvider, ISidedInventoryProvider, ISidedInventory, ItemInventoryFromInventoryComponent {
 	@Override
-	default WorldlyContainer getContainer(BlockState state, LevelAccessor world, BlockPos pos) {
+	default ISidedInventory getContainer(BlockState state, IWorld world, BlockPos pos) {
 		return this;
 	}
 
 	default boolean isSideOpenForItems(int slot, Direction direction, boolean inserting) {
-		return inserting ? TransportUtilities.isInsertingItem((BlockEntity) this, getComponent(AstromineComponentTypes.BLOCK_ENTITY_TRANSFER_COMPONENT), direction, true) && getItemInputSlots().contains(slot) : TransportUtilities.isExtractingItem((BlockEntity) this, getComponent(
+		return inserting ? TransportUtilities.isInsertingItem((TileEntity) this, getComponent(AstromineComponentTypes.BLOCK_ENTITY_TRANSFER_COMPONENT), direction, true) && getItemInputSlots().contains(slot) : TransportUtilities.isExtractingItem((TileEntity) this, getComponent(
 			AstromineComponentTypes.BLOCK_ENTITY_TRANSFER_COMPONENT), direction, true) && getItemOutputSlots().contains(slot);
 	}
 

@@ -25,12 +25,12 @@
 package com.github.chainmailstudios.astromine.common.screenhandler.base.block;
 
 import com.github.vini2003.blade.common.handler.BaseScreenHandler;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.util.IWorldPosCallable;
+import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class BlockStateScreenHandler extends BaseScreenHandler {
@@ -38,7 +38,7 @@ public abstract class BlockStateScreenHandler extends BaseScreenHandler {
 	public BlockPos position;
 	public Block originalBlock;
 
-	public BlockStateScreenHandler(MenuType<?> type, int syncId, Player player, BlockPos position) {
+	public BlockStateScreenHandler(ContainerType<?> type, int syncId, PlayerEntity player, BlockPos position) {
 		super(type, syncId, player);
 
 		this.state = player.level.getBlockState(position);
@@ -47,7 +47,7 @@ public abstract class BlockStateScreenHandler extends BaseScreenHandler {
 	}
 
 	@Override
-	public boolean stillValid(@Nullable Player player) {
-		return stillValid(ContainerLevelAccess.create(player.level, position), player, originalBlock);
+	public boolean stillValid(@Nullable PlayerEntity player) {
+		return stillValid(IWorldPosCallable.create(player.level, position), player, originalBlock);
 	}
 }

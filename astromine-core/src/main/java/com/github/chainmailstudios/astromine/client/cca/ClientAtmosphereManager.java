@@ -24,15 +24,15 @@
 
 package com.github.chainmailstudios.astromine.client.cca;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 
 public class ClientAtmosphereManager {
 	public static final ResourceLocation GAS_ADDED = AstromineCommon.identifier("gas_added");
@@ -44,40 +44,40 @@ public class ClientAtmosphereManager {
 		return VOLUMES;
 	}
 
-	public static FriendlyByteBuf ofGasErased() {
-		return new FriendlyByteBuf(Unpooled.buffer());
+	public static PacketBuffer ofGasErased() {
+		return new PacketBuffer(Unpooled.buffer());
 	}
 
-	public static FriendlyByteBuf ofGasAdded(BlockPos gasPosition, FluidVolume gasVolume) {
-		CompoundTag gasPayload = new CompoundTag();
+	public static PacketBuffer ofGasAdded(BlockPos gasPosition, FluidVolume gasVolume) {
+		CompoundNBT gasPayload = new CompoundNBT();
 		gasPayload.putLong("gasPosition", gasPosition.asLong());
 		gasPayload.put("gasVolume", gasVolume.toTag());
-		FriendlyByteBuf gasBuffer = new FriendlyByteBuf(Unpooled.buffer());
+		PacketBuffer gasBuffer = new PacketBuffer(Unpooled.buffer());
 		gasBuffer.writeNbt(gasPayload);
 		return gasBuffer;
 	}
 
-	public static FriendlyByteBuf ofGasRemoved(BlockPos gasPosition) {
-		CompoundTag gasPayload = new CompoundTag();
+	public static PacketBuffer ofGasRemoved(BlockPos gasPosition) {
+		CompoundNBT gasPayload = new CompoundNBT();
 		gasPayload.putLong("gasPosition", gasPosition.asLong());
-		FriendlyByteBuf gasBuffer = new FriendlyByteBuf(Unpooled.buffer());
+		PacketBuffer gasBuffer = new PacketBuffer(Unpooled.buffer());
 		gasBuffer.writeNbt(gasPayload);
 		return gasBuffer;
 	}
 
-	public static void onGasErased(FriendlyByteBuf gasBuffer) {
+	public static void onGasErased(PacketBuffer gasBuffer) {
 		VOLUMES.clear();
 	}
 
-	public static void onGasAdded(FriendlyByteBuf gasBuffer) {
-		CompoundTag gasPayload = gasBuffer.readNbt();
+	public static void onGasAdded(PacketBuffer gasBuffer) {
+		CompoundNBT gasPayload = gasBuffer.readNbt();
 		long gasPosition = gasPayload.getLong("gasPosition");
 		FluidVolume gasVolume = FluidVolume.fromTag(gasPayload.getCompound("gasVolume"));
 		VOLUMES.put(gasPosition, gasVolume);
 	}
 
-	public static void onGasRemoved(FriendlyByteBuf gasBuffer) {
-		CompoundTag gasPayload = gasBuffer.readNbt();
+	public static void onGasRemoved(PacketBuffer gasBuffer) {
+		CompoundNBT gasPayload = gasBuffer.readNbt();
 		long gasPosition = gasPayload.getLong("gasPosition");
 		VOLUMES.remove(gasPosition);
 	}

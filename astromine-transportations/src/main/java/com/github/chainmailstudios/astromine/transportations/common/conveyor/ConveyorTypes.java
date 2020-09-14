@@ -24,9 +24,9 @@
 
 package com.github.chainmailstudios.astromine.transportations.common.conveyor;
 
-import net.minecraft.util.StringRepresentable;
+import net.minecraft.util.IStringSerializable;
 
-public enum ConveyorTypes implements StringRepresentable {
+public enum ConveyorTypes implements IStringSerializable {
 	NORMAL("normal"),
 	VERTICAL("vertical"),
 	DOWN_VERTICAL("down_vertical");

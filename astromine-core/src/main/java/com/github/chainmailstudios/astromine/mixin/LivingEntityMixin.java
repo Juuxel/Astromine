@@ -48,18 +48,18 @@ import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import com.github.chainmailstudios.astromine.registry.AstromineDimensions;
 import com.github.chainmailstudios.astromine.registry.AstromineTags;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
-import net.minecraft.core.Registry;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.LiquidBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.FlowingFluidBlock;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifierMap;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Direction;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -110,12 +110,12 @@ public abstract class LivingEntityMixin implements GravityEntity {
 
 				boolean isSubmerged = false;
 
-				AABB collisionBox = entity.getBoundingBox();
+				AxisAlignedBB collisionBox = entity.getBoundingBox();
 
 				for (BlockPos blockPos : (Iterable<BlockPos>) () -> BlockPos.betweenClosedStream(collisionBox).iterator()) {
 					BlockState blockState = entity.level.getBlockState(blockPos);
 
-					if (blockState.getBlock() instanceof LiquidBlock) {
+					if (blockState.getBlock() instanceof FlowingFluidBlock) {
 						isSubmerged = true;
 
 						Optional.ofNullable(FluidEffectRegistry.INSTANCE.get(blockState.getFluidState().getType())).ifPresent(it -> it.accept((LivingEntity) (Object) this));
@@ -200,7 +200,7 @@ public abstract class LivingEntityMixin implements GravityEntity {
 	}
 
 	@Inject(at = @At("RETURN"), method = "createLivingAttributes()Lnet/minecraft/entity/attribute/DefaultAttributeContainer$Builder;")
-	private static void createLivingAttributesInject(CallbackInfoReturnable<AttributeSupplier.Builder> cir) {
+	private static void createLivingAttributesInject(CallbackInfoReturnable<AttributeModifierMap.MutableAttribute> cir) {
 		cir.getReturnValue().add(AstromineAttributes.GRAVITY_MULTIPLIER);
 	}
 }

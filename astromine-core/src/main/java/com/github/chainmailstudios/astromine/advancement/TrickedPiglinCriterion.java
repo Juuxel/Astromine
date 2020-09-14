@@ -27,14 +27,14 @@ package com.github.chainmailstudios.astromine.advancement;
 import com.github.chainmailstudios.astromine.registry.AstromineCriteria;
 
 import com.google.gson.JsonObject;
-import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
-import net.minecraft.advancements.critereon.DeserializationContext;
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.advancements.criterion.AbstractCriterionTrigger;
+import net.minecraft.advancements.criterion.CriterionInstance;
+import net.minecraft.advancements.criterion.EntityPredicate;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.loot.ConditionArrayParser;
+import net.minecraft.util.ResourceLocation;
 
-public class TrickedPiglinCriterion extends SimpleCriterionTrigger<TrickedPiglinCriterion.Conditions> {
+public class TrickedPiglinCriterion extends AbstractCriterionTrigger<TrickedPiglinCriterion.Conditions> {
 	public final ResourceLocation id;
 
 	public TrickedPiglinCriterion(ResourceLocation id) {
@@ -42,7 +42,7 @@ public class TrickedPiglinCriterion extends SimpleCriterionTrigger<TrickedPiglin
 	}
 
 	@Override
-	protected TrickedPiglinCriterion.Conditions createInstance(JsonObject obj, EntityPredicate.Composite playerPredicate, DeserializationContext predicateDeserializer) {
+	protected TrickedPiglinCriterion.Conditions createInstance(JsonObject obj, EntityPredicate.AndPredicate playerPredicate, ConditionArrayParser predicateDeserializer) {
 		return new Conditions(this.id, playerPredicate);
 	}
 
@@ -51,17 +51,17 @@ public class TrickedPiglinCriterion extends SimpleCriterionTrigger<TrickedPiglin
 		return id;
 	}
 
-	public void trigger(ServerPlayer player) {
+	public void trigger(ServerPlayerEntity player) {
 		this.trigger(player, conditions -> true);
 	}
 
-	public static class Conditions extends AbstractCriterionTriggerInstance {
-		public Conditions(ResourceLocation id, EntityPredicate.Composite playerPredicate) {
+	public static class Conditions extends CriterionInstance {
+		public Conditions(ResourceLocation id, EntityPredicate.AndPredicate playerPredicate) {
 			super(id, playerPredicate);
 		}
 
 		public static Conditions create() {
-			return new Conditions(AstromineCriteria.TRICKED_PIGLIN.getId(), EntityPredicate.Composite.ANY);
+			return new Conditions(AstromineCriteria.TRICKED_PIGLIN.getId(), EntityPredicate.AndPredicate.ANY);
 		}
 	}
 }

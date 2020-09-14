@@ -27,19 +27,19 @@ package com.github.chainmailstudios.astromine.client.rei;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.client.render.sprite.SpriteRenderer;
 import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.github.chainmailstudios.astromine.common.utilities.EnergyUtilities;
 import com.github.chainmailstudios.astromine.common.utilities.FluidUtilities;
 import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
@@ -73,14 +73,14 @@ public abstract class AstromineRoughlyEnoughItemsPlugin implements REIPluginV0 {
 	public static List<Widget> createEnergyDisplay(Rectangle bounds, double energy, boolean generating, long speed) {
 		return Collections.singletonList(new EnergyEntryWidget(bounds, speed, generating).entry(new RenderingEntry() {
 			@Override
-			public void render(PoseStack matrices, Rectangle bounds, int mouseX, int mouseY, float delta) {}
+			public void render(MatrixStack matrices, Rectangle bounds, int mouseX, int mouseY, float delta) {}
 
 			@Override
 			public @Nullable Tooltip getTooltip(Point mouse) {
 				if (generating)
-					return Tooltip.create(mouse, new TranslatableComponent("text.astromine.energy"), ClientHelper.getInstance().getFormattedModFromIdentifier(AstromineCommon.identifier("a")), new TextComponent(""), new TranslatableComponent("category.astromine.generating.energy",
+					return Tooltip.create(mouse, new TranslationTextComponent("text.astromine.energy"), ClientHelper.getInstance().getFormattedModFromIdentifier(AstromineCommon.identifier("a")), new StringTextComponent(""), new TranslationTextComponent("category.astromine.generating.energy",
 						EnergyUtilities.simpleDisplay(energy)));
-				else return Tooltip.create(mouse, new TranslatableComponent("text.astromine.energy"), ClientHelper.getInstance().getFormattedModFromIdentifier(AstromineCommon.identifier("a")), new TextComponent(""), new TranslatableComponent("category.astromine.consuming.energy",
+				else return Tooltip.create(mouse, new TranslationTextComponent("text.astromine.energy"), ClientHelper.getInstance().getFormattedModFromIdentifier(AstromineCommon.identifier("a")), new StringTextComponent(""), new TranslationTextComponent("category.astromine.consuming.energy",
 					EnergyUtilities.simpleDisplay(energy)));
 			}
 		}).notFavoritesInteractable());
@@ -106,22 +106,22 @@ public abstract class AstromineRoughlyEnoughItemsPlugin implements REIPluginV0 {
 		}
 
 		@Override
-		protected void drawBackground(PoseStack matrices, int mouseX, int mouseY, float delta) {
+		protected void drawBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 			if (background) {
 				Rectangle bounds = getBounds();
 				Minecraft.getInstance().getTextureManager().bind(ENERGY_BACKGROUND);
-				GuiComponent.blit(matrices, bounds.x, bounds.y, 0, 0, bounds.width, bounds.height, bounds.width, bounds.height);
+				AbstractGui.blit(matrices, bounds.x, bounds.y, 0, 0, bounds.width, bounds.height, bounds.width, bounds.height);
 				Minecraft.getInstance().getTextureManager().bind(ENERGY_FOREGROUND);
 				int height;
 				if (generating)
-					height = bounds.height - Mth.ceil((System.currentTimeMillis() / (speed / bounds.height) % bounds.height) / 1f);
-				else height = Mth.ceil((System.currentTimeMillis() / (speed / bounds.height) % bounds.height) / 1f);
-				GuiComponent.blit(matrices, bounds.x, bounds.y + height, 0, height, bounds.width - 1, bounds.height - height - 1, bounds.width, bounds.height);
+					height = bounds.height - MathHelper.ceil((System.currentTimeMillis() / (speed / bounds.height) % bounds.height) / 1f);
+				else height = MathHelper.ceil((System.currentTimeMillis() / (speed / bounds.height) % bounds.height) / 1f);
+				AbstractGui.blit(matrices, bounds.x, bounds.y + height, 0, height, bounds.width - 1, bounds.height - height - 1, bounds.width, bounds.height);
 			}
 		}
 
 		@Override
-		protected void drawCurrentEntry(PoseStack matrices, int mouseX, int mouseY, float delta) {}
+		protected void drawCurrentEntry(MatrixStack matrices, int mouseX, int mouseY, float delta) {}
 	}
 
 	private static class FluidEntryWidget extends EntryWidget {
@@ -136,26 +136,26 @@ public abstract class AstromineRoughlyEnoughItemsPlugin implements REIPluginV0 {
 		}
 
 		@Override
-		protected void drawBackground(PoseStack matrices, int mouseX, int mouseY, float delta) {
+		protected void drawBackground(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 			if (background) {
 				Rectangle bounds = getBounds();
 				Minecraft.getInstance().getTextureManager().bind(ENERGY_BACKGROUND);
-				GuiComponent.blit(matrices, bounds.x, bounds.y, 0, 0, bounds.width, bounds.height, bounds.width, bounds.height);
+				AbstractGui.blit(matrices, bounds.x, bounds.y, 0, 0, bounds.width, bounds.height, bounds.width, bounds.height);
 			}
 		}
 
 		@Override
-		protected void drawCurrentEntry(PoseStack matrices, int mouseX, int mouseY, float delta) {
+		protected void drawCurrentEntry(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 			EntryStack entry = getCurrentEntry();
 			if (entry.getType() == EntryStack.Type.FLUID) {
 				Rectangle bounds = getBounds();
 				int height;
 				if (!generating)
-					height = bounds.height - Mth.ceil((System.currentTimeMillis() / (speed / bounds.height) % bounds.height) / 1f);
-				else height = Mth.ceil((System.currentTimeMillis() / (speed / bounds.height) % bounds.height) / 1f);
-				MultiBufferSource.BufferSource consumers = Minecraft.getInstance().renderBuffers().bufferSource();
+					height = bounds.height - MathHelper.ceil((System.currentTimeMillis() / (speed / bounds.height) % bounds.height) / 1f);
+				else height = MathHelper.ceil((System.currentTimeMillis() / (speed / bounds.height) % bounds.height) / 1f);
+				IRenderTypeBuffer.Impl consumers = Minecraft.getInstance().renderBuffers().bufferSource();
 				SpriteRenderer.beginPass().setup(consumers, RenderType.solid()).sprite(FluidUtilities.texture(entry.getFluid())[0]).color(FluidUtilities.color(Minecraft.getInstance().player, entry.getFluid())).light(0x00f000f0).overlay(OverlayTexture.NO_OVERLAY).alpha(
-					0xff).normal(matrices.last().normal(), 0, 0, 0).position(matrices.last().pose(), bounds.x + 1, bounds.y + bounds.height - height + 1, bounds.x + bounds.width - 1, bounds.y + bounds.height - 1, getBlitOffset() + 1).next(TextureAtlas.LOCATION_BLOCKS);
+					0xff).normal(matrices.last().normal(), 0, 0, 0).position(matrices.last().pose(), bounds.x + 1, bounds.y + bounds.height - height + 1, bounds.x + bounds.width - 1, bounds.y + bounds.height - 1, getBlitOffset() + 1).next(AtlasTexture.LOCATION_BLOCKS);
 				consumers.endBatch();
 			}
 		}

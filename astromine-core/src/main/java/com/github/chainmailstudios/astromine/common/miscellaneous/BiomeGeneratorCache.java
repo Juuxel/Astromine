@@ -27,9 +27,9 @@ package com.github.chainmailstudios.astromine.common.miscellaneous;
 import it.unimi.dsi.fastutil.HashCommon;
 
 import java.util.Arrays;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.provider.BiomeProvider;
 
 /**
  * A non-threadsafe cache used to lossily store biome data. Best used with thread locals.
@@ -42,9 +42,9 @@ public class BiomeGeneratorCache {
 	private final int mask;
 	private final long[] keys;
 	private final Biome[] values;
-	private final BiomeSource source;
+	private final BiomeProvider source;
 
-	public BiomeGeneratorCache(BiomeSource source) {
+	public BiomeGeneratorCache(BiomeProvider source) {
 		this.source = source;
 		this.mask = CACHE_SIZE - 1;
 

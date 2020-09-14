@@ -27,14 +27,14 @@ package com.github.chainmailstudios.astromine.foundations.common.criterion;
 import com.github.chainmailstudios.astromine.foundations.registry.AstromineFoundationsCriteria;
 
 import com.google.gson.JsonObject;
-import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
-import net.minecraft.advancements.critereon.DeserializationContext;
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.advancements.criterion.AbstractCriterionTrigger;
+import net.minecraft.advancements.criterion.CriterionInstance;
+import net.minecraft.advancements.criterion.EntityPredicate;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.loot.ConditionArrayParser;
+import net.minecraft.util.ResourceLocation;
 
-public class ProperlyUseFireExtinguisherCriterion extends SimpleCriterionTrigger<ProperlyUseFireExtinguisherCriterion.Conditions> {
+public class ProperlyUseFireExtinguisherCriterion extends AbstractCriterionTrigger<ProperlyUseFireExtinguisherCriterion.Conditions> {
 	private final ResourceLocation id;
 
 	public ProperlyUseFireExtinguisherCriterion(ResourceLocation id) {
@@ -47,21 +47,21 @@ public class ProperlyUseFireExtinguisherCriterion extends SimpleCriterionTrigger
 	}
 
 	@Override
-	protected Conditions createInstance(JsonObject obj, EntityPredicate.Composite extended, DeserializationContext predicateDeserializer) {
+	protected Conditions createInstance(JsonObject obj, EntityPredicate.AndPredicate extended, ConditionArrayParser predicateDeserializer) {
 		return new Conditions(this.id, extended);
 	}
 
-	public void trigger(ServerPlayer player) {
+	public void trigger(ServerPlayerEntity player) {
 		this.trigger(player, conditions -> true);
 	}
 
-	public static class Conditions extends AbstractCriterionTriggerInstance {
-		public Conditions(ResourceLocation id, EntityPredicate.Composite playerPredicate) {
+	public static class Conditions extends CriterionInstance {
+		public Conditions(ResourceLocation id, EntityPredicate.AndPredicate playerPredicate) {
 			super(id, playerPredicate);
 		}
 
 		public static Conditions create() {
-			return new Conditions(AstromineFoundationsCriteria.PROPERLY_USE_FIRE_EXTINGUISHER.id, EntityPredicate.Composite.ANY);
+			return new Conditions(AstromineFoundationsCriteria.PROPERLY_USE_FIRE_EXTINGUISHER.id, EntityPredicate.AndPredicate.ANY);
 		}
 	}
 }

@@ -25,16 +25,16 @@
 package com.github.chainmailstudios.astromine.registry.client;
 
 import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import java.util.function.Function;
 
 public class AstromineBlockEntityRenderers {
 	public static void initialize() {}
 
-	public static <B extends BlockEntity, C extends BlockEntityType<B>> void register(C c, Function<BlockEntityRenderDispatcher, BlockEntityRenderer<B>> b) {
+	public static <B extends TileEntity, C extends TileEntityType<B>> void register(C c, Function<TileEntityRendererDispatcher, TileEntityRenderer<B>> b) {
 		BlockEntityRendererRegistry.INSTANCE.register(c, b);
 	}
 }

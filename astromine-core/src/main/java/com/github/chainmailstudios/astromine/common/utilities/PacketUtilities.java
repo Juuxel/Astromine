@@ -32,23 +32,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 
 public class PacketUtilities {
-	private static final ImmutableMap<Class<?>, BiConsumer<FriendlyByteBuf, Object>> WRITERS = ImmutableMap.<Class<?>, BiConsumer<FriendlyByteBuf, Object>> builder().put(Integer.class, (buffer, object) -> buffer.writeInt((Integer) object)).put(Float.class, (buffer, object) -> buffer
+	private static final ImmutableMap<Class<?>, BiConsumer<PacketBuffer, Object>> WRITERS = ImmutableMap.<Class<?>, BiConsumer<PacketBuffer, Object>> builder().put(Integer.class, (buffer, object) -> buffer.writeInt((Integer) object)).put(Float.class, (buffer, object) -> buffer
 		.writeFloat((Float) object)).put(Double.class, (buffer, object) -> buffer.writeDouble((Double) object)).put(String.class, (buffer, object) -> buffer.writeUtf((String) object)).put(ResourceLocation.class, (buffer, object) -> buffer.writeResourceLocation((ResourceLocation) object)).put(
 			Enum.class, (buffer, object) -> buffer.writeEnum((Enum<?>) object)).build();
 
-	private static final ImmutableMap<Class<?>, BiFunction<FriendlyByteBuf, Class<?>, ?>> READERS = ImmutableMap.<Class<?>, BiFunction<FriendlyByteBuf, Class<?>, ?>> builder().put(Integer.class, (buffer, object) -> buffer.readInt()).put(Float.class, (buffer, object) -> buffer
+	private static final ImmutableMap<Class<?>, BiFunction<PacketBuffer, Class<?>, ?>> READERS = ImmutableMap.<Class<?>, BiFunction<PacketBuffer, Class<?>, ?>> builder().put(Integer.class, (buffer, object) -> buffer.readInt()).put(Float.class, (buffer, object) -> buffer
 		.readFloat()).put(Double.class, (buffer, object) -> buffer.readDouble()).put(String.class, (buffer, object) -> buffer.readUtf()).put(ResourceLocation.class, (buffer, object) -> buffer.readResourceLocation()).put(Enum.class, (buffer, object) -> buffer.readEnum(
 			((Enum<?>) (object.getEnumConstants()[0])).getClass())).build();
 
-	public static void toPacket(FriendlyByteBuf buffer, Object object) {
+	public static void toPacket(PacketBuffer buffer, Object object) {
 		writeObject(buffer, object);
 	}
 
-	public static void writeObject(FriendlyByteBuf buffer, Object object) {
+	public static void writeObject(PacketBuffer buffer, Object object) {
 		if (WRITERS.containsKey(object.getClass())) {
 			WRITERS.get(object.getClass()).accept(buffer, object);
 		} else {
@@ -56,7 +56,7 @@ public class PacketUtilities {
 		}
 	}
 
-	public static void toPacket(FriendlyByteBuf buffer, HashMap<?, ?> map) {
+	public static void toPacket(PacketBuffer buffer, HashMap<?, ?> map) {
 		writeObject(buffer, map.size());
 		for (Map.Entry<?, ?> entry : map.entrySet()) {
 			writeObject(buffer, entry.getKey());
@@ -64,11 +64,11 @@ public class PacketUtilities {
 		}
 	}
 
-	public static <K> K fromPacket(FriendlyByteBuf buffer, Class<K> k) {
+	public static <K> K fromPacket(PacketBuffer buffer, Class<K> k) {
 		return (K) readObject(buffer, k);
 	}
 
-	public static Object readObject(FriendlyByteBuf buffer, Class<?> object) {
+	public static Object readObject(PacketBuffer buffer, Class<?> object) {
 		if (READERS.containsKey(object)) {
 			return READERS.get(object).apply(buffer, object);
 		} else {
@@ -77,7 +77,7 @@ public class PacketUtilities {
 		}
 	}
 
-	public static <K, V> HashMap<K, V> fromPacket(FriendlyByteBuf buffer, Class<K> k, Class<V> v) {
+	public static <K, V> HashMap<K, V> fromPacket(PacketBuffer buffer, Class<K> k, Class<V> v) {
 		HashMap<K, V> map = new HashMap<K, V>();
 		int size = buffer.readInt();
 		for (int i = 0; i < size; ++i) {

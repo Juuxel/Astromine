@@ -30,9 +30,9 @@ import com.github.chainmailstudios.astromine.common.widget.blade.FluidVerticalBa
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import com.github.vini2003.blade.common.miscellaneous.Position;
 import com.github.vini2003.blade.common.miscellaneous.Size;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.MenuType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.util.math.BlockPos;
 
 public class ComponentBlockEntityEnergyFluidScreenHandler extends ComponentBlockEntityScreenHandler {
 	public EnergyVerticalBarWidget energyBar;
@@ -40,7 +40,7 @@ public class ComponentBlockEntityEnergyFluidScreenHandler extends ComponentBlock
 
 	public ComponentEnergyFluidBlockEntity blockEntity;
 
-	public ComponentBlockEntityEnergyFluidScreenHandler(MenuType<?> type, int syncId, Player player, BlockPos position) {
+	public ComponentBlockEntityEnergyFluidScreenHandler(ContainerType<?> type, int syncId, PlayerEntity player, BlockPos position) {
 		super(type, syncId, player, position);
 
 		blockEntity = (ComponentEnergyFluidBlockEntity) player.level.getBlockEntity(position);

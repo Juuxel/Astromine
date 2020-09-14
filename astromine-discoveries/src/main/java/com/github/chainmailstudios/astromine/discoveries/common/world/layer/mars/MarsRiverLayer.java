@@ -25,12 +25,12 @@
 package com.github.chainmailstudios.astromine.discoveries.common.world.layer.mars;
 
 import com.github.chainmailstudios.astromine.discoveries.registry.AstromineDiscoveriesBiomes;
-import net.minecraft.core.Registry;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.newbiome.context.Context;
-import net.minecraft.world.level.newbiome.layer.traits.CastleTransformer;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.INoiseRandom;
+import net.minecraft.world.gen.layer.traits.ICastleTransformer;
 
-public class MarsRiverLayer implements CastleTransformer {
+public class MarsRiverLayer implements ICastleTransformer {
 	private final Registry<Biome> biomeRegistry;
 	private final int riverId;
 
@@ -44,7 +44,7 @@ public class MarsRiverLayer implements CastleTransformer {
 	}
 
 	@Override
-	public int apply(Context context, int n, int e, int s, int w, int center) {
+	public int apply(INoiseRandom context, int n, int e, int s, int w, int center) {
 		int i = isValidForRiver(center);
 		return i == isValidForRiver(w) && i == isValidForRiver(n) && i == isValidForRiver(e) && i == isValidForRiver(s) ? -1 : riverId;
 	}

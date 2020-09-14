@@ -30,28 +30,28 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import draylar.magna.api.MagnaTool;
 import net.fabricmc.fabric.api.tool.attribute.v1.DynamicAttributeTool;
-import net.minecraft.core.BlockPos;
-import net.minecraft.tags.Tag;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Tier;
-import net.minecraft.world.item.Vanishable;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.enchantment.IVanishable;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.IItemTier;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tags.ITag;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import team.reborn.energy.Energy;
 import team.reborn.energy.EnergyHandler;
 
-public class DrillItem extends EnergyVolumeItem implements DynamicAttributeTool, Vanishable, MagnaTool, DiggerTool {
+public class DrillItem extends EnergyVolumeItem implements DynamicAttributeTool, IVanishable, MagnaTool, DiggerTool {
 	private final int radius;
-	private final Tier material;
+	private final IItemTier material;
 	private final Multimap<Attribute, AttributeModifier> attributeModifiers;
 
-	public DrillItem(Tier material, float attackDamage, float attackSpeed, int radius, double size, Properties settings) {
+	public DrillItem(IItemTier material, float attackDamage, float attackSpeed, int radius, double size, Properties settings) {
 		super(settings, size);
 
 		this.radius = radius;
@@ -81,7 +81,7 @@ public class DrillItem extends EnergyVolumeItem implements DynamicAttributeTool,
 	}
 
 	@Override
-	public boolean mineBlock(ItemStack stack, Level world, BlockState state, BlockPos pos, LivingEntity miner) {
+	public boolean mineBlock(ItemStack stack, World world, BlockState state, BlockPos pos, LivingEntity miner) {
 		if (!world.isClientSide && state.getDestroySpeed(world, pos) != 0.0F) {
 			EnergyHandler energy = Energy.of(stack);
 			energy.use(getEnergy());
@@ -91,22 +91,22 @@ public class DrillItem extends EnergyVolumeItem implements DynamicAttributeTool,
 	}
 
 	@Override
-	public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
-		return slot == EquipmentSlot.MAINHAND ? this.attributeModifiers : super.getDefaultAttributeModifiers(slot);
+	public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlotType slot) {
+		return slot == EquipmentSlotType.MAINHAND ? this.attributeModifiers : super.getDefaultAttributeModifiers(slot);
 	}
 
 	@Override
-	public float getMiningSpeedMultiplier(Tag<Item> tag, BlockState state, ItemStack stack, LivingEntity user) {
+	public float getMiningSpeedMultiplier(ITag<Item> tag, BlockState state, ItemStack stack, LivingEntity user) {
 		return material.getSpeed();
 	}
 
 	@Override
-	public int getMiningLevel(Tag<Item> tag, BlockState state, ItemStack stack, LivingEntity user) {
+	public int getMiningLevel(ITag<Item> tag, BlockState state, ItemStack stack, LivingEntity user) {
 		return material.getLevel();
 	}
 
 	@Override
-	public float postProcessMiningSpeed(Tag<Item> tag, BlockState state, ItemStack stack, LivingEntity user, float currentSpeed, boolean isEffective) {
+	public float postProcessMiningSpeed(ITag<Item> tag, BlockState state, ItemStack stack, LivingEntity user, float currentSpeed, boolean isEffective) {
 		return Energy.of(stack).getEnergy() <= getEnergy() ? 0F : currentSpeed;
 	}
 

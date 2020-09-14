@@ -27,14 +27,14 @@ package com.github.chainmailstudios.astromine.common.block.entity.base;
 import com.github.chainmailstudios.astromine.common.utilities.capability.inventory.ExtendedComponentSidedInventoryProvider;
 import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.tileentity.TileEntityType;
 
 public abstract class ComponentInventoryBlockEntity extends ComponentBlockEntity implements ExtendedComponentSidedInventoryProvider {
 	protected final ItemInventoryComponent itemComponent = createItemComponent();
 
 	protected abstract ItemInventoryComponent createItemComponent();
 
-	public ComponentInventoryBlockEntity(BlockEntityType<?> type) {
+	public ComponentInventoryBlockEntity(TileEntityType<?> type) {
 		super(type);
 
 		addComponent(AstromineComponentTypes.ITEM_INVENTORY_COMPONENT, itemComponent);

@@ -28,8 +28,8 @@ import com.github.chainmailstudios.astromine.technologies.client.rei.AstromineTe
 import me.shedaniel.rei.plugin.cooking.DefaultCookingDisplay;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.item.crafting.AbstractCookingRecipe;
+import net.minecraft.util.ResourceLocation;
 
 @Environment(EnvType.CLIENT)
 public class ElectricSmeltingDisplay extends DefaultCookingDisplay {

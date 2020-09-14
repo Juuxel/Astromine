@@ -30,8 +30,8 @@ import com.github.vini2003.blade.common.collection.TabWidgetCollection;
 import com.github.vini2003.blade.common.miscellaneous.Position;
 import com.github.vini2003.blade.common.miscellaneous.Size;
 import nerdhub.cardinal.components.api.ComponentType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
 import com.google.common.collect.ImmutableMap;
 
 public class WidgetUtilities {

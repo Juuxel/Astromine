@@ -27,19 +27,19 @@ package com.github.chainmailstudios.astromine.transportations.client.render.bloc
 import com.github.chainmailstudios.astromine.transportations.common.block.entity.ConveyorBlockEntity;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.Conveyor;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.ConveyorTypes;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.world.item.ItemStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.item.ItemStack;
 
-public class ConveyorBlockEntityRenderer extends BlockEntityRenderer<ConveyorBlockEntity> implements ConveyorRenderer<ConveyorBlockEntity> {
-	public ConveyorBlockEntityRenderer(BlockEntityRenderDispatcher blockEntityRenderDispatcher) {
+public class ConveyorBlockEntityRenderer extends TileEntityRenderer<ConveyorBlockEntity> implements ConveyorRenderer<ConveyorBlockEntity> {
+	public ConveyorBlockEntityRenderer(TileEntityRendererDispatcher blockEntityRenderDispatcher) {
 		super(blockEntityRenderDispatcher);
 	}
 
 	@Override
-	public void render(ConveyorBlockEntity blockEntity, float partialTicks, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, int i1) {
+	public void render(ConveyorBlockEntity blockEntity, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer vertexConsumerProvider, int i, int i1) {
 		int speed = ((Conveyor) blockEntity.getBlockState().getBlock()).getSpeed();
 		ConveyorTypes type = ((Conveyor) blockEntity.getBlockState().getBlock()).getType();
 

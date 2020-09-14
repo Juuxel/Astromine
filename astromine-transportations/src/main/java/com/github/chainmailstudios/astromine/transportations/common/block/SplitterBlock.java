@@ -29,51 +29,51 @@ import com.github.chainmailstudios.astromine.transportations.common.block.entity
 import com.github.chainmailstudios.astromine.transportations.common.block.entity.base.AbstractConveyableBlockEntity;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.Conveyable;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.ConveyableBlock;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.Containers;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.HorizontalBlock;
+import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.state.StateContainer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
 
-public class SplitterBlock extends HorizontalDirectionalBlock implements EntityBlock, ConveyableBlock, FacingBlockWrenchable {
+public class SplitterBlock extends HorizontalBlock implements ITileEntityProvider, ConveyableBlock, FacingBlockWrenchable {
 	public SplitterBlock(Properties settings) {
 		super(settings);
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(BlockGetter blockView) {
+	public TileEntity newBlockEntity(IBlockReader blockView) {
 		return new SplitterBlockEntity();
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> stateManagerBuilder) {
+	protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> stateManagerBuilder) {
 		stateManagerBuilder.add(FACING);
 	}
 
 	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext itemPlacementContext) {
+	public BlockState getStateForPlacement(BlockItemUseContext itemPlacementContext) {
 		return this.defaultBlockState().setValue(FACING, itemPlacementContext.getPlayer().isShiftKeyDown() ? itemPlacementContext.getHorizontalDirection().getOpposite() : itemPlacementContext.getHorizontalDirection());
 	}
 
 	@Override
-	public void onPlace(BlockState blockState, Level world, BlockPos blockPos, BlockState blockState2, boolean boolean_1) {
+	public void onPlace(BlockState blockState, World world, BlockPos blockPos, BlockState blockState2, boolean boolean_1) {
 		updateDiagonals(world, this, blockPos);
 	}
 
 	@Override
-	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean notify) {
+	public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean notify) {
 		if (state.getBlock() != newState.getBlock()) {
-			BlockEntity blockEntity = world.getBlockEntity(pos);
+			TileEntity blockEntity = world.getBlockEntity(pos);
 			if (blockEntity instanceof AbstractConveyableBlockEntity) {
-				Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), ((AbstractConveyableBlockEntity) blockEntity).getLeftStack());
-				Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), ((AbstractConveyableBlockEntity) blockEntity).getRightStack());
+				InventoryHelper.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), ((AbstractConveyableBlockEntity) blockEntity).getLeftStack());
+				InventoryHelper.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), ((AbstractConveyableBlockEntity) blockEntity).getRightStack());
 				((AbstractConveyableBlockEntity) blockEntity).setRemoved(true);
 			}
 
@@ -84,19 +84,19 @@ public class SplitterBlock extends HorizontalDirectionalBlock implements EntityB
 	}
 
 	@Override
-	public void neighborChanged(BlockState blockState, Level world, BlockPos blockPos, Block block, BlockPos blockPos2, boolean boolean_1) {
+	public void neighborChanged(BlockState blockState, World world, BlockPos blockPos, Block block, BlockPos blockPos2, boolean boolean_1) {
 		Direction direction = blockState.getValue(FACING);
 		AbstractConveyableBlockEntity machineBlockEntity = (AbstractConveyableBlockEntity) world.getBlockEntity(blockPos);
 
 		BlockPos leftPos = blockPos.relative(direction.getCounterClockWise());
 		BlockPos rightPos = blockPos.relative(direction.getClockWise());
 
-		BlockEntity leftBlockEntity = world.getBlockEntity(leftPos);
+		TileEntity leftBlockEntity = world.getBlockEntity(leftPos);
 		if (leftBlockEntity instanceof Conveyable && ((Conveyable) leftBlockEntity).validInputSide(direction.getClockWise()))
 			machineBlockEntity.setLeft(true);
 		else machineBlockEntity.setLeft(false);
 
-		BlockEntity rightBlockEntity = world.getBlockEntity(rightPos);
+		TileEntity rightBlockEntity = world.getBlockEntity(rightPos);
 		if (rightBlockEntity instanceof Conveyable && ((Conveyable) rightBlockEntity).validInputSide(direction.getCounterClockWise()))
 			machineBlockEntity.setRight(true);
 		else machineBlockEntity.setRight(false);

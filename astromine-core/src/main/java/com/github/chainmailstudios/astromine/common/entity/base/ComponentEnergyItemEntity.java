@@ -28,11 +28,11 @@ import com.github.chainmailstudios.astromine.common.component.inventory.EnergyIn
 import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.EntityType;
+import net.minecraft.world.World;
 
 public abstract class ComponentEnergyItemEntity extends ComponentEntity {
-	public ComponentEnergyItemEntity(EntityType<?> type, Level world) {
+	public ComponentEnergyItemEntity(EntityType<?> type, World world) {
 		super(type, world);
 	}
 

@@ -24,17 +24,17 @@
 
 package com.github.chainmailstudios.astromine.client.render.layer;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.client.renderer.RenderState;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.util.ResourceLocation;
 
 public class Layer extends RenderType {
-	private static final RenderType HOLOGRAPHIC_BRIDGE = RenderType.create("holographic_bridge", DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, 7, 256, false, true, RenderType.CompositeState.builder().setCullState(RenderStateShard.NO_CULL).setLightmapState(LIGHTMAP).setShadeModelState(
+	private static final RenderType HOLOGRAPHIC_BRIDGE = RenderType.create("holographic_bridge", DefaultVertexFormats.POSITION_COLOR_LIGHTMAP, 7, 256, false, true, RenderType.State.builder().setCullState(RenderState.NO_CULL).setLightmapState(LIGHTMAP).setShadeModelState(
 		RenderType.SMOOTH_SHADE).setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY).setAlphaState(RenderType.DEFAULT_ALPHA).setLayeringState(RenderType.VIEW_OFFSET_Z_LAYERING).createCompositeState(false));
 
-	private static final RenderType FLAT_NO_CUTOUT = create("flat_no_cutout", DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, 7, 256, RenderType.CompositeState.builder().setTextureState(NO_TEXTURE).setCullState(NO_CULL).setLightmapState(LIGHTMAP).setShadeModelState(SMOOTH_SHADE).setDepthTestState(
+	private static final RenderType FLAT_NO_CUTOUT = create("flat_no_cutout", DefaultVertexFormats.POSITION_COLOR_LIGHTMAP, 7, 256, RenderType.State.builder().setTextureState(NO_TEXTURE).setCullState(NO_CULL).setLightmapState(LIGHTMAP).setShadeModelState(SMOOTH_SHADE).setDepthTestState(
 		NO_DEPTH_TEST).setTransparencyState(TRANSLUCENT_TRANSPARENCY).setAlphaState(DEFAULT_ALPHA).setLayeringState(VIEW_OFFSET_Z_LAYERING).createCompositeState(false));
 
 	public Layer(String name, VertexFormat vertexFormat, int drawMode, int expectedBufferSize, boolean hasCrumbling, boolean translucent, Runnable startAction, Runnable endAction) {
@@ -42,9 +42,9 @@ public class Layer extends RenderType {
 	}
 
 	public static RenderType get(ResourceLocation texture) {
-		RenderType.CompositeState multiPhaseParameters = RenderType.CompositeState.builder().setTextureState(new RenderStateShard.TextureStateShard(texture, false, false)).setTransparencyState(TRANSLUCENT_TRANSPARENCY).setDiffuseLightingState(NO_DIFFUSE_LIGHTING).setAlphaState(DEFAULT_ALPHA).setLightmapState(
+		RenderType.State multiPhaseParameters = RenderType.State.builder().setTextureState(new RenderState.TextureState(texture, false, false)).setTransparencyState(TRANSLUCENT_TRANSPARENCY).setDiffuseLightingState(NO_DIFFUSE_LIGHTING).setAlphaState(DEFAULT_ALPHA).setLightmapState(
 			NO_LIGHTMAP).setOverlayState(NO_OVERLAY).createCompositeState(true);
-		return create("entity_cutout", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, 7, 256, true, true, multiPhaseParameters);
+		return create("entity_cutout", DefaultVertexFormats.POSITION_COLOR_TEX_LIGHTMAP, 7, 256, true, true, multiPhaseParameters);
 	}
 
 	public static RenderType getHolographicBridge() {

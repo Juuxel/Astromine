@@ -27,10 +27,10 @@ package com.github.chainmailstudios.astromine.registry;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 
 import java.util.function.Supplier;
-import net.minecraft.core.Registry;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.block.Block;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.registry.Registry;
 
 public class AstromineBlockEntityTypes {
 	public static void initialize() {
@@ -47,7 +47,7 @@ public class AstromineBlockEntityTypes {
 	 *
 	 * @return Registered BlockEntityType
 	 */
-	public static <B extends BlockEntity> BlockEntityType<B> register(String name, Supplier<B> supplier, Block... supportedBlocks) {
-		return Registry.register(Registry.BLOCK_ENTITY_TYPE, AstromineCommon.identifier(name), BlockEntityType.Builder.of(supplier, supportedBlocks).build(null));
+	public static <B extends TileEntity> TileEntityType<B> register(String name, Supplier<B> supplier, Block... supportedBlocks) {
+		return Registry.register(Registry.BLOCK_ENTITY_TYPE, AstromineCommon.identifier(name), TileEntityType.Builder.of(supplier, supportedBlocks).build(null));
 	}
 }

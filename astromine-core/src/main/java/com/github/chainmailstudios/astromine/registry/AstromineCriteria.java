@@ -27,7 +27,7 @@ package com.github.chainmailstudios.astromine.registry;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.advancement.TrickedPiglinCriterion;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.advancements.CriterionTrigger;
+import net.minecraft.advancements.ICriterionTrigger;
 
 public class AstromineCriteria {
 	public static final TrickedPiglinCriterion TRICKED_PIGLIN = register(new TrickedPiglinCriterion(AstromineCommon.identifier("tricked_piglin")));
@@ -36,7 +36,7 @@ public class AstromineCriteria {
 
 	}
 
-	public static <T extends CriterionTrigger<?>> T register(CriterionTrigger<?> criterion) {
+	public static <T extends ICriterionTrigger<?>> T register(ICriterionTrigger<?> criterion) {
 		return (T) CriteriaTriggers.register(criterion);
 	}
 }

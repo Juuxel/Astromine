@@ -24,8 +24,8 @@
 
 package com.github.chainmailstudios.astromine.common.block.base;
 
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.state.DirectionProperty;
+import net.minecraft.state.properties.BlockStateProperties;
 
 public abstract class FacingBlockWithEntity extends HorizontalFacingBlockWithEntity {
 	public FacingBlockWithEntity(Properties settings) {

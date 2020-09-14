@@ -28,8 +28,8 @@ import com.github.chainmailstudios.astromine.technologies.client.rei.AstromineTe
 import com.github.chainmailstudios.astromine.technologies.common.recipe.LiquidGeneratingRecipe;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.material.Fluid;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.util.ResourceLocation;
 import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
 import me.shedaniel.rei.api.EntryStack;
 

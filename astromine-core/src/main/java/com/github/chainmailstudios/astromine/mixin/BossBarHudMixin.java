@@ -27,12 +27,12 @@ package com.github.chainmailstudios.astromine.mixin;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.BossHealthOverlay;
-import net.minecraft.client.gui.components.LerpingBossEvent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.BossEvent;
+import net.minecraft.client.gui.AbstractGui;
+import net.minecraft.client.gui.ClientBossInfo;
+import net.minecraft.client.gui.overlay.BossOverlayGui;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.BossInfo;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,11 +40,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.chainmailstudios.astromine.AstromineCommon;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 @Environment(EnvType.CLIENT)
-@Mixin(BossHealthOverlay.class)
-public abstract class BossBarHudMixin extends GuiComponent {
+@Mixin(BossOverlayGui.class)
+public abstract class BossBarHudMixin extends AbstractGui {
 
 	private static final ResourceLocation CUSTOM_BAR_TEX = AstromineCommon.identifier("textures/gui/bars.png");
 	@Shadow
@@ -55,8 +55,8 @@ public abstract class BossBarHudMixin extends GuiComponent {
 	private Minecraft client;
 
 	@Inject(method = "renderBossBar", at = @At("HEAD"), cancellable = true)
-	private void renderCustomBossBar(PoseStack matrices, int i, int j, BossEvent bossBar, CallbackInfo ci) {
-		if (bossBar instanceof LerpingBossEvent && bossBar.getName() instanceof TranslatableComponent && ((TranslatableComponent) bossBar.getName()).getKey().contains("super_space_slim")) {
+	private void renderCustomBossBar(MatrixStack matrices, int i, int j, BossInfo bossBar, CallbackInfo ci) {
+		if (bossBar instanceof ClientBossInfo && bossBar.getName() instanceof TranslationTextComponent && ((TranslationTextComponent) bossBar.getName()).getKey().contains("super_space_slim")) {
 			this.client.getTextureManager().bind(CUSTOM_BAR_TEX);
 
 			// draw empty background bar

@@ -26,18 +26,18 @@ package com.github.chainmailstudios.astromine.registry;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.IArmorMaterial;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.util.SoundEvent;
 import java.util.function.Supplier;
 
 public class AstromineArmorMaterials {
-	public static ArmorMaterial register(String name, int durabilityMultiplier, int[] protectionAmounts, int enchantability, SoundEvent equipSound, float toughness, float knockbackResistance, Supplier<Ingredient> supplier) {
+	public static IArmorMaterial register(String name, int durabilityMultiplier, int[] protectionAmounts, int enchantability, SoundEvent equipSound, float toughness, float knockbackResistance, Supplier<Ingredient> supplier) {
 		return new AstromineArmorMaterial(name, durabilityMultiplier, protectionAmounts, enchantability, equipSound, toughness, knockbackResistance, supplier);
 	}
 
-	public static class AstromineArmorMaterial implements ArmorMaterial {
+	public static class AstromineArmorMaterial implements IArmorMaterial {
 		private static final int[] BASE_DURABILITY = new int[]{ 13, 15, 16, 11 };
 		private final String name;
 		private final int durabilityMultiplier;
@@ -60,12 +60,12 @@ public class AstromineArmorMaterials {
 		}
 
 		@Override
-		public int getDurabilityForSlot(EquipmentSlot slot) {
+		public int getDurabilityForSlot(EquipmentSlotType slot) {
 			return BASE_DURABILITY[slot.getIndex()] * this.durabilityMultiplier;
 		}
 
 		@Override
-		public int getDefenseForSlot(EquipmentSlot slot) {
+		public int getDefenseForSlot(EquipmentSlotType slot) {
 			return this.protectionAmounts[slot.getIndex()];
 		}
 

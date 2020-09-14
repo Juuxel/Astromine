@@ -28,9 +28,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import com.github.chainmailstudios.astromine.common.entity.GravityEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.block.HoneyBlock;
+import net.minecraft.block.HoneyBlock;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.BlockPos;
 
 @Mixin(HoneyBlock.class)
 public class HoneyBlockMixin {

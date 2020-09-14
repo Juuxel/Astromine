@@ -39,14 +39,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-import net.minecraft.core.NonNullList;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 
 public class AltarRecipe implements AstromineRecipe<AltarBlockEntity> {
 	private final List<Ingredient> ingredients;
@@ -60,7 +60,7 @@ public class AltarRecipe implements AstromineRecipe<AltarBlockEntity> {
 	}
 
 	@Override
-	public boolean matches(AltarBlockEntity inventory, Level world) {
+	public boolean matches(AltarBlockEntity inventory, World world) {
 		List<Ingredient> ingredients = Lists.newArrayList(this.ingredients);
 		a:
 		for (ItemStack stack : inventory.children.stream().map(blockEntity -> blockEntity.get().getStack(0)).collect(Collectors.toList())) {
@@ -105,12 +105,12 @@ public class AltarRecipe implements AstromineRecipe<AltarBlockEntity> {
 	}
 
 	@Override
-	public RecipeSerializer<?> getSerializer() {
+	public IRecipeSerializer<?> getSerializer() {
 		return Serializer.INSTANCE;
 	}
 
 	@Override
-	public RecipeType<?> getType() {
+	public IRecipeType<?> getType() {
 		return Type.INSTANCE;
 	}
 
@@ -119,7 +119,7 @@ public class AltarRecipe implements AstromineRecipe<AltarBlockEntity> {
 		return NonNullList.of(Ingredient.EMPTY, ingredients.toArray(new Ingredient[0]));
 	}
 
-	public static final class Serializer implements RecipeSerializer<AltarRecipe> {
+	public static final class Serializer implements IRecipeSerializer<AltarRecipe> {
 		public static final ResourceLocation ID = AstromineCommon.identifier("altar");
 
 		public static final Serializer INSTANCE = new Serializer();
@@ -136,7 +136,7 @@ public class AltarRecipe implements AstromineRecipe<AltarBlockEntity> {
 		}
 
 		@Override
-		public AltarRecipe read(ResourceLocation identifier, FriendlyByteBuf buffer) {
+		public AltarRecipe read(ResourceLocation identifier, PacketBuffer buffer) {
 			int size = buffer.readInt();
 			List<Ingredient> inputs = new ArrayList<>(size);
 			for (int i = 0; i < size; i++) {
@@ -146,7 +146,7 @@ public class AltarRecipe implements AstromineRecipe<AltarBlockEntity> {
 		}
 
 		@Override
-		public void write(FriendlyByteBuf buffer, AltarRecipe recipe) {
+		public void write(PacketBuffer buffer, AltarRecipe recipe) {
 			buffer.writeInt(recipe.ingredients.size());
 			for (Ingredient ingredient : recipe.ingredients) {
 				IngredientUtilities.toPacket(buffer, ingredient);

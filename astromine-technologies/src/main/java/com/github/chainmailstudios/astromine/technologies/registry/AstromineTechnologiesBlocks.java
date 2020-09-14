@@ -26,10 +26,10 @@ package com.github.chainmailstudios.astromine.technologies.registry;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
-import net.minecraft.world.item.DoubleHighBlockItem;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
+import net.minecraft.item.TallBlockItem;
 import com.github.chainmailstudios.astromine.common.utilities.tier.BufferTier;
 import com.github.chainmailstudios.astromine.registry.AstromineBlocks;
 import com.github.chainmailstudios.astromine.technologies.common.block.*;
@@ -108,6 +108,6 @@ public class AstromineTechnologiesBlocks extends AstromineBlocks {
 	public static final Block AIRLOCK = new AirlockBlock(getBasicSettings());
 
 	public static void initialize() {
-		register("airlock", AIRLOCK, new DoubleHighBlockItem(AIRLOCK, AstromineTechnologiesItems.getBasicSettings()));
+		register("airlock", AIRLOCK, new TallBlockItem(AIRLOCK, AstromineTechnologiesItems.getBasicSettings()));
 	}
 }

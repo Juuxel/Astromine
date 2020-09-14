@@ -25,9 +25,9 @@
 package com.github.chainmailstudios.astromine.common.packet;
 
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 
 public interface PacketConsumer {
-	void consumePacket(ResourceLocation identifier, FriendlyByteBuf buffer, PacketContext context);
+	void consumePacket(ResourceLocation identifier, PacketBuffer buffer, PacketContext context);
 }

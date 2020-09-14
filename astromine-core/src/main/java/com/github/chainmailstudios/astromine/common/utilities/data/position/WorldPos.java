@@ -28,26 +28,26 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public final class WorldPos {
 	@NotNull
-	private final Level world;
+	private final World world;
 	@NotNull
 	private final BlockPos pos;
 	private BlockState blockState;
 
-	private WorldPos(Level world, BlockPos pos) {
+	private WorldPos(World world, BlockPos pos) {
 		this.world = Objects.requireNonNull(world);
 		this.pos = Objects.requireNonNull(pos);
 	}
 
-	public static WorldPos of(Level world, BlockPos pos) {
+	public static WorldPos of(World world, BlockPos pos) {
 		return new WorldPos(world, pos);
 	}
 
@@ -74,7 +74,7 @@ public final class WorldPos {
 	}
 
 	@NotNull
-	public Level getWorld() {
+	public World getWorld() {
 		return world;
 	}
 
@@ -96,7 +96,7 @@ public final class WorldPos {
 	}
 
 	@Nullable
-	public BlockEntity getBlockEntity() {
+	public TileEntity getBlockEntity() {
 		return world.getBlockEntity(pos);
 	}
 }

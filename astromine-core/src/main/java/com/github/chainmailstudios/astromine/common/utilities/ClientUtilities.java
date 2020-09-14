@@ -32,23 +32,23 @@ import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.resources.IResourceManager;
+import net.minecraft.resources.ResourcePackType;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockDisplayReader;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 
 import java.util.function.Function;
 
 public class ClientUtilities {
-	public static void playSound(BlockPos position, SoundEvent sound, SoundSource category, float volume, float pitch, boolean useDistance) {
+	public static void playSound(BlockPos position, SoundEvent sound, SoundCategory category, float volume, float pitch, boolean useDistance) {
 		Minecraft.getInstance().level.playSound(Minecraft.getInstance().player, Minecraft.getInstance().player, sound, category, volume, pitch);
 	}
 
@@ -60,20 +60,20 @@ public class ClientUtilities {
 
 		final TextureAtlasSprite[] fluidSprites = { null, null };
 
-		ClientSpriteRegistryCallback.event(TextureAtlas.LOCATION_BLOCKS).register((atlasTexture, registry) -> {
+		ClientSpriteRegistryCallback.event(AtlasTexture.LOCATION_BLOCKS).register((atlasTexture, registry) -> {
 			registry.register(stillSpriteIdentifier);
 			registry.register(flowingSpriteIdentifier);
 		});
 
-		ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
+		ResourceManagerHelper.get(ResourcePackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
 			@Override
 			public ResourceLocation getFabricId() {
 				return listenerIdentifier;
 			}
 
 			@Override
-			public void onResourceManagerReload(ResourceManager resourceManager) {
-				final Function<ResourceLocation, TextureAtlasSprite> atlas = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS);
+			public void onResourceManagerReload(IResourceManager resourceManager) {
+				final Function<ResourceLocation, TextureAtlasSprite> atlas = Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS);
 				fluidSprites[0] = atlas.apply(stillSpriteIdentifier);
 				fluidSprites[1] = atlas.apply(flowingSpriteIdentifier);
 			}
@@ -81,12 +81,12 @@ public class ClientUtilities {
 
 		final FluidRenderHandler handler = new FluidRenderHandler() {
 			@Override
-			public TextureAtlasSprite[] getFluidSprites(BlockAndTintGetter view, BlockPos pos, FluidState state) {
+			public TextureAtlasSprite[] getFluidSprites(IBlockDisplayReader view, BlockPos pos, FluidState state) {
 				return fluidSprites;
 			}
 
 			@Override
-			public int getFluidColor(BlockAndTintGetter view, BlockPos pos, FluidState state) {
+			public int getFluidColor(IBlockDisplayReader view, BlockPos pos, FluidState state) {
 				return tint;
 			}
 		};

@@ -32,8 +32,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
+import net.minecraft.block.Block;
 import net.minecraft.util.Tuple;
-import net.minecraft.world.level.block.Block;
 
 public class AsteroidOreRegistry {
 	public static final AsteroidOreRegistry INSTANCE = new AsteroidOreRegistry();

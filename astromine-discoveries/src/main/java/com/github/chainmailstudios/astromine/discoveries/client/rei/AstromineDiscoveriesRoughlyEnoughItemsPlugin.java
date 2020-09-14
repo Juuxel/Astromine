@@ -32,7 +32,7 @@ import com.github.chainmailstudios.astromine.discoveries.common.recipe.AltarReci
 import com.github.chainmailstudios.astromine.discoveries.registry.AstromineDiscoveriesBlocks;
 import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.api.RecipeHelper;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 public class AstromineDiscoveriesRoughlyEnoughItemsPlugin extends AstromineRoughlyEnoughItemsPlugin {
 	public static final ResourceLocation INFUSING = AstromineCommon.identifier("infusing");

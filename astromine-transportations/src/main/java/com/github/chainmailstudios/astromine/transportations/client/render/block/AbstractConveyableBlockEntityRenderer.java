@@ -26,23 +26,23 @@ package com.github.chainmailstudios.astromine.transportations.client.render.bloc
 
 import com.github.chainmailstudios.astromine.transportations.common.block.entity.base.AbstractConveyableBlockEntity;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.ConveyorTypes;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.core.Direction;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.block.HorizontalBlock;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Direction;
 
-public class AbstractConveyableBlockEntityRenderer extends BlockEntityRenderer<AbstractConveyableBlockEntity> implements ConveyorRenderer<AbstractConveyableBlockEntity> {
-	public AbstractConveyableBlockEntityRenderer(BlockEntityRenderDispatcher blockEntityRenderDispatcher) {
+public class AbstractConveyableBlockEntityRenderer extends TileEntityRenderer<AbstractConveyableBlockEntity> implements ConveyorRenderer<AbstractConveyableBlockEntity> {
+	public AbstractConveyableBlockEntityRenderer(TileEntityRendererDispatcher blockEntityRenderDispatcher) {
 		super(blockEntityRenderDispatcher);
 	}
 
 	@Override
-	public void render(AbstractConveyableBlockEntity blockEntity, float partialTicks, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, int i1) {
+	public void render(AbstractConveyableBlockEntity blockEntity, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer vertexConsumerProvider, int i, int i1) {
 		int speed = 16;
-		Direction direction = blockEntity.getBlockState().getValue(HorizontalDirectionalBlock.FACING);
+		Direction direction = blockEntity.getBlockState().getValue(HorizontalBlock.FACING);
 
 		if (!blockEntity.getLevel().getBlockState(blockEntity.getBlockPos()).isAir()) {
 			if (!blockEntity.getLeftStack().isEmpty()) {

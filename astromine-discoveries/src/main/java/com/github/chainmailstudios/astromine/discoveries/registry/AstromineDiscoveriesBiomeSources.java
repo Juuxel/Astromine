@@ -30,14 +30,14 @@ import com.github.chainmailstudios.astromine.discoveries.common.world.generation
 import com.github.chainmailstudios.astromine.discoveries.common.world.generation.space.EarthSpaceBiomeSource;
 import com.github.chainmailstudios.astromine.discoveries.common.world.generation.vulcan.VulcanBiomeSource;
 import com.github.chainmailstudios.astromine.registry.AstromineBiomeSources;
-import net.minecraft.core.Registry;
+import net.minecraft.util.registry.Registry;
 
 public class AstromineDiscoveriesBiomeSources extends AstromineBiomeSources {
 	public static void initialize() {
-		Registry.register(Registry.BIOME_SOURCE, AstromineDiscoveriesDimensions.EARTH_SPACE_ID, EarthSpaceBiomeSource.CODEC);
-		Registry.register(Registry.BIOME_SOURCE, AstromineDiscoveriesDimensions.MOON_ID, MoonBiomeSource.CODEC);
-		Registry.register(Registry.BIOME_SOURCE, AstromineDiscoveriesDimensions.MARS_ID, MarsBiomeSource.CODEC);
-		Registry.register(Registry.BIOME_SOURCE, AstromineDiscoveriesDimensions.VULCAN_ID, VulcanBiomeSource.CODEC);
-		Registry.register(Registry.BIOME_SOURCE, AstromineDiscoveriesDimensions.GLACIOS_ID, GlaciosBiomeSource.CODEC);
+		Registry.register(Registry.BIOME_SOURCE, AstromineDiscoveriesDimensions.EARTH_SPACE_ID, EarthSpaceBiomeSource.withSeed(long));
+		Registry.register(Registry.BIOME_SOURCE, AstromineDiscoveriesDimensions.MOON_ID, MoonBiomeSource.withSeed(long));
+		Registry.register(Registry.BIOME_SOURCE, AstromineDiscoveriesDimensions.MARS_ID, MarsBiomeSource.withSeed(long));
+		Registry.register(Registry.BIOME_SOURCE, AstromineDiscoveriesDimensions.VULCAN_ID, VulcanBiomeSource.withSeed(long));
+		Registry.register(Registry.BIOME_SOURCE, AstromineDiscoveriesDimensions.GLACIOS_ID, GlaciosBiomeSource.withSeed(long));
 	}
 }

@@ -26,16 +26,16 @@ package com.github.chainmailstudios.astromine.common.utilities;
 
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.material.Fluid;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
 
 public class FluidUtilities {
-	public static int color(Player player, Fluid fluid) {
+	public static int color(PlayerEntity player, Fluid fluid) {
 		return FluidRenderHandlerRegistry.INSTANCE.get(fluid).getFluidColor(player.getCommandSenderWorld(), BlockPos.ZERO, fluid.defaultFluidState());
 	}
 
@@ -52,15 +52,15 @@ public class FluidUtilities {
 		return String.format("%.1f%s", value / Math.pow(1000, exponent), units[exponent - 1]);
 	}
 
-	public static MutableComponent rawFraction(Fraction current, Fraction maxValue, Component unit) {
-		return new TranslatableComponent("text.astromine.tooltip.fractional_bar", rawFraction(current), rawFraction(maxValue), unit);
+	public static IFormattableTextComponent rawFraction(Fraction current, Fraction maxValue, ITextComponent unit) {
+		return new TranslationTextComponent("text.astromine.tooltip.fractional_bar", rawFraction(current), rawFraction(maxValue), unit);
 	}
 
-	public static MutableComponent rawFraction(double current, double maxValue, Component unit) {
-		return new TranslatableComponent("text.astromine.tooltip.fractional_bar", EnergyUtilities.toDecimalString(current), EnergyUtilities.toDecimalString(maxValue), unit);
+	public static IFormattableTextComponent rawFraction(double current, double maxValue, ITextComponent unit) {
+		return new TranslationTextComponent("text.astromine.tooltip.fractional_bar", EnergyUtilities.toDecimalString(current), EnergyUtilities.toDecimalString(maxValue), unit);
 	}
 
-	public static MutableComponent rawFraction(Fraction fraction) {
-		return fraction.getDenominator() != 1 ? new TranslatableComponent("text.astromine.tooltip.fractional_value", fraction.getNumerator(), fraction.getDenominator()) : new TranslatableComponent("text.astromine.tooltip.fractional_value_simple", fraction.getNumerator());
+	public static IFormattableTextComponent rawFraction(Fraction fraction) {
+		return fraction.getDenominator() != 1 ? new TranslationTextComponent("text.astromine.tooltip.fractional_value", fraction.getNumerator(), fraction.getDenominator()) : new TranslationTextComponent("text.astromine.tooltip.fractional_value_simple", fraction.getNumerator());
 	}
 }

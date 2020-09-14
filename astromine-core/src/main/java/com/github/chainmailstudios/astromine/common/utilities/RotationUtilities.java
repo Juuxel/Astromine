@@ -24,21 +24,21 @@
 
 package com.github.chainmailstudios.astromine.common.utilities;
 
-import net.minecraft.core.Direction;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 
 public class RotationUtilities {
-	public static AABB getRotatedBoundingBox(AABB def, Direction facing) {
+	public static AxisAlignedBB getRotatedBoundingBox(AxisAlignedBB def, Direction facing) {
 		def.move(-0.5, -0.5, -0.5);
 		switch (facing) {
 			case SOUTH:
-				def = new AABB(def.minZ, def.minY, (def.maxX * -1) + 1, def.maxZ, def.maxY, (def.minX * -1) + 1);
+				def = new AxisAlignedBB(def.minZ, def.minY, (def.maxX * -1) + 1, def.maxZ, def.maxY, (def.minX * -1) + 1);
 			case WEST:
-				def = new AABB((def.maxX * -1) + 1, def.minY, (def.maxZ * -1) + 1, (def.minX * -1) + 1, def.maxY, (def.minZ * -1) + 1);
+				def = new AxisAlignedBB((def.maxX * -1) + 1, def.minY, (def.maxZ * -1) + 1, (def.minX * -1) + 1, def.maxY, (def.minZ * -1) + 1);
 			case EAST:
-				def = new AABB((def.maxZ * -1) + 1, def.minY, def.minX, (def.minZ * -1) + 1, def.maxY, def.maxX);
+				def = new AxisAlignedBB((def.maxZ * -1) + 1, def.minY, def.minX, (def.minZ * -1) + 1, def.maxY, def.maxX);
 			default:
 
 		}
@@ -46,7 +46,7 @@ public class RotationUtilities {
 		return def;
 	}
 
-	public static VoxelShape getRotatedShape(AABB def, Direction facing) {
-		return Shapes.create(getRotatedBoundingBox(def, facing));
+	public static VoxelShape getRotatedShape(AxisAlignedBB def, Direction facing) {
+		return VoxelShapes.create(getRotatedBoundingBox(def, facing));
 	}
 }

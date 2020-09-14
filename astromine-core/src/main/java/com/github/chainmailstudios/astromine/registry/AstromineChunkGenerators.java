@@ -25,9 +25,9 @@
 package com.github.chainmailstudios.astromine.registry;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.gen.ChunkGenerator;
 
 public class AstromineChunkGenerators {
 	public static void initialize() {

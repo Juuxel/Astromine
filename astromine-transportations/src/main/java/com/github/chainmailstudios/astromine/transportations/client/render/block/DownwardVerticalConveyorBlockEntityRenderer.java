@@ -28,21 +28,21 @@ import com.github.chainmailstudios.astromine.transportations.common.block.entity
 import com.github.chainmailstudios.astromine.transportations.common.block.property.ConveyorProperties;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.Conveyor;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.ConveyorTypes;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.core.Direction;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.item.ItemStack;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.util.Direction;
 
-public class DownwardVerticalConveyorBlockEntityRenderer extends BlockEntityRenderer<DownVerticalConveyorBlockEntity> implements ConveyorRenderer<DownVerticalConveyorBlockEntity> {
-	public DownwardVerticalConveyorBlockEntityRenderer(BlockEntityRenderDispatcher blockEntityRenderDispatcher) {
+public class DownwardVerticalConveyorBlockEntityRenderer extends TileEntityRenderer<DownVerticalConveyorBlockEntity> implements ConveyorRenderer<DownVerticalConveyorBlockEntity> {
+	public DownwardVerticalConveyorBlockEntityRenderer(TileEntityRendererDispatcher blockEntityRenderDispatcher) {
 		super(blockEntityRenderDispatcher);
 	}
 
 	@Override
-	public void render(DownVerticalConveyorBlockEntity blockEntity, float partialTicks, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, int i1) {
+	public void render(DownVerticalConveyorBlockEntity blockEntity, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer vertexConsumerProvider, int i, int i1) {
 		int speed = ((Conveyor) blockEntity.getBlockState().getBlock()).getSpeed();
 		ConveyorTypes type = ((Conveyor) blockEntity.getBlockState().getBlock()).getType();
 		boolean conveyor = blockEntity.getBlockState().getValue(ConveyorProperties.CONVEYOR);

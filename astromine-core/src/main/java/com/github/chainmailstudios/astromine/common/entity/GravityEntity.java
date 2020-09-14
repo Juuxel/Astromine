@@ -25,7 +25,7 @@
 package com.github.chainmailstudios.astromine.common.entity;
 
 import com.github.chainmailstudios.astromine.common.registry.GravityRegistry;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.World;
 
 public interface GravityEntity {
 	default double getGravityMultiplier() {
@@ -34,7 +34,7 @@ public interface GravityEntity {
 
 	double getGravity();
 
-	default double getGravity(Level world) {
+	default double getGravity(World world) {
 		return GravityRegistry.INSTANCE.get(world.dimension()) * getGravityMultiplier();
 	}
 }

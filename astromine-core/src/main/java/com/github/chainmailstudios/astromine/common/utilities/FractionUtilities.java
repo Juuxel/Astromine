@@ -29,7 +29,7 @@ import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.PacketBuffer;
 
 public class FractionUtilities {
 	public static Fraction fromJson(JsonElement element) {
@@ -40,7 +40,7 @@ public class FractionUtilities {
 		throw new IllegalArgumentException("Invalid fraction: " + element.toString());
 	}
 
-	public static Fraction fromPacket(FriendlyByteBuf buf) {
+	public static Fraction fromPacket(PacketBuffer buf) {
 		long numerator = buf.readLong();
 		long denominator = buf.readLong();
 		return new Fraction(numerator, denominator);
@@ -60,7 +60,7 @@ public class FractionUtilities {
 		return Fraction.simplify(Fraction.of(num, denom));
 	}
 
-	public static void toPacket(FriendlyByteBuf buf, Fraction fraction) {
+	public static void toPacket(PacketBuffer buf, Fraction fraction) {
 		buf.writeLong(fraction.getNumerator());
 		buf.writeLong(fraction.getDenominator());
 	}

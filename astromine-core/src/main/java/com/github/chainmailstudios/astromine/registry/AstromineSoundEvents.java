@@ -25,8 +25,8 @@
 package com.github.chainmailstudios.astromine.registry;
 
 import com.github.chainmailstudios.astromine.AstromineCommon;
-import net.minecraft.core.Registry;
-import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.registry.Registry;
 
 public class AstromineSoundEvents {
 	public static SoundEvent register(String id) {

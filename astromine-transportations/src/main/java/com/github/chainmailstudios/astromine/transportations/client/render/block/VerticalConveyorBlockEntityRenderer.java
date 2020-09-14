@@ -27,19 +27,19 @@ package com.github.chainmailstudios.astromine.transportations.client.render.bloc
 import com.github.chainmailstudios.astromine.transportations.common.block.entity.VerticalConveyorBlockEntity;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.Conveyor;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.ConveyorTypes;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.world.item.ItemStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.item.ItemStack;
 
-public class VerticalConveyorBlockEntityRenderer extends BlockEntityRenderer<VerticalConveyorBlockEntity> implements ConveyorRenderer<VerticalConveyorBlockEntity> {
-	public VerticalConveyorBlockEntityRenderer(BlockEntityRenderDispatcher blockEntityRenderDispatcher) {
+public class VerticalConveyorBlockEntityRenderer extends TileEntityRenderer<VerticalConveyorBlockEntity> implements ConveyorRenderer<VerticalConveyorBlockEntity> {
+	public VerticalConveyorBlockEntityRenderer(TileEntityRendererDispatcher blockEntityRenderDispatcher) {
 		super(blockEntityRenderDispatcher);
 	}
 
 	@Override
-	public void render(VerticalConveyorBlockEntity blockEntity, float partialTicks, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, int i1) {
+	public void render(VerticalConveyorBlockEntity blockEntity, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer vertexConsumerProvider, int i, int i1) {
 		int speed = ((Conveyor) blockEntity.getBlockState().getBlock()).getSpeed();
 		ConveyorTypes type = ((Conveyor) blockEntity.getBlockState().getBlock()).getType();
 

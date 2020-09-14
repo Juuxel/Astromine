@@ -25,18 +25,8 @@
 package com.github.chainmailstudios.astromine.foundations.registry;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.AxeItem;
-import net.minecraft.world.item.DiggerItem;
-import net.minecraft.world.item.HoeItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.PickaxeItem;
-import net.minecraft.world.item.ShovelItem;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tiers;
 import com.github.chainmailstudios.astromine.common.item.DynamicToolItem;
 import com.github.chainmailstudios.astromine.common.item.WrenchItem;
 import com.github.chainmailstudios.astromine.common.utilities.ToolUtilities;
@@ -221,23 +211,23 @@ public class AstromineFoundationsItems extends AstromineItems {
 	public static final Item NETHERITE_GEAR = register("netherite_gear", new Item(AstromineFoundationsItems.getBasicSettings().fireResistant()));
 
 	// Tools
-	public static final Item WOODEN_MINING_TOOL = register("wooden_mining_tool", new DynamicToolItem((DiggerItem) Items.WOODEN_SHOVEL, (DiggerItem) Items.WOODEN_PICKAXE, Tiers.WOOD, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item WOODEN_MATTOCK = register("wooden_mattock", new DynamicToolItem((DiggerItem) Items.WOODEN_HOE, (DiggerItem) Items.WOODEN_AXE, Tiers.WOOD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item WOODEN_MINING_TOOL = register("wooden_mining_tool", new DynamicToolItem((ToolItem) Items.WOODEN_SHOVEL, (ToolItem) Items.WOODEN_PICKAXE, ItemTier.WOOD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item WOODEN_MATTOCK = register("wooden_mattock", new DynamicToolItem((ToolItem) Items.WOODEN_HOE, (ToolItem) Items.WOODEN_AXE, ItemTier.WOOD, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item STONE_MINING_TOOL = register("stone_mining_tool", new DynamicToolItem((DiggerItem) Items.STONE_SHOVEL, (DiggerItem) Items.STONE_PICKAXE, Tiers.STONE, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item STONE_MATTOCK = register("stone_mattock", new DynamicToolItem((DiggerItem) Items.STONE_HOE, (DiggerItem) Items.STONE_AXE, Tiers.STONE, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item STONE_MINING_TOOL = register("stone_mining_tool", new DynamicToolItem((ToolItem) Items.STONE_SHOVEL, (ToolItem) Items.STONE_PICKAXE, ItemTier.STONE, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item STONE_MATTOCK = register("stone_mattock", new DynamicToolItem((ToolItem) Items.STONE_HOE, (ToolItem) Items.STONE_AXE, ItemTier.STONE, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item IRON_MINING_TOOL = register("iron_mining_tool", new DynamicToolItem((DiggerItem) Items.IRON_SHOVEL, (DiggerItem) Items.IRON_PICKAXE, Tiers.IRON, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item IRON_MATTOCK = register("iron_mattock", new DynamicToolItem((DiggerItem) Items.IRON_HOE, (DiggerItem) Items.IRON_AXE, Tiers.IRON, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item IRON_MINING_TOOL = register("iron_mining_tool", new DynamicToolItem((ToolItem) Items.IRON_SHOVEL, (ToolItem) Items.IRON_PICKAXE, ItemTier.IRON, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item IRON_MATTOCK = register("iron_mattock", new DynamicToolItem((ToolItem) Items.IRON_HOE, (ToolItem) Items.IRON_AXE, ItemTier.IRON, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item GOLDEN_MINING_TOOL = register("golden_mining_tool", new DynamicToolItem((DiggerItem) Items.GOLDEN_SHOVEL, (DiggerItem) Items.GOLDEN_PICKAXE, Tiers.GOLD, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item GOLDEN_MATTOCK = register("golden_mattock", new DynamicToolItem((DiggerItem) Items.GOLDEN_HOE, (DiggerItem) Items.GOLDEN_AXE, Tiers.GOLD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item GOLDEN_MINING_TOOL = register("golden_mining_tool", new DynamicToolItem((ToolItem) Items.GOLDEN_SHOVEL, (ToolItem) Items.GOLDEN_PICKAXE, ItemTier.GOLD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item GOLDEN_MATTOCK = register("golden_mattock", new DynamicToolItem((ToolItem) Items.GOLDEN_HOE, (ToolItem) Items.GOLDEN_AXE, ItemTier.GOLD, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item DIAMOND_MINING_TOOL = register("diamond_mining_tool", new DynamicToolItem((DiggerItem) Items.DIAMOND_SHOVEL, (DiggerItem) Items.DIAMOND_PICKAXE, Tiers.DIAMOND, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item DIAMOND_MATTOCK = register("diamond_mattock", new DynamicToolItem((DiggerItem) Items.DIAMOND_HOE, (DiggerItem) Items.DIAMOND_AXE, Tiers.DIAMOND, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item DIAMOND_MINING_TOOL = register("diamond_mining_tool", new DynamicToolItem((ToolItem) Items.DIAMOND_SHOVEL, (ToolItem) Items.DIAMOND_PICKAXE, ItemTier.DIAMOND, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item DIAMOND_MATTOCK = register("diamond_mattock", new DynamicToolItem((ToolItem) Items.DIAMOND_HOE, (ToolItem) Items.DIAMOND_AXE, ItemTier.DIAMOND, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item NETHERITE_MINING_TOOL = register("netherite_mining_tool", new DynamicToolItem((DiggerItem) Items.NETHERITE_SHOVEL, (DiggerItem) Items.NETHERITE_PICKAXE, Tiers.NETHERITE, AstromineFoundationsItems.getBasicSettings().fireResistant()));
-	public static final Item NETHERITE_MATTOCK = register("netherite_mattock", new DynamicToolItem((DiggerItem) Items.NETHERITE_HOE, (DiggerItem) Items.NETHERITE_AXE, Tiers.NETHERITE, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item NETHERITE_MINING_TOOL = register("netherite_mining_tool", new DynamicToolItem((ToolItem) Items.NETHERITE_SHOVEL, (ToolItem) Items.NETHERITE_PICKAXE, ItemTier.NETHERITE, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item NETHERITE_MATTOCK = register("netherite_mattock", new DynamicToolItem((ToolItem) Items.NETHERITE_HOE, (ToolItem) Items.NETHERITE_AXE, ItemTier.NETHERITE, AstromineFoundationsItems.getBasicSettings().fireResistant()));
 
 	public static final PickaxeItem COPPER_PICKAXE = register("copper_pickaxe", new PickaxeItem(AstromineFoundationsToolMaterials.COPPER, 1, -2.8f, AstromineFoundationsItems.getBasicSettings()));
 	public static final AxeItem COPPER_AXE = register("copper_axe", new AxeItem(AstromineFoundationsToolMaterials.COPPER, 5f, -3.0f, AstromineFoundationsItems.getBasicSettings()));
@@ -410,90 +400,90 @@ public class AstromineFoundationsItems extends AstromineItems {
 	public static final Item METEORIC_STEEL_EXCAVATOR = register("meteoric_steel_excavator", new ExcavatorItem(AstromineFoundationsToolMaterials.METEORIC_STEEL, 1, -2.8f, AstromineFoundationsItems.getBasicSettings()));
 	
 	// Armors
-	public static final Item COPPER_HELMET = register("copper_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.COPPER, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item COPPER_CHESTPLATE = register("copper_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.COPPER, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item COPPER_LEGGINGS = register("copper_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.COPPER, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item COPPER_BOOTS = register("copper_boots", new ArmorItem(AstromineFoundationsArmorMaterials.COPPER, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item COPPER_HELMET = register("copper_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.COPPER, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item COPPER_CHESTPLATE = register("copper_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.COPPER, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item COPPER_LEGGINGS = register("copper_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.COPPER, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item COPPER_BOOTS = register("copper_boots", new ArmorItem(AstromineFoundationsArmorMaterials.COPPER, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item TIN_HELMET = register("tin_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.TIN, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item TIN_CHESTPLATE = register("tin_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.TIN, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item TIN_LEGGINGS = register("tin_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.TIN, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item TIN_BOOTS = register("tin_boots", new ArmorItem(AstromineFoundationsArmorMaterials.TIN, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item TIN_HELMET = register("tin_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.TIN, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item TIN_CHESTPLATE = register("tin_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.TIN, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item TIN_LEGGINGS = register("tin_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.TIN, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item TIN_BOOTS = register("tin_boots", new ArmorItem(AstromineFoundationsArmorMaterials.TIN, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item SILVER_HELMET = register("silver_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.SILVER, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item SILVER_CHESTPLATE = register("silver_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.SILVER, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item SILVER_LEGGINGS = register("silver_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.SILVER, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item SILVER_BOOTS = register("silver_boots", new ArmorItem(AstromineFoundationsArmorMaterials.SILVER, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item SILVER_HELMET = register("silver_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.SILVER, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item SILVER_CHESTPLATE = register("silver_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.SILVER, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item SILVER_LEGGINGS = register("silver_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.SILVER, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item SILVER_BOOTS = register("silver_boots", new ArmorItem(AstromineFoundationsArmorMaterials.SILVER, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item LEAD_HELMET = register("lead_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.LEAD, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item LEAD_CHESTPLATE = register("lead_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.LEAD, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item LEAD_LEGGINGS = register("lead_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.LEAD, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item LEAD_BOOTS = register("lead_boots", new ArmorItem(AstromineFoundationsArmorMaterials.LEAD, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item LEAD_HELMET = register("lead_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.LEAD, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item LEAD_CHESTPLATE = register("lead_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.LEAD, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item LEAD_LEGGINGS = register("lead_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.LEAD, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item LEAD_BOOTS = register("lead_boots", new ArmorItem(AstromineFoundationsArmorMaterials.LEAD, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item BRONZE_HELMET = register("bronze_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.BRONZE, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings().fireResistant()));
-	public static final Item BRONZE_CHESTPLATE = register("bronze_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.BRONZE, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings().fireResistant()));
-	public static final Item BRONZE_LEGGINGS = register("bronze_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.BRONZE, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings().fireResistant()));
-	public static final Item BRONZE_BOOTS = register("bronze_boots", new ArmorItem(AstromineFoundationsArmorMaterials.BRONZE, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item BRONZE_HELMET = register("bronze_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.BRONZE, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item BRONZE_CHESTPLATE = register("bronze_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.BRONZE, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item BRONZE_LEGGINGS = register("bronze_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.BRONZE, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item BRONZE_BOOTS = register("bronze_boots", new ArmorItem(AstromineFoundationsArmorMaterials.BRONZE, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings().fireResistant()));
 
-	public static final Item STEEL_HELMET = register("steel_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.STEEL, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item STEEL_CHESTPLATE = register("steel_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.STEEL, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item STEEL_LEGGINGS = register("steel_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.STEEL, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item STEEL_BOOTS = register("steel_boots", new ArmorItem(AstromineFoundationsArmorMaterials.STEEL, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item STEEL_HELMET = register("steel_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.STEEL, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item STEEL_CHESTPLATE = register("steel_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.STEEL, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item STEEL_LEGGINGS = register("steel_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.STEEL, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item STEEL_BOOTS = register("steel_boots", new ArmorItem(AstromineFoundationsArmorMaterials.STEEL, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item ELECTRUM_HELMET = register("electrum_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.ELECTRUM, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item ELECTRUM_CHESTPLATE = register("electrum_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.ELECTRUM, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item ELECTRUM_LEGGINGS = register("electrum_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.ELECTRUM, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item ELECTRUM_BOOTS = register("electrum_boots", new ArmorItem(AstromineFoundationsArmorMaterials.ELECTRUM, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item ELECTRUM_HELMET = register("electrum_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.ELECTRUM, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item ELECTRUM_CHESTPLATE = register("electrum_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.ELECTRUM, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item ELECTRUM_LEGGINGS = register("electrum_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.ELECTRUM, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item ELECTRUM_BOOTS = register("electrum_boots", new ArmorItem(AstromineFoundationsArmorMaterials.ELECTRUM, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item ROSE_GOLD_HELMET = register("rose_gold_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.ROSE_GOLD, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings().fireResistant()));
-	public static final Item ROSE_GOLD_CHESTPLATE = register("rose_gold_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.ROSE_GOLD, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings().fireResistant()));
-	public static final Item ROSE_GOLD_LEGGINGS = register("rose_gold_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.ROSE_GOLD, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings().fireResistant()));
-	public static final Item ROSE_GOLD_BOOTS = register("rose_gold_boots", new ArmorItem(AstromineFoundationsArmorMaterials.ROSE_GOLD, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item ROSE_GOLD_HELMET = register("rose_gold_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.ROSE_GOLD, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item ROSE_GOLD_CHESTPLATE = register("rose_gold_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.ROSE_GOLD, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item ROSE_GOLD_LEGGINGS = register("rose_gold_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.ROSE_GOLD, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item ROSE_GOLD_BOOTS = register("rose_gold_boots", new ArmorItem(AstromineFoundationsArmorMaterials.ROSE_GOLD, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings().fireResistant()));
 
-	public static final Item STERLING_SILVER_HELMET = register("sterling_silver_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.STERLING_SILVER, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item STERLING_SILVER_CHESTPLATE = register("sterling_silver_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.STERLING_SILVER, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item STERLING_SILVER_LEGGINGS = register("sterling_silver_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.STERLING_SILVER, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item STERLING_SILVER_BOOTS = register("sterling_silver_boots", new ArmorItem(AstromineFoundationsArmorMaterials.STERLING_SILVER, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item STERLING_SILVER_HELMET = register("sterling_silver_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.STERLING_SILVER, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item STERLING_SILVER_CHESTPLATE = register("sterling_silver_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.STERLING_SILVER, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item STERLING_SILVER_LEGGINGS = register("sterling_silver_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.STERLING_SILVER, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item STERLING_SILVER_BOOTS = register("sterling_silver_boots", new ArmorItem(AstromineFoundationsArmorMaterials.STERLING_SILVER, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item FOOLS_GOLD_HELMET = register("fools_gold_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.FOOLS_GOLD, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item FOOLS_GOLD_CHESTPLATE = register("fools_gold_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.FOOLS_GOLD, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item FOOLS_GOLD_LEGGINGS = register("fools_gold_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.FOOLS_GOLD, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item FOOLS_GOLD_BOOTS = register("fools_gold_boots", new ArmorItem(AstromineFoundationsArmorMaterials.FOOLS_GOLD, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item FOOLS_GOLD_HELMET = register("fools_gold_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.FOOLS_GOLD, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item FOOLS_GOLD_CHESTPLATE = register("fools_gold_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.FOOLS_GOLD, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item FOOLS_GOLD_LEGGINGS = register("fools_gold_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.FOOLS_GOLD, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item FOOLS_GOLD_BOOTS = register("fools_gold_boots", new ArmorItem(AstromineFoundationsArmorMaterials.FOOLS_GOLD, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item METITE_HELMET = register("metite_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.METITE, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item METITE_CHESTPLATE = register("metite_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.METITE, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item METITE_LEGGINGS = register("metite_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.METITE, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item METITE_BOOTS = register("metite_boots", new ArmorItem(AstromineFoundationsArmorMaterials.METITE, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item METITE_HELMET = register("metite_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.METITE, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item METITE_CHESTPLATE = register("metite_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.METITE, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item METITE_LEGGINGS = register("metite_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.METITE, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item METITE_BOOTS = register("metite_boots", new ArmorItem(AstromineFoundationsArmorMaterials.METITE, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item ASTERITE_HELMET = register("asterite_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.ASTERITE, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item ASTERITE_CHESTPLATE = register("asterite_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.ASTERITE, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item ASTERITE_LEGGINGS = register("asterite_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.ASTERITE, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item ASTERITE_BOOTS = register("asterite_boots", new ArmorItem(AstromineFoundationsArmorMaterials.ASTERITE, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item ASTERITE_HELMET = register("asterite_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.ASTERITE, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item ASTERITE_CHESTPLATE = register("asterite_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.ASTERITE, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item ASTERITE_LEGGINGS = register("asterite_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.ASTERITE, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item ASTERITE_BOOTS = register("asterite_boots", new ArmorItem(AstromineFoundationsArmorMaterials.ASTERITE, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item STELLUM_HELMET = register("stellum_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.STELLUM, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings().fireResistant()));
-	public static final Item STELLUM_CHESTPLATE = register("stellum_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.STELLUM, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings().fireResistant()));
-	public static final Item STELLUM_LEGGINGS = register("stellum_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.STELLUM, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings().fireResistant()));
-	public static final Item STELLUM_BOOTS = register("stellum_boots", new ArmorItem(AstromineFoundationsArmorMaterials.STELLUM, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item STELLUM_HELMET = register("stellum_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.STELLUM, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item STELLUM_CHESTPLATE = register("stellum_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.STELLUM, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item STELLUM_LEGGINGS = register("stellum_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.STELLUM, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item STELLUM_BOOTS = register("stellum_boots", new ArmorItem(AstromineFoundationsArmorMaterials.STELLUM, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings().fireResistant()));
 
-	public static final Item GALAXIUM_HELMET = register("galaxium_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.GALAXIUM, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item GALAXIUM_CHESTPLATE = register("galaxium_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.GALAXIUM, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item GALAXIUM_LEGGINGS = register("galaxium_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.GALAXIUM, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item GALAXIUM_BOOTS = register("galaxium_boots", new ArmorItem(AstromineFoundationsArmorMaterials.GALAXIUM, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item GALAXIUM_HELMET = register("galaxium_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.GALAXIUM, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item GALAXIUM_CHESTPLATE = register("galaxium_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.GALAXIUM, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item GALAXIUM_LEGGINGS = register("galaxium_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.GALAXIUM, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item GALAXIUM_BOOTS = register("galaxium_boots", new ArmorItem(AstromineFoundationsArmorMaterials.GALAXIUM, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item UNIVITE_HELMET = register("univite_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.UNIVITE, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings().fireResistant()));
-	public static final Item UNIVITE_CHESTPLATE = register("univite_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.UNIVITE, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings().fireResistant()));
-	public static final Item UNIVITE_LEGGINGS = register("univite_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.UNIVITE, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings().fireResistant()));
-	public static final Item UNIVITE_BOOTS = register("univite_boots", new ArmorItem(AstromineFoundationsArmorMaterials.UNIVITE, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item UNIVITE_HELMET = register("univite_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.UNIVITE, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item UNIVITE_CHESTPLATE = register("univite_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.UNIVITE, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item UNIVITE_LEGGINGS = register("univite_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.UNIVITE, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings().fireResistant()));
+	public static final Item UNIVITE_BOOTS = register("univite_boots", new ArmorItem(AstromineFoundationsArmorMaterials.UNIVITE, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings().fireResistant()));
 
-	public static final Item LUNUM_HELMET = register("lunum_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.LUNUM, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item LUNUM_CHESTPLATE = register("lunum_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.LUNUM, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item LUNUM_LEGGINGS = register("lunum_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.LUNUM, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item LUNUM_BOOTS = register("lunum_boots", new ArmorItem(AstromineFoundationsArmorMaterials.LUNUM, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item LUNUM_HELMET = register("lunum_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.LUNUM, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item LUNUM_CHESTPLATE = register("lunum_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.LUNUM, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item LUNUM_LEGGINGS = register("lunum_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.LUNUM, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item LUNUM_BOOTS = register("lunum_boots", new ArmorItem(AstromineFoundationsArmorMaterials.LUNUM, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings()));
 
-	public static final Item METEORIC_STEEL_HELMET = register("meteoric_steel_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.METEORIC_STEEL, EquipmentSlot.HEAD, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item METEORIC_STEEL_CHESTPLATE = register("meteoric_steel_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.METEORIC_STEEL, EquipmentSlot.CHEST, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item METEORIC_STEEL_LEGGINGS = register("meteoric_steel_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.METEORIC_STEEL, EquipmentSlot.LEGS, AstromineFoundationsItems.getBasicSettings()));
-	public static final Item METEORIC_STEEL_BOOTS = register("meteoric_steel_boots", new ArmorItem(AstromineFoundationsArmorMaterials.METEORIC_STEEL, EquipmentSlot.FEET, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item METEORIC_STEEL_HELMET = register("meteoric_steel_helmet", new ArmorItem(AstromineFoundationsArmorMaterials.METEORIC_STEEL, EquipmentSlotType.HEAD, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item METEORIC_STEEL_CHESTPLATE = register("meteoric_steel_chestplate", new ArmorItem(AstromineFoundationsArmorMaterials.METEORIC_STEEL, EquipmentSlotType.CHEST, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item METEORIC_STEEL_LEGGINGS = register("meteoric_steel_leggings", new ArmorItem(AstromineFoundationsArmorMaterials.METEORIC_STEEL, EquipmentSlotType.LEGS, AstromineFoundationsItems.getBasicSettings()));
+	public static final Item METEORIC_STEEL_BOOTS = register("meteoric_steel_boots", new ArmorItem(AstromineFoundationsArmorMaterials.METEORIC_STEEL, EquipmentSlotType.FEET, AstromineFoundationsItems.getBasicSettings()));
 	
 	public static final Item METEOR_METITE_CLUSTER = register("meteor_metite_cluster", new Item(AstromineFoundationsItems.getBasicSettings()));
 

@@ -24,15 +24,15 @@
 
 package com.github.chainmailstudios.astromine.transportations.common.block.entity;
 
+import net.minecraft.block.BlockState;
+import net.minecraft.block.HorizontalBlock;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.server.ServerWorld;
 import com.github.chainmailstudios.astromine.transportations.common.block.property.ConveyorProperties;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.Conveyable;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.Conveyor;
@@ -51,7 +51,7 @@ public class DownVerticalConveyorBlockEntity extends ConveyorBlockEntity {
 
 	@Override
 	public void tick() {
-		Direction direction = getBlockState().getValue(HorizontalDirectionalBlock.FACING);
+		Direction direction = getBlockState().getValue(HorizontalBlock.FACING);
 		int speed = ((Conveyor) getBlockState().getBlock()).getSpeed();
 
 		if (!isEmpty()) {
@@ -94,7 +94,7 @@ public class DownVerticalConveyorBlockEntity extends ConveyorBlockEntity {
 				setHorizontalPosition(getHorizontalPosition() + 1);
 			} else if (transition && horizontalPosition >= speed) {
 				conveyable.give(getStack());
-				if (!level.isClientSide() || level.isClientSide && Minecraft.getInstance().player.distanceToSqr(Vec3.atLowerCornerOf(getBlockPos())) > 24 * 24)
+				if (!level.isClientSide() || level.isClientSide && Minecraft.getInstance().player.distanceToSqr(Vector3d.atLowerCornerOf(getBlockPos())) > 24 * 24)
 					removeStack();
 			}
 		} else if (conveyable instanceof ConveyorConveyable) {
@@ -110,12 +110,12 @@ public class DownVerticalConveyorBlockEntity extends ConveyorBlockEntity {
 
 	@Override
 	public boolean validInputSide(Direction direction) {
-		return direction == Direction.UP || direction == getBlockState().getValue(HorizontalDirectionalBlock.FACING);
+		return direction == Direction.UP || direction == getBlockState().getValue(HorizontalBlock.FACING);
 	}
 
 	@Override
 	public boolean isOutputSide(Direction direction, ConveyorTypes type) {
-		return getBlockState().getValue(HorizontalDirectionalBlock.FACING).getOpposite() == direction || direction == Direction.DOWN;
+		return getBlockState().getValue(HorizontalBlock.FACING).getOpposite() == direction || direction == Direction.DOWN;
 	}
 
 	@Override
@@ -135,7 +135,7 @@ public class DownVerticalConveyorBlockEntity extends ConveyorBlockEntity {
 		this.down = down;
 		setChanged();
 		if (!level.isClientSide())
-			sendPacket((ServerLevel) level, save(new CompoundTag()));
+			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 	}
 
 	@Override
@@ -156,7 +156,7 @@ public class DownVerticalConveyorBlockEntity extends ConveyorBlockEntity {
 	}
 
 	@Override
-	public void load(BlockState state, CompoundTag compoundTag) {
+	public void load(BlockState state, CompoundNBT compoundTag) {
 		super.load(state, compoundTag);
 		down = compoundTag.getBoolean("down_vertical");
 		horizontalPosition = compoundTag.getInt("horizontalPosition");
@@ -164,19 +164,19 @@ public class DownVerticalConveyorBlockEntity extends ConveyorBlockEntity {
 	}
 
 	@Override
-	public void fromClientTag(CompoundTag compoundTag) {
+	public void fromClientTag(CompoundNBT compoundTag) {
 		load(getBlockState(), compoundTag);
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag compoundTag) {
+	public CompoundNBT save(CompoundNBT compoundTag) {
 		compoundTag.putBoolean("down_vertical", down);
 		compoundTag.putInt("horizontalPosition", horizontalPosition);
 		return super.save(compoundTag);
 	}
 
 	@Override
-	public CompoundTag toClientTag(CompoundTag compoundTag) {
+	public CompoundNBT toClientTag(CompoundNBT compoundTag) {
 		return save(compoundTag);
 	}
 }

@@ -32,10 +32,10 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import com.github.chainmailstudios.astromine.AstromineCommon;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.newbiome.layer.Layer;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.layer.Layer;
 
 @Mixin(Layer.class)
 public class BiomeLayerSamplerMixin {
@@ -51,7 +51,7 @@ public class BiomeLayerSamplerMixin {
 	}
 
 	@ModifyVariable(method = "sample", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/biome/BuiltinBiomes;fromRawId(I)Lnet/minecraft/util/registry/RegistryKey;", ordinal = 0, shift = At.Shift.BY, by = 2), ordinal = 0)
-	private ResourceKey<Biome> modifyBiome(ResourceKey<Biome> original) {
+	private RegistryKey<Biome> modifyBiome(RegistryKey<Biome> original) {
 		if (original != null)
 			return original;
 		Biome biome = registry.byId(storedLastBiomeId);

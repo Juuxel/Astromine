@@ -27,14 +27,14 @@ package com.github.chainmailstudios.astromine.common.widget.blade;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.material.Fluids;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.client.BaseRenderer;
 import com.github.chainmailstudios.astromine.client.render.sprite.SpriteRenderer;
@@ -45,7 +45,7 @@ import com.github.vini2003.blade.client.utilities.Layers;
 import com.github.vini2003.blade.common.widget.base.AbstractWidget;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -72,14 +72,14 @@ public class FluidVerticalBarWidget extends AbstractWidget {
 
 	@Environment(EnvType.CLIENT)
 	@Override
-	public List<Component> getTooltip() {
-		return Lists.newArrayList(FluidUtilities.rawFraction(progressFraction.get(), limitFraction.get(), new TranslatableComponent("text.astromine.fluid")), new TranslatableComponent("text.astromine.tooltip.fractional_value", progressFraction.get().toDecimalString(), limitFraction.get()
+	public List<ITextComponent> getTooltip() {
+		return Lists.newArrayList(FluidUtilities.rawFraction(progressFraction.get(), limitFraction.get(), new TranslationTextComponent("text.astromine.fluid")), new TranslationTextComponent("text.astromine.tooltip.fractional_value", progressFraction.get().toDecimalString(), limitFraction.get()
 			.toDecimalString()));
 	}
 
 	@Environment(EnvType.CLIENT)
 	@Override
-	public void drawWidget(PoseStack matrices, MultiBufferSource provider) {
+	public void drawWidget(MatrixStack matrices, IRenderTypeBuffer provider) {
 		if (getHidden()) {
 			return;
 		}
@@ -98,7 +98,7 @@ public class FluidVerticalBarWidget extends AbstractWidget {
 
 		if (getFluidVolume().getFluid() != Fluids.EMPTY) {
 			SpriteRenderer.beginPass().setup(provider, RenderType.solid()).sprite(FluidUtilities.texture(getFluidVolume().getFluid())[0]).color(FluidUtilities.color(Minecraft.getInstance().player, getFluidVolume().getFluid())).light(0x00f000f0).overlay(
-				OverlayTexture.NO_OVERLAY).alpha(0xff).normal(matrices.last().normal(), 0, 0, 0).position(matrices.last().pose(), x + 1, y + 1 + Math.max(0, sY - ((int) (sBGY) + 1)), x + sX - 1, y + sY - 1, 0F).next(TextureAtlas.LOCATION_BLOCKS);
+				OverlayTexture.NO_OVERLAY).alpha(0xff).normal(matrices.last().normal(), 0, 0, 0).position(matrices.last().pose(), x + 1, y + 1 + Math.max(0, sY - ((int) (sBGY) + 1)), x + sX - 1, y + sY - 1, 0F).next(AtlasTexture.LOCATION_BLOCKS);
 		}
 	}
 }

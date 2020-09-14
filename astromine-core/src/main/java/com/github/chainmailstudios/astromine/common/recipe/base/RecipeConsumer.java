@@ -24,7 +24,7 @@
 
 package com.github.chainmailstudios.astromine.common.recipe.base;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.CompoundNBT;
 
 public interface RecipeConsumer {
 	double getCurrent();
@@ -51,13 +51,13 @@ public interface RecipeConsumer {
 		return getCurrent() >= getLimit();
 	}
 
-	default CompoundTag writeRecipeProgress(CompoundTag tag) {
+	default CompoundNBT writeRecipeProgress(CompoundNBT tag) {
 		tag.putDouble("current", getCurrent());
 		tag.putInt("limit", getLimit());
 		return tag;
 	}
 
-	default void readRecipeProgress(CompoundTag tag) {
+	default void readRecipeProgress(CompoundNBT tag) {
 		setCurrent(tag.getDouble("current"));
 		setLimit(tag.getInt("limit"));
 	}

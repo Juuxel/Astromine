@@ -28,14 +28,14 @@ import com.github.chainmailstudios.astromine.discoveries.client.model.PrimitiveR
 
 
 import com.github.chainmailstudios.astromine.discoveries.common.entity.PrimitiveRocketEntity;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Vector3f;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Vector3f;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 
 public class PrimitiveRocketEntityRenderer extends EntityRenderer<PrimitiveRocketEntity> {
@@ -43,12 +43,12 @@ public class PrimitiveRocketEntityRenderer extends EntityRenderer<PrimitiveRocke
 
 	private final PrimitiveRocketEntityModel model = new PrimitiveRocketEntityModel();
 
-	public PrimitiveRocketEntityRenderer(EntityRenderDispatcher dispatcher) {
+	public PrimitiveRocketEntityRenderer(EntityRendererManager dispatcher) {
 		super(dispatcher);
 	}
 
 	@Override
-	public void render(PrimitiveRocketEntity rocket, float yaw, float tickDelta, PoseStack matrices, MultiBufferSource provider, int light) {
+	public void render(PrimitiveRocketEntity rocket, float yaw, float tickDelta, MatrixStack matrices, IRenderTypeBuffer provider, int light) {
 		matrices.pushPose();
 
 		matrices.translate(0.0D, 3.0D, 0.0D);
@@ -61,7 +61,7 @@ public class PrimitiveRocketEntityRenderer extends EntityRenderer<PrimitiveRocke
 
 		this.model.setAngles(rocket, 0, 0.0F, -0.1F, rocket.getYaw(tickDelta), rocket.getPitch(tickDelta));
 
-		VertexConsumer vertexConsumer = provider.getBuffer(this.model.renderType(this.getTexture(rocket)));
+		IVertexBuilder vertexConsumer = provider.getBuffer(this.model.renderType(this.getTexture(rocket)));
 
 		this.model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
 

@@ -31,29 +31,29 @@ import com.github.chainmailstudios.astromine.registry.AstromineFeatures;
 import me.shedaniel.cloth.api.dynamic.registry.v1.BiomesRegistry;
 import me.shedaniel.cloth.api.dynamic.registry.v1.DynamicRegistryCallback;
 import net.earthcomputer.libstructure.LibStructure;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
-import net.minecraft.world.level.levelgen.feature.StructurePieceType;
-import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.StructureFeatureConfiguration;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.GenerationStage;
+import net.minecraft.world.gen.feature.NoFeatureConfig;
+import net.minecraft.world.gen.feature.StructureFeature;
+import net.minecraft.world.gen.feature.structure.IStructurePieceType;
+import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraft.world.gen.settings.StructureSeparationSettings;
 
 public class AstromineFoundationsFeatures extends AstromineFeatures {
 	public static final ResourceLocation METEOR_ID = AstromineCommon.identifier("meteor");
-	public static final StructurePieceType METEOR_STRUCTURE = register(MeteorGenerator::new, METEOR_ID);
-	public static final ResourceKey<ConfiguredStructureFeature<?, ?>> METEOR_KEY = ResourceKey.create(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY, METEOR_ID);
+	public static final IStructurePieceType METEOR_STRUCTURE = register(MeteorGenerator::new, METEOR_ID);
+	public static final RegistryKey<StructureFeature<?, ?>> METEOR_KEY = RegistryKey.create(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY, METEOR_ID);
 
 	public static void initialize() {
-		MeteorFeature meteor = new MeteorFeature(NoneFeatureConfiguration.CODEC);
-		ConfiguredStructureFeature<NoneFeatureConfiguration, ? extends StructureFeature<NoneFeatureConfiguration>> meteorStructure = meteor.configured(new NoneFeatureConfiguration());
-		LibStructure.registerStructure(METEOR_ID, meteor, GenerationStep.Decoration.RAW_GENERATION, new StructureFeatureConfiguration(32, 8, 12345), meteorStructure);
+		MeteorFeature meteor = new MeteorFeature(NoFeatureConfig.CODEC);
+		StructureFeature<NoFeatureConfig, ? extends Structure<NoFeatureConfig>> meteorStructure = meteor.configured(new NoFeatureConfig());
+		LibStructure.registerStructure(METEOR_ID, meteor, GenerationStage.Decoration.RAW_GENERATION, new StructureSeparationSettings(32, 8, 12345), meteorStructure);
 
 		DynamicRegistryCallback.callback(Registry.BIOME_REGISTRY).register((manager, key, biome) -> {
-			if (biome.getBiomeCategory() != Biome.BiomeCategory.NETHER && biome.getBiomeCategory() != Biome.BiomeCategory.THEEND) {
+			if (biome.getBiomeCategory() != Biome.Category.NETHER && biome.getBiomeCategory() != Biome.Category.THEEND) {
 				BiomesRegistry.registerStructure(manager, biome, () -> meteorStructure);
 			}
 		});

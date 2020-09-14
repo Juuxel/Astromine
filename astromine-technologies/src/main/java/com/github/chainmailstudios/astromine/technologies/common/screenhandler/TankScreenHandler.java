@@ -35,16 +35,16 @@ import com.github.vini2003.blade.common.miscellaneous.Position;
 import com.github.vini2003.blade.common.miscellaneous.Size;
 import com.github.vini2003.blade.common.widget.base.SlotWidget;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.MenuType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.util.math.BlockPos;
 
 public class TankScreenHandler extends ComponentBlockEntityFluidInventoryScreenHandler {
-	public TankScreenHandler(int syncId, Player player, BlockPos position) {
+	public TankScreenHandler(int syncId, PlayerEntity player, BlockPos position) {
 		super(AstromineTechnologiesScreenHandlers.TANK, syncId, player, position);
 	}
 
-	public TankScreenHandler(MenuType<?> type, int syncId, Player player, BlockPos position) {
+	public TankScreenHandler(ContainerType<?> type, int syncId, PlayerEntity player, BlockPos position) {
 		super(type, syncId, player, position);
 	}
 

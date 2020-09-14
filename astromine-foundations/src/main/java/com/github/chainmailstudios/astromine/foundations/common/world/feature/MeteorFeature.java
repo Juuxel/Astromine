@@ -25,32 +25,32 @@
 package com.github.chainmailstudios.astromine.foundations.common.world.feature;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
+import net.minecraft.util.math.MutableBoundingBox;
+import net.minecraft.util.registry.DynamicRegistries;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.gen.ChunkGenerator;
+import net.minecraft.world.gen.feature.NoFeatureConfig;
+import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraft.world.gen.feature.structure.StructureStart;
+import net.minecraft.world.gen.feature.template.TemplateManager;
 
-public class MeteorFeature extends StructureFeature<NoneFeatureConfiguration> {
+public class MeteorFeature extends Structure<NoFeatureConfig> {
 
-	public MeteorFeature(Codec<NoneFeatureConfiguration> codec) {
+	public MeteorFeature(Codec<NoFeatureConfig> codec) {
 		super(codec);
 	}
 
-	public StructureFeature.StructureStartFactory<NoneFeatureConfiguration> getStartFactory() {
+	public Structure.IStartFactory<NoFeatureConfig> getStartFactory() {
 		return MeteorFeature.Start::new;
 	}
 
-	public static class Start extends StructureStart<NoneFeatureConfiguration> {
+	public static class Start extends StructureStart<NoFeatureConfig> {
 
-		public Start(StructureFeature<NoneFeatureConfiguration> structureFeature, int i, int j, BoundingBox blockBox, int k, long l) {
+		public Start(Structure<NoFeatureConfig> structureFeature, int i, int j, MutableBoundingBox blockBox, int k, long l) {
 			super(structureFeature, i, j, blockBox, k, l);
 		}
 
-		public void init(RegistryAccess drm, ChunkGenerator chunkGenerator, StructureManager structureManager, int i, int j, Biome biome, NoneFeatureConfiguration defaultFeatureConfig) {
+		public void init(DynamicRegistries drm, ChunkGenerator chunkGenerator, TemplateManager structureManager, int i, int j, Biome biome, NoFeatureConfig defaultFeatureConfig) {
 			MeteorGenerator meteorGenerator = new MeteorGenerator(this.random, i * 16, j * 16);
 			this.pieces.add(meteorGenerator);
 			this.calculateBoundingBox();

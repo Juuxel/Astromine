@@ -25,10 +25,10 @@
 package com.github.chainmailstudios.astromine.registry;
 
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.packet.PacketConsumer;
 
@@ -39,10 +39,10 @@ public class AstromineCommonPackets {
 		ServerSidePacketRegistry.INSTANCE.register(BLOCK_ENTITY_UPDATE_PACKET, (((context, buffer) -> {
 			BlockPos blockPos = buffer.readBlockPos();
 			ResourceLocation identifier = buffer.readResourceLocation();
-			FriendlyByteBuf storedBuffer = new FriendlyByteBuf(buffer.copy());
+			PacketBuffer storedBuffer = new PacketBuffer(buffer.copy());
 
 			context.getTaskQueue().execute(() -> {
-				BlockEntity blockEntity = context.getPlayer().getCommandSenderWorld().getBlockEntity(blockPos);
+				TileEntity blockEntity = context.getPlayer().getCommandSenderWorld().getBlockEntity(blockPos);
 
 				if (blockEntity instanceof PacketConsumer) {
 					((PacketConsumer) blockEntity).consumePacket(identifier, storedBuffer, context);
