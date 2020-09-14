@@ -31,6 +31,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 
 public class AstromineEntityTypes {
+
+
 	public static void initialize() {
 
 	}
