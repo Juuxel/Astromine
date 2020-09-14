@@ -24,17 +24,16 @@
 
 package com.github.chainmailstudios.astromine.common.component.inventory.compatibility;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.TypedActionResult;
-
 import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Vanilla wrapper for an InventoryComponent.
  */
-public interface ItemInventoryFromInventoryComponent extends Inventory {
+public interface ItemInventoryFromInventoryComponent extends Container {
 	/**
 	 * Builds an wrapper over the given component for vanilla Inventory usage.
 	 *
@@ -50,7 +49,7 @@ public interface ItemInventoryFromInventoryComponent extends Inventory {
 	 * @return the requested size.
 	 */
 	@Override
-	default int size() {
+	default int getContainerSize() {
 		return this.getItemComponent().getItemSize();
 	}
 
@@ -80,7 +79,7 @@ public interface ItemInventoryFromInventoryComponent extends Inventory {
 	 * @return the requested ItemStack.
 	 */
 	@Override
-	default ItemStack getStack(int slot) {
+	default ItemStack getItem(int slot) {
 		return this.getItemComponent().getStack(slot);
 	}
 
@@ -95,19 +94,19 @@ public interface ItemInventoryFromInventoryComponent extends Inventory {
 	 * @return the requested ItemStack.
 	 */
 	@Override
-	default ItemStack removeStack(int slot, int count) {
+	default ItemStack removeItem(int slot, int count) {
 		if (this.getItemComponent().getStack(slot).getCount() < count) {
-			TypedActionResult<ItemStack> result = this.getItemComponent().extract(null, slot);
-			if (!result.getValue().isEmpty()) {
-				this.markDirty();
+			InteractionResultHolder<ItemStack> result = this.getItemComponent().extract(null, slot);
+			if (!result.getObject().isEmpty()) {
+				this.setChanged();
 			}
-			return result.getValue();
+			return result.getObject();
 		} else {
-			TypedActionResult<ItemStack> result = this.getItemComponent().extract(slot, count);
-			if (!result.getValue().isEmpty()) {
-				this.markDirty();
+			InteractionResultHolder<ItemStack> result = this.getItemComponent().extract(slot, count);
+			if (!result.getObject().isEmpty()) {
+				this.setChanged();
 			}
-			return result.getValue();
+			return result.getObject();
 		}
 	}
 
@@ -120,8 +119,8 @@ public interface ItemInventoryFromInventoryComponent extends Inventory {
 	 * @return the retrieved ItemStack.
 	 */
 	@Override
-	default ItemStack removeStack(int slot) {
-		return this.getItemComponent().extract(null, slot).getValue();
+	default ItemStack removeItemNoUpdate(int slot) {
+		return this.getItemComponent().extract(null, slot).getObject();
 	}
 
 	/**
@@ -133,7 +132,7 @@ public interface ItemInventoryFromInventoryComponent extends Inventory {
 	 *        the specified stack.
 	 */
 	@Override
-	default void setStack(int slot, ItemStack stack) {
+	default void setItem(int slot, ItemStack stack) {
 		if (this.getItemComponent().getMaximumCount(slot) < stack.getCount()) {
 			stack.setCount(this.getItemComponent().getMaximumCount(slot));
 		}
@@ -144,7 +143,7 @@ public interface ItemInventoryFromInventoryComponent extends Inventory {
 	 * Dispatches updates to inventory listeners.
 	 */
 	@Override
-	default void markDirty() {
+	default void setChanged() {
 		this.getItemComponent().dispatchConsumers();
 	}
 
@@ -157,12 +156,12 @@ public interface ItemInventoryFromInventoryComponent extends Inventory {
 	 * @return true if yes; false if no.
 	 */
 	@Override
-	default boolean canPlayerUse(PlayerEntity player) {
+	default boolean stillValid(Player player) {
 		return true;
 	}
 
 	@Override
-	default boolean isValid(int slot, ItemStack stack) {
+	default boolean canPlaceItem(int slot, ItemStack stack) {
 		return this.getItemComponent().canInsert(null, stack, slot);
 	}
 
@@ -170,7 +169,7 @@ public interface ItemInventoryFromInventoryComponent extends Inventory {
 	 * Clears this inventory.
 	 */
 	@Override
-	default void clear() {
+	default void clearContent() {
 		this.getItemComponent().clear();
 	}
 }

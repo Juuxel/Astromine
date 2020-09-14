@@ -24,9 +24,8 @@
 
 package com.github.chainmailstudios.astromine.common.network;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.math.BlockPos;
-
 import com.google.common.base.Objects;
 
 public class NetworkNode {
@@ -53,7 +52,7 @@ public class NetworkNode {
 	}
 
 	public BlockPos getBlockPos() {
-		return BlockPos.fromLong(this.pos);
+		return BlockPos.of(this.pos);
 	}
 
 	public void setBlockPos(BlockPos blockPos) {

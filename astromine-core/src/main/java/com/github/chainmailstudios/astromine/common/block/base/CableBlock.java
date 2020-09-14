@@ -24,21 +24,6 @@
 
 package com.github.chainmailstudios.astromine.common.block.base;
 
-import net.minecraft.block.*;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-
 import com.github.chainmailstudios.astromine.common.component.world.WorldNetworkComponent;
 import com.github.chainmailstudios.astromine.common.network.NetworkMember;
 import com.github.chainmailstudios.astromine.common.network.NetworkTracer;
@@ -48,18 +33,37 @@ import com.github.chainmailstudios.astromine.common.utilities.capability.block.C
 import com.github.chainmailstudios.astromine.common.utilities.data.position.WorldPos;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class CableBlock extends Block implements Waterloggable, CableWrenchable {
-	public static final BooleanProperty EAST = BooleanProperty.of("east");
-	public static final BooleanProperty WEST = BooleanProperty.of("west");
-	public static final BooleanProperty NORTH = BooleanProperty.of("north");
-	public static final BooleanProperty SOUTH = BooleanProperty.of("south");
-	public static final BooleanProperty UP = BooleanProperty.of("up");
-	public static final BooleanProperty DOWN = BooleanProperty.of("down");
+public abstract class CableBlock extends Block implements SimpleWaterloggedBlock, CableWrenchable {
+	public static final BooleanProperty EAST = BooleanProperty.create("east");
+	public static final BooleanProperty WEST = BooleanProperty.create("west");
+	public static final BooleanProperty NORTH = BooleanProperty.create("north");
+	public static final BooleanProperty SOUTH = BooleanProperty.create("south");
+	public static final BooleanProperty UP = BooleanProperty.create("up");
+	public static final BooleanProperty DOWN = BooleanProperty.create("down");
 
 	public static final Map<Direction, BooleanProperty> PROPERTIES = new HashMap<Direction, BooleanProperty>() {
 		{
@@ -74,50 +78,50 @@ public abstract class CableBlock extends Block implements Waterloggable, CableWr
 
 	public static final Map<BooleanProperty, VoxelShape> SHAPE_MAP = new HashMap<BooleanProperty, VoxelShape>() {
 		{
-			put(UP, Block.createCuboidShape(6D, 10D, 6D, 10D, 16D, 10D));
-			put(DOWN, Block.createCuboidShape(6D, 0D, 6D, 10D, 6D, 10D));
-			put(NORTH, Block.createCuboidShape(6D, 6D, 0D, 10D, 10D, 6D));
-			put(SOUTH, Block.createCuboidShape(6D, 6D, 10D, 10D, 10D, 16D));
-			put(EAST, Block.createCuboidShape(10D, 6D, 6D, 16D, 10D, 10D));
-			put(WEST, Block.createCuboidShape(0D, 6D, 6D, 6D, 10D, 10D));
+			put(UP, Block.box(6D, 10D, 6D, 10D, 16D, 10D));
+			put(DOWN, Block.box(6D, 0D, 6D, 10D, 6D, 10D));
+			put(NORTH, Block.box(6D, 6D, 0D, 10D, 10D, 6D));
+			put(SOUTH, Block.box(6D, 6D, 10D, 10D, 10D, 16D));
+			put(EAST, Block.box(10D, 6D, 6D, 16D, 10D, 10D));
+			put(WEST, Block.box(0D, 6D, 6D, 6D, 10D, 10D));
 		}
 	};
 
 	protected static final Map<Integer, VoxelShape> SHAPE_CACHE = new HashMap<>();
-	protected static final VoxelShape CENTER_SHAPE = Block.createCuboidShape(6.0D, 6.0D, 6.0D, 10.0D, 10.0D, 10.0D);
+	protected static final VoxelShape CENTER_SHAPE = Block.box(6.0D, 6.0D, 6.0D, 10.0D, 10.0D, 10.0D);
 
-	public CableBlock(AbstractBlock.Settings settings) {
+	public CableBlock(BlockBehaviour.Properties settings) {
 		super(settings);
 
-		setDefaultState(getDefaultState().with(Properties.WATERLOGGED, false));
+		registerDefaultState(defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, false));
 	}
 
 	public abstract <T extends NetworkType> T getNetworkType();
 
 	@Override
 	public FluidState getFluidState(BlockState state) {
-		return (state.contains(Properties.WATERLOGGED) && state.get(Properties.WATERLOGGED)) ? Fluids.WATER.getDefaultState() : super.getFluidState(state);
+		return (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED)) ? Fluids.WATER.defaultFluidState() : super.getFluidState(state);
 	}
 
 	@Nullable
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext context) {
-		return super.getPlacementState(context).with(Properties.WATERLOGGED, context.getWorld().getBlockState(context.getBlockPos()).getBlock() == Blocks.WATER);
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		return super.getStateForPlacement(context).setValue(BlockStateProperties.WATERLOGGED, context.getLevel().getBlockState(context.getClickedPos()).getBlock() == Blocks.WATER);
 	}
 
 	@Override
-	public void onPlaced(World world, BlockPos position, BlockState stateA, LivingEntity placer, ItemStack stack) {
-		super.onPlaced(world, position, stateA, placer, stack);
+	public void setPlacedBy(Level world, BlockPos position, BlockState stateA, LivingEntity placer, ItemStack stack) {
+		super.setPlacedBy(world, position, stateA, placer, stack);
 
 		NetworkTracer.Tracer.INSTANCE.trace(getNetworkType(), WorldPos.of(world, position));
 
 		NetworkTracer.Modeller modeller = new NetworkTracer.Modeller();
 		modeller.scanNeighbours(getNetworkType(), position, world);
 
-		world.setBlockState(position, modeller.applyToBlockState(stateA));
+		world.setBlockAndUpdate(position, modeller.applyToBlockState(stateA));
 
 		for (Direction direction : Direction.values()) {
-			BlockPos offsetPos = position.offset(direction);
+			BlockPos offsetPos = position.relative(direction);
 			WorldPos offsetBlock = WorldPos.of(world, offsetPos);
 
 			if (!(offsetBlock.getBlock() instanceof CableBlock))
@@ -129,13 +133,13 @@ public abstract class CableBlock extends Block implements Waterloggable, CableWr
 			NetworkTracer.Modeller offsetModeller = new NetworkTracer.Modeller();
 			offsetModeller.scanNeighbours(((CableBlock) offsetBlock.getBlock()).getNetworkType(), offsetPos, world);
 
-			world.setBlockState(offsetPos, offsetModeller.applyToBlockState(world.getBlockState(offsetPos)));
+			world.setBlockAndUpdate(offsetPos, offsetModeller.applyToBlockState(world.getBlockState(offsetPos)));
 		}
 	}
 
 	@Override
-	public void onStateReplaced(BlockState state, World world, BlockPos position, BlockState newState, boolean moved) {
-		super.onStateReplaced(state, world, position, newState, moved);
+	public void onRemove(BlockState state, Level world, BlockPos position, BlockState newState, boolean moved) {
+		super.onRemove(state, world, position, newState, moved);
 
 		if (state.getBlock() == newState.getBlock())
 			return;
@@ -147,7 +151,7 @@ public abstract class CableBlock extends Block implements Waterloggable, CableWr
 		networkComponent.removeInstance(networkComponent.getInstance(getNetworkType(), position));
 
 		for (Direction directionA : Direction.values()) {
-			BlockPos offsetPos = position.offset(directionA);
+			BlockPos offsetPos = position.relative(directionA);
 			Block offsetBlock = world.getBlockState(offsetPos).getBlock();
 
 			if (!(offsetBlock instanceof CableBlock))
@@ -160,13 +164,13 @@ public abstract class CableBlock extends Block implements Waterloggable, CableWr
 			NetworkTracer.Modeller modeller = new NetworkTracer.Modeller();
 			modeller.scanNeighbours(getNetworkType(), offsetPos, world);
 
-			world.setBlockState(offsetPos, modeller.applyToBlockState(world.getBlockState(offsetPos)));
+			world.setBlockAndUpdate(offsetPos, modeller.applyToBlockState(world.getBlockState(offsetPos)));
 		}
 	}
 
 	@Override
-	public void neighborUpdate(BlockState state, World world, BlockPos position, Block block, BlockPos neighborPosition, boolean moved) {
-		super.neighborUpdate(state, world, position, block, neighborPosition, moved);
+	public void neighborChanged(BlockState state, Level world, BlockPos position, Block block, BlockPos neighborPosition, boolean moved) {
+		super.neighborChanged(state, world, position, block, neighborPosition, moved);
 
 		ComponentProvider provider = ComponentProvider.fromWorld(world);
 
@@ -178,16 +182,16 @@ public abstract class CableBlock extends Block implements Waterloggable, CableWr
 		NetworkTracer.Modeller modeller = new NetworkTracer.Modeller();
 		modeller.scanNeighbours(getNetworkType(), position, world);
 
-		world.setBlockState(position, modeller.applyToBlockState(world.getBlockState(position)));
+		world.setBlockAndUpdate(position, modeller.applyToBlockState(world.getBlockState(position)));
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(EAST, WEST, NORTH, SOUTH, UP, DOWN, Properties.WATERLOGGED);
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(EAST, WEST, NORTH, SOUTH, UP, DOWN, BlockStateProperties.WATERLOGGED);
 	}
 
 	@Override
-	public VoxelShape getOutlineShape(BlockState blockState, BlockView world, BlockPos position, ShapeContext entityContext) {
+	public VoxelShape getShape(BlockState blockState, BlockGetter world, BlockPos position, CollisionContext entityContext) {
 		VoxelShape returnShape = CENTER_SHAPE;
 		NetworkTracer.Modeller modeller = new NetworkTracer.Modeller();
 		modeller.scanBlockState(blockState);

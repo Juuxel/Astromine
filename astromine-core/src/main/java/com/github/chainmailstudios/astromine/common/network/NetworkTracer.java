@@ -24,14 +24,6 @@
 
 package com.github.chainmailstudios.astromine.common.network;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.World;
-
 import com.github.chainmailstudios.astromine.common.block.base.CableBlock;
 import com.github.chainmailstudios.astromine.common.component.world.WorldNetworkComponent;
 import com.github.chainmailstudios.astromine.common.network.type.base.NetworkType;
@@ -41,7 +33,13 @@ import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.HashSet;
@@ -55,7 +53,7 @@ public class NetworkTracer {
 		private Tracer() {}
 
 		public void trace(NetworkType type, WorldPos initialPosition) {
-			World world = initialPosition.getWorld();
+			Level world = initialPosition.getWorld();
 			ComponentProvider provider = ComponentProvider.fromWorld(world);
 			WorldNetworkComponent networkComponent = provider.getComponent(AstromineComponentTypes.WORLD_NETWORK_COMPONENT);
 			NetworkMember initialMember = NetworkMemberRegistry.get(initialPosition);
@@ -77,7 +75,7 @@ public class NetworkTracer {
 				WorldPos initialObject = WorldPos.of(world, position);
 
 				for (Direction direction : Direction.values()) {
-					BlockPos offsetPosition = position.offset(direction);
+					BlockPos offsetPosition = position.relative(direction);
 					long offsetPositionLong = offsetPosition.asLong();
 
 					if (tracedPositions.contains(offsetPositionLong)) {
@@ -125,16 +123,16 @@ public class NetworkTracer {
 
 		public void scanBlockState(BlockState blockState) {
 			for (Map.Entry<Direction, BooleanProperty> property : CableBlock.PROPERTIES.entrySet()) {
-				if (blockState.get(property.getValue())) {
+				if (blockState.getValue(property.getValue())) {
 					directions.add(property.getKey());
 				}
 			}
 		}
 
-		public void scanNeighbours(NetworkType type, BlockPos initialPosition, World world) {
+		public void scanNeighbours(NetworkType type, BlockPos initialPosition, Level world) {
 			WorldPos initialObject = WorldPos.of(world, initialPosition);
 			for (Direction direction : Direction.values()) {
-				WorldPos pos = WorldPos.of(world, initialPosition.offset(direction));
+				WorldPos pos = WorldPos.of(world, initialPosition.relative(direction));
 				NetworkMember offsetMember = NetworkMemberRegistry.get(pos);
 
 				if (offsetMember.acceptsType(type) && (!offsetMember.isNode(type) || pos.getBlock() == initialObject.getBlock())) {
@@ -147,7 +145,7 @@ public class NetworkTracer {
 			if (!(state.getBlock() instanceof CableBlock))
 				return state;
 			for (Direction direction : Direction.values()) {
-				state = state.with(CableBlock.PROPERTIES.get(direction), directions.contains(direction));
+				state = state.setValue(CableBlock.PROPERTIES.get(direction), directions.contains(direction));
 			}
 			return state;
 		}
@@ -155,7 +153,7 @@ public class NetworkTracer {
 		public VoxelShape applyToVoxelShape(VoxelShape shape) {
 			for (Direction direction : Direction.values()) {
 				if (directions.contains(direction)) {
-					shape = VoxelShapes.union(shape, CableBlock.SHAPE_MAP.get(CableBlock.PROPERTIES.get(direction)));
+					shape = Shapes.or(shape, CableBlock.SHAPE_MAP.get(CableBlock.PROPERTIES.get(direction)));
 				}
 			}
 			return shape;

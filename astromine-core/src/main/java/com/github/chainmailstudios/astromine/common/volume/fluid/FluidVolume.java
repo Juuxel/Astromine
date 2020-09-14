@@ -25,19 +25,18 @@
 package com.github.chainmailstudios.astromine.common.volume.fluid;
 
 import com.google.common.base.Objects;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleFluidInventoryComponent;
 import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
 import com.github.chainmailstudios.astromine.common.volume.base.Volume;
 
-public class FluidVolume extends Volume<Identifier, Fraction> {
-	public static final Identifier ID = AstromineCommon.identifier("fluid");
+public class FluidVolume extends Volume<ResourceLocation, Fraction> {
+	public static final ResourceLocation ID = AstromineCommon.identifier("fluid");
 
 	private Fluid fluid;
 
@@ -59,12 +58,12 @@ public class FluidVolume extends Volume<Identifier, Fraction> {
 		this.fluid = fluid;
 	}
 
-	public Identifier getFluidId() {
-		return Registry.FLUID.getId(getFluid());
+	public ResourceLocation getFluidId() {
+		return Registry.FLUID.getKey(getFluid());
 	}
 
 	@Override
-	public <V extends Volume<Identifier, Fraction>> V add(V v, Fraction fraction) {
+	public <V extends Volume<ResourceLocation, Fraction>> V add(V v, Fraction fraction) {
 		if (!(v instanceof FluidVolume)) return (V) this;
 
 		if (((FluidVolume) v).getFluid() != getFluid()) {
@@ -90,7 +89,7 @@ public class FluidVolume extends Volume<Identifier, Fraction> {
 	}
 
 	@Override
-	public <V extends Volume<Identifier, Fraction>> V add(Fraction fraction) {
+	public <V extends Volume<ResourceLocation, Fraction>> V add(Fraction fraction) {
 		Fraction amount = Fraction.minimum(getSize().subtract(getAmount()), fraction);
 
 		setAmount(Fraction.add(getAmount(), amount));
@@ -99,7 +98,7 @@ public class FluidVolume extends Volume<Identifier, Fraction> {
 	}
 
 	@Override
-	public <V extends Volume<Identifier, Fraction>> V moveFrom(V v, Fraction fraction) {
+	public <V extends Volume<ResourceLocation, Fraction>> V moveFrom(V v, Fraction fraction) {
 		if (!(v instanceof FluidVolume)) return (V) this;
 
 		if (((FluidVolume) v).getFluid() != getFluid()) {
@@ -116,7 +115,7 @@ public class FluidVolume extends Volume<Identifier, Fraction> {
 	}
 
 	@Override
-	public <V extends Volume<Identifier, Fraction>> V minus(Fraction fraction) {
+	public <V extends Volume<ResourceLocation, Fraction>> V minus(Fraction fraction) {
 		Fraction amount = Fraction.minimum(getAmount(), fraction);
 
 		setAmount(Fraction.subtract(getAmount(), amount));
@@ -153,7 +152,7 @@ public class FluidVolume extends Volume<Identifier, Fraction> {
 	}
 
 	@Override
-	public <V extends Volume<Identifier, Fraction>> V copy() {
+	public <V extends Volume<ResourceLocation, Fraction>> V copy() {
 		return (V) of(getAmount().copy(), getSize().copy(), getFluid());
 	}
 
@@ -166,12 +165,12 @@ public class FluidVolume extends Volume<Identifier, Fraction> {
 		CompoundTag tag = new CompoundTag();
 		tag.put("amount", getAmount().toTag());
 		tag.put("size", getSize().toTag());
-		tag.putString("fluid", Registry.FLUID.getId(getFluid()).toString());
+		tag.putString("fluid", Registry.FLUID.getKey(getFluid()).toString());
 		return tag;
 	}
 
 	public static FluidVolume fromTag(CompoundTag tag) {
-		return new FluidVolume(Fraction.fromTag(tag.getCompound("amount")), Fraction.fromTag(tag.getCompound("size")), Registry.FLUID.get(new Identifier(tag.getString("fluid"))));
+		return new FluidVolume(Fraction.fromTag(tag.getCompound("amount")), Fraction.fromTag(tag.getCompound("size")), Registry.FLUID.get(new ResourceLocation(tag.getString("fluid"))));
 	}
 
 	@Override

@@ -24,15 +24,6 @@
 
 package com.github.chainmailstudios.astromine.common.screenhandler.base.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.screen.ScreenHandlerContext;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.state.property.DirectionProperty;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-
 import com.github.chainmailstudios.astromine.common.block.base.HorizontalFacingBlockWithEntity;
 import com.github.chainmailstudios.astromine.common.block.entity.base.ComponentBlockEntity;
 import com.github.chainmailstudios.astromine.common.component.SidedComponentProvider;
@@ -53,6 +44,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 
 public abstract class ComponentBlockEntityScreenHandler extends BaseScreenHandler {
 	public ComponentBlockEntity syncBlockEntity;
@@ -62,14 +61,14 @@ public abstract class ComponentBlockEntityScreenHandler extends BaseScreenHandle
 	public TabWidgetCollection mainTab;
 	protected TabWidget tabs;
 
-	public ComponentBlockEntityScreenHandler(ScreenHandlerType<?> type, int syncId, PlayerEntity player, BlockPos position) {
+	public ComponentBlockEntityScreenHandler(MenuType<?> type, int syncId, Player player, BlockPos position) {
 		super(type, syncId, player);
 
 		this.position = position;
-		this.syncBlockEntity = (ComponentBlockEntity) player.world.getBlockEntity(position);
-		this.originalBlock = player.world.getBlockState(position).getBlock();
+		this.syncBlockEntity = (ComponentBlockEntity) player.level.getBlockEntity(position);
+		this.originalBlock = player.level.getBlockState(position).getBlock();
 
-		if (!player.world.isClient) {
+		if (!player.level.isClientSide) {
 			syncBlockEntity.doNotSkipInventory();
 			syncBlockEntity.sync();
 		}
@@ -80,8 +79,8 @@ public abstract class ComponentBlockEntityScreenHandler extends BaseScreenHandle
 	}
 
 	@Override
-	public boolean canUse(@Nullable PlayerEntity player) {
-		return canUse(ScreenHandlerContext.create(player.world, position), player, originalBlock);
+	public boolean stillValid(@Nullable Player player) {
+		return stillValid(ContainerLevelAccess.create(player.level, position), player, originalBlock);
 	}
 
 	@Override
@@ -92,13 +91,13 @@ public abstract class ComponentBlockEntityScreenHandler extends BaseScreenHandle
 
 		addWidget(tabs);
 
-		mainTab = (TabWidgetCollection) tabs.addTab(syncBlockEntity.getCachedState().getBlock().asItem());
+		mainTab = (TabWidgetCollection) tabs.addTab(syncBlockEntity.getBlockState().getBlock().asItem());
 		mainTab.setPosition(Position.of(tabs, 0, 25F + 7F));
 		mainTab.setSize(Size.of(176F, 184F));
 
 		TextWidget title = new TextWidget();
 		title.setPosition(Position.of(mainTab, 8, 0));
-		title.setText(new TranslatableText(syncBlockEntity.getCachedState().getBlock().asItem().getTranslationKey()));
+		title.setText(new TranslatableComponent(syncBlockEntity.getBlockState().getBlock().asItem().getDescriptionId()));
 		title.setColor(4210752);
 		mainTab.addWidget(title);
 
@@ -113,12 +112,12 @@ public abstract class ComponentBlockEntityScreenHandler extends BaseScreenHandle
 		SidedComponentProvider sidedComponentProvider = SidedComponentProvider.fromBlockEntity(syncBlockEntity);
 
 		Direction rotation = Direction.NORTH;
-		Block block = syncBlockEntity.getCachedState().getBlock();
+		Block block = syncBlockEntity.getBlockState().getBlock();
 
 		if (block instanceof HorizontalFacingBlockWithEntity) {
 			DirectionProperty property = ((HorizontalFacingBlockWithEntity) block).getDirectionProperty();
 			if (property != null)
-				rotation = syncBlockEntity.getCachedState().get(property);
+				rotation = syncBlockEntity.getBlockState().getValue(property);
 		}
 
 		final Direction finalRotation = rotation;
@@ -129,7 +128,7 @@ public abstract class ComponentBlockEntityScreenHandler extends BaseScreenHandle
 			if (sidedComponentProvider.getComponent(type) instanceof NameableComponent) {
 				NameableComponent nameableComponent = (NameableComponent) sidedComponentProvider.getComponent(type);
 				TabWidgetCollection current = (TabWidgetCollection) tabs.addTab(nameableComponent.getSymbol(), () -> Collections.singletonList(nameableComponent.getName()));
-				WidgetUtilities.createTransferTab(current, Position.of(tabs, tabs.getWidth() / 2 - 38, getTabWidgetExtendedHeight() / 2), finalRotation, transferComponent, syncBlockEntity.getPos(), type);
+				WidgetUtilities.createTransferTab(current, Position.of(tabs, tabs.getWidth() / 2 - 38, getTabWidgetExtendedHeight() / 2), finalRotation, transferComponent, syncBlockEntity.getBlockPos(), type);
 				TextWidget invTabTitle = new TextWidget();
 				invTabTitle.setPosition(Position.of(invPos, 0, -10));
 				invTabTitle.setText(getPlayer().inventory.getName());

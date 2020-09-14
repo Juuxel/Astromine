@@ -24,18 +24,17 @@
 
 package com.github.chainmailstudios.astromine.common.screenhandler.base.block;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.util.math.BlockPos;
-
 import com.github.chainmailstudios.astromine.common.block.entity.base.ComponentInventoryBlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
 
 public class ComponentBlockEntityItemScreenHandler extends ComponentBlockEntityScreenHandler {
 	public ComponentInventoryBlockEntity blockEntity;
 
-	public ComponentBlockEntityItemScreenHandler(ScreenHandlerType<?> type, int syncId, PlayerEntity player, BlockPos position) {
+	public ComponentBlockEntityItemScreenHandler(MenuType<?> type, int syncId, Player player, BlockPos position) {
 		super(type, syncId, player, position);
 
-		blockEntity = (ComponentInventoryBlockEntity) player.world.getBlockEntity(position);
+		blockEntity = (ComponentInventoryBlockEntity) player.level.getBlockEntity(position);
 	}
 }

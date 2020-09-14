@@ -28,19 +28,17 @@ import com.github.chainmailstudios.astromine.common.block.base.BlockWithEntity;
 import com.github.chainmailstudios.astromine.common.utilities.capability.inventory.ExtendedComponentSidedInventoryProvider;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.network.PacketContext;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FacingBlock;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Pair;
-import net.minecraft.util.Tickable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.level.block.DirectionalBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.TickableBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import alexiil.mc.lib.attributes.SearchOptions;
 import alexiil.mc.lib.attributes.item.ItemAttributes;
 import alexiil.mc.lib.attributes.item.ItemExtractable;
@@ -71,12 +69,12 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-public abstract class ComponentBlockEntity extends net.minecraft.block.entity.BlockEntity implements SidedComponentProvider, PacketConsumer, BlockEntityClientSerializable, Tickable {
+public abstract class ComponentBlockEntity extends net.minecraft.world.level.block.entity.BlockEntity implements SidedComponentProvider, PacketConsumer, BlockEntityClientSerializable, TickableBlockEntity {
 	protected final BlockEntityTransferComponent transferComponent = new BlockEntityTransferComponent();
 
 	protected final Map<ComponentType<?>, Component> allComponents = Maps.newHashMap();
 
-	protected final Map<Identifier, BiConsumer<PacketByteBuf, PacketContext>> allHandlers = Maps.newHashMap();
+	protected final Map<ResourceLocation, BiConsumer<FriendlyByteBuf, PacketContext>> allHandlers = Maps.newHashMap();
 
 	protected boolean skipInventory = true;
 
@@ -84,18 +82,18 @@ public abstract class ComponentBlockEntity extends net.minecraft.block.entity.Bl
 
 	public boolean[] activity = { false, false, false, false, false };
 
-	public static final Identifier TRANSFER_UPDATE_PACKET = AstromineCommon.identifier("transfer_update_packet");
+	public static final ResourceLocation TRANSFER_UPDATE_PACKET = AstromineCommon.identifier("transfer_update_packet");
 
 	public ComponentBlockEntity(BlockEntityType<?> type) {
 		super(type);
 
 		addConsumer(TRANSFER_UPDATE_PACKET, ((buffer, context) -> {
-			Identifier packetIdentifier = buffer.readIdentifier();
-			Direction packetDirection = buffer.readEnumConstant(Direction.class);
-			TransferType packetTransferType = buffer.readEnumConstant(TransferType.class);
+			ResourceLocation packetIdentifier = buffer.readResourceLocation();
+			Direction packetDirection = buffer.readEnum(Direction.class);
+			TransferType packetTransferType = buffer.readEnum(TransferType.class);
 
 			transferComponent.get(ComponentRegistry.INSTANCE.get(packetIdentifier)).set(packetDirection, packetTransferType);
-			markDirty();
+			setChanged();
 			sync();
 		}));
 	}
@@ -109,12 +107,12 @@ public abstract class ComponentBlockEntity extends net.minecraft.block.entity.Bl
 		transferComponent.add(type);
 	}
 
-	public void addConsumer(Identifier identifier, BiConsumer<PacketByteBuf, PacketContext> consumer) {
+	public void addConsumer(ResourceLocation identifier, BiConsumer<FriendlyByteBuf, PacketContext> consumer) {
 		allHandlers.put(identifier, consumer);
 	}
 
 	@Override
-	public void consumePacket(Identifier identifier, PacketByteBuf buffer, PacketContext context) {
+	public void consumePacket(ResourceLocation identifier, FriendlyByteBuf buffer, PacketContext context) {
 		allHandlers.get(identifier).accept(buffer, context);
 	}
 
@@ -123,10 +121,10 @@ public abstract class ComponentBlockEntity extends net.minecraft.block.entity.Bl
 		if (direction == null) {
 			return (Collection<T>) allComponents.values();
 		} else {
-			if (getCachedState().contains(HorizontalFacingBlock.FACING)) {
-				return (Collection<T>) getComponentTypes().stream().map(type -> new Pair<>((ComponentType) type, (Component) getComponent(type))).filter(pair -> !transferComponent.get(pair.getLeft()).get(direction).isNone()).map(Pair::getRight).collect(Collectors.toList());
-			} else if (getCachedState().contains(FacingBlock.FACING)) {
-				return (Collection<T>) getComponentTypes().stream().map(type -> new Pair<>((ComponentType) type, (Component) getComponent(type))).filter(pair -> !transferComponent.get(pair.getLeft()).get(direction).isNone()).map(Pair::getRight).collect(Collectors.toList());
+			if (getBlockState().hasProperty(HorizontalDirectionalBlock.FACING)) {
+				return (Collection<T>) getComponentTypes().stream().map(type -> new Tuple<>((ComponentType) type, (Component) getComponent(type))).filter(pair -> !transferComponent.get(pair.getA()).get(direction).isNone()).map(Tuple::getB).collect(Collectors.toList());
+			} else if (getBlockState().hasProperty(DirectionalBlock.FACING)) {
+				return (Collection<T>) getComponentTypes().stream().map(type -> new Tuple<>((ComponentType) type, (Component) getComponent(type))).filter(pair -> !transferComponent.get(pair.getA()).get(direction).isNone()).map(Tuple::getB).collect(Collectors.toList());
 			} else {
 				return Lists.newArrayList();
 			}
@@ -149,18 +147,18 @@ public abstract class ComponentBlockEntity extends net.minecraft.block.entity.Bl
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
+	public CompoundTag save(CompoundTag tag) {
 		tag.put("transfer", transferComponent.toTag(new CompoundTag()));
 
 		allComponents.forEach((type, component) -> {
 			tag.put(type.getId().toString(), component.toTag(new CompoundTag()));
 		});
 
-		return super.toTag(tag);
+		return super.save(tag);
 	}
 
 	@Override
-	public void fromTag(BlockState state, @NotNull CompoundTag tag) {
+	public void load(BlockState state, @NotNull CompoundTag tag) {
 		transferComponent.fromTag(tag.getCompound("transfer"));
 
 		allComponents.forEach((type, component) -> {
@@ -169,12 +167,12 @@ public abstract class ComponentBlockEntity extends net.minecraft.block.entity.Bl
 			}
 		});
 
-		super.fromTag(state, tag);
+		super.load(state, tag);
 	}
 
 	@Override
 	public CompoundTag toClientTag(CompoundTag compoundTag) {
-		compoundTag = toTag(compoundTag);
+		compoundTag = save(compoundTag);
 		if (skipInventory) {
 			compoundTag.remove(AstromineComponentTypes.ITEM_INVENTORY_COMPONENT.getId().toString());
 		} else {
@@ -185,23 +183,23 @@ public abstract class ComponentBlockEntity extends net.minecraft.block.entity.Bl
 
 	@Override
 	public void fromClientTag(CompoundTag compoundTag) {
-		fromTag(null, compoundTag);
+		load(null, compoundTag);
 	}
 
 	@Override
 	public void tick() {
-		if (!hasWorld() || world.isClient())
+		if (!hasLevel() || level.isClientSide())
 			return;
 
 		FluidInventoryComponent fluidComponent = getComponent(AstromineComponentTypes.FLUID_INVENTORY_COMPONENT);
 
-		List<Pair<EnergyHandler, EnergyHandler>> energyTransfers = Lists.newArrayList();
+		List<Tuple<EnergyHandler, EnergyHandler>> energyTransfers = Lists.newArrayList();
 
 		for (Direction offsetDirection : Direction.values()) {
-			BlockPos neighborPos = getPos().offset(offsetDirection);
-			BlockState neighborState = world.getBlockState(neighborPos);
+			BlockPos neighborPos = getBlockPos().relative(offsetDirection);
+			BlockState neighborState = level.getBlockState(neighborPos);
 
-			net.minecraft.block.entity.BlockEntity neighborBlockEntity = world.getBlockEntity(neighborPos);
+			net.minecraft.world.level.block.entity.BlockEntity neighborBlockEntity = level.getBlockEntity(neighborPos);
 			if (neighborBlockEntity != null) {
 				SidedComponentProvider neighborProvider = SidedComponentProvider.fromBlockEntity(neighborBlockEntity);
 				Direction neighborDirection = offsetDirection.getOpposite();
@@ -211,15 +209,15 @@ public abstract class ComponentBlockEntity extends net.minecraft.block.entity.Bl
 				if (this instanceof ExtendedComponentSidedInventoryProvider) {
 					if (!transferComponent.get(AstromineComponentTypes.ITEM_INVENTORY_COMPONENT).get(offsetDirection).isDefault()) {
 						// input
-						ItemExtractable neighbor = ItemAttributes.EXTRACTABLE.get(world, neighborPos, SearchOptions.inDirection(offsetDirection));
-						ItemInsertable self = ItemAttributes.INSERTABLE.get(world, getPos(), SearchOptions.inDirection(neighborDirection));
+						ItemExtractable neighbor = ItemAttributes.EXTRACTABLE.get(level, neighborPos, SearchOptions.inDirection(offsetDirection));
+						ItemInsertable self = ItemAttributes.INSERTABLE.get(level, getBlockPos(), SearchOptions.inDirection(neighborDirection));
 
 						TransportUtilities.move(neighbor, self, 1);
 					}
 					if (!transferComponent.get(AstromineComponentTypes.ITEM_INVENTORY_COMPONENT).get(offsetDirection).isDefault()) {
 						// output
-						ItemExtractable self = ItemAttributes.EXTRACTABLE.get(world, getPos(), SearchOptions.inDirection(neighborDirection));
-						ItemInsertable neighbor = ItemAttributes.INSERTABLE.get(world, neighborPos, SearchOptions.inDirection(offsetDirection));
+						ItemExtractable self = ItemAttributes.EXTRACTABLE.get(level, getBlockPos(), SearchOptions.inDirection(neighborDirection));
+						ItemInsertable neighbor = ItemAttributes.INSERTABLE.get(level, neighborPos, SearchOptions.inDirection(offsetDirection));
 
 						TransportUtilities.move(self, neighbor, 1);
 					}
@@ -246,30 +244,30 @@ public abstract class ComponentBlockEntity extends net.minecraft.block.entity.Bl
 				// Handle energy siding
 				if (TransportUtilities.isExtractingEnergy(this, transferComponent, offsetDirection)) {
 					if (TransportUtilities.isInsertingEnergy(neighborBlockEntity, neighborTransferComponent, neighborDirection)) {
-						energyTransfers.add(new Pair<>(Energy.of(this).side(offsetDirection), Energy.of(neighborBlockEntity).side(neighborDirection)));
+						energyTransfers.add(new Tuple<>(Energy.of(this).side(offsetDirection), Energy.of(neighborBlockEntity).side(neighborDirection)));
 					}
 				}
 			}
 		}
 
-		energyTransfers.sort(Comparator.comparing(Pair::getRight, Comparator.comparingDouble(EnergyHandler::getEnergy)));
+		energyTransfers.sort(Comparator.comparing(Tuple::getB, Comparator.comparingDouble(EnergyHandler::getEnergy)));
 		for (int i = energyTransfers.size() - 1; i >= 0; i--) {
-			Pair<EnergyHandler, EnergyHandler> pair = energyTransfers.get(i);
-			EnergyHandler input = pair.getLeft();
-			EnergyHandler output = pair.getRight();
+			Tuple<EnergyHandler, EnergyHandler> pair = energyTransfers.get(i);
+			EnergyHandler input = pair.getA();
+			EnergyHandler output = pair.getB();
 			input.into(output).move(Math.max(0, Math.min(input.getMaxOutput() / energyTransfers.size(), Math.min(Math.min(input.getEnergy() / (i + 1), output.getMaxStored() - output.getEnergy()), Math.min(input.getMaxOutput(), output.getMaxInput())))));
 		}
 
-		if (world.getBlockState(getPos()).contains(BlockWithEntity.ACTIVE)) {
+		if (level.getBlockState(getBlockPos()).hasProperty(BlockWithEntity.ACTIVE)) {
 			if (activity.length - 1 >= 0)
 				System.arraycopy(activity, 1, activity, 0, activity.length - 1);
 
 			activity[4] = isActive;
 
 			if (isActive && !activity[0]) {
-				world.setBlockState(getPos(), world.getBlockState(getPos()).with(BlockWithEntity.ACTIVE, true));
+				level.setBlockAndUpdate(getBlockPos(), level.getBlockState(getBlockPos()).setValue(BlockWithEntity.ACTIVE, true));
 			} else if (!isActive && activity[0]) {
-				world.setBlockState(getPos(), world.getBlockState(getPos()).with(BlockWithEntity.ACTIVE, false));
+				level.setBlockAndUpdate(getBlockPos(), level.getBlockState(getBlockPos()).setValue(BlockWithEntity.ACTIVE, false));
 			}
 		}
 	}

@@ -26,12 +26,9 @@ package com.github.chainmailstudios.astromine.common.widget.blade;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.client.BaseRenderer;
 import com.github.chainmailstudios.astromine.common.utilities.EnergyUtilities;
@@ -43,18 +40,19 @@ import com.github.vini2003.blade.common.widget.base.AbstractWidget;
 import org.jetbrains.annotations.NotNull;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import java.util.function.Supplier;
 
 public class EnergyVerticalBarWidget extends AbstractWidget {
-	private final Identifier ENERGY_BACKGROUND = AstromineCommon.identifier("textures/widget/energy_volume_fractional_vertical_bar_background.png");
-	private final Identifier ENERGY_FOREGROUND = AstromineCommon.identifier("textures/widget/energy_volume_fractional_vertical_bar_foreground.png");
+	private final ResourceLocation ENERGY_BACKGROUND = AstromineCommon.identifier("textures/widget/energy_volume_fractional_vertical_bar_background.png");
+	private final ResourceLocation ENERGY_FOREGROUND = AstromineCommon.identifier("textures/widget/energy_volume_fractional_vertical_bar_foreground.png");
 
 	private Supplier<EnergyVolume> volumeSupplier;
 
 	@Environment(EnvType.CLIENT)
 	@Override
-	public @NotNull List<Text> getTooltip() {
+	public @NotNull List<Component> getTooltip() {
 		return Lists.newArrayList(EnergyUtilities.compoundDisplay(volumeSupplier.get().getAmount(), volumeSupplier.get().getSize()));
 	}
 
@@ -64,7 +62,7 @@ public class EnergyVerticalBarWidget extends AbstractWidget {
 
 	@Environment(EnvType.CLIENT)
 	@Override
-	public void drawWidget(@NotNull MatrixStack matrices, @NotNull VertexConsumerProvider provider) {
+	public void drawWidget(@NotNull PoseStack matrices, @NotNull MultiBufferSource provider) {
 		if (getHidden())
 			return;
 
@@ -74,8 +72,8 @@ public class EnergyVerticalBarWidget extends AbstractWidget {
 		float sX = getSize().getWidth();
 		float sY = getSize().getHeight();
 
-		float rawHeight = Instances.client().getWindow().getHeight();
-		float scale = (float) Instances.client().getWindow().getScaleFactor();
+		float rawHeight = Instances.client().getWindow().getScreenHeight();
+		float scale = (float) Instances.client().getWindow().getGuiScale();
 
 		EnergyVolume volume = volumeSupplier.get();
 

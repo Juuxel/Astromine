@@ -31,9 +31,9 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import nerdhub.cardinal.components.api.ComponentRegistry;
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.Component;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -57,8 +57,8 @@ public class BlockEntityTransferComponent implements Component {
 	public void fromTag(CompoundTag tag) {
 		CompoundTag dataTag = tag.getCompound("data");
 
-		for (String key : dataTag.getKeys()) {
-			Identifier keyId = new Identifier(key);
+		for (String key : dataTag.getAllKeys()) {
+			ResourceLocation keyId = new ResourceLocation(key);
 			TransferEntry entry = new TransferEntry();
 			entry.fromTag(dataTag.getCompound(key));
 			components.put(ComponentRegistry.INSTANCE.get(keyId), entry);
@@ -97,7 +97,7 @@ public class BlockEntityTransferComponent implements Component {
 		}
 
 		public void fromTag(CompoundTag tag) {
-			for (String directionKey : tag.getKeys()) {
+			for (String directionKey : tag.getAllKeys()) {
 				if (tag.contains(directionKey)) {
 					types.put(DirectionUtilities.byNameOrId(directionKey), TransferType.valueOf(tag.getString(directionKey)));
 				}

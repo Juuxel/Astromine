@@ -24,14 +24,13 @@
 
 package com.github.chainmailstudios.astromine.common.screenhandler.base.entity;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.screen.ScreenHandlerType;
-
 import com.github.chainmailstudios.astromine.common.entity.base.ComponentEnergyFluidEntity;
 import com.github.chainmailstudios.astromine.common.widget.blade.EnergyVerticalBarWidget;
 import com.github.chainmailstudios.astromine.common.widget.blade.FluidVerticalBarWidget;
 import com.github.vini2003.blade.common.miscellaneous.Position;
 import com.github.vini2003.blade.common.miscellaneous.Size;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
 
 public abstract class ComponentEntityEnergyFluidScreenHandler extends ComponentEntityScreenHandler {
 	public EnergyVerticalBarWidget energyBar;
@@ -39,10 +38,10 @@ public abstract class ComponentEntityEnergyFluidScreenHandler extends ComponentE
 
 	public ComponentEnergyFluidEntity entity;
 
-	public ComponentEntityEnergyFluidScreenHandler(ScreenHandlerType<?> type, int syncId, PlayerEntity player, int entityId) {
+	public ComponentEntityEnergyFluidScreenHandler(MenuType<?> type, int syncId, Player player, int entityId) {
 		super(type, syncId, player, entityId);
 
-		entity = (ComponentEnergyFluidEntity) player.world.getEntityById(entityId);
+		entity = (ComponentEnergyFluidEntity) player.level.getEntity(entityId);
 	}
 
 	@Override

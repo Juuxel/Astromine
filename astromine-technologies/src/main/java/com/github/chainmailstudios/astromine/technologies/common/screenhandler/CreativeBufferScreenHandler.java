@@ -24,9 +24,6 @@
 
 package com.github.chainmailstudios.astromine.technologies.common.screenhandler;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
-
 import com.github.chainmailstudios.astromine.common.component.inventory.compatibility.ItemInventoryFromInventoryComponent;
 import com.github.chainmailstudios.astromine.common.screenhandler.base.block.ComponentBlockEntityItemScreenHandler;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
@@ -34,9 +31,11 @@ import com.github.chainmailstudios.astromine.technologies.registry.AstromineTech
 import com.github.vini2003.blade.common.miscellaneous.Position;
 import com.github.vini2003.blade.common.miscellaneous.Size;
 import com.github.vini2003.blade.common.widget.base.SlotWidget;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
 
 public class CreativeBufferScreenHandler extends ComponentBlockEntityItemScreenHandler {
-	public CreativeBufferScreenHandler(int syncId, PlayerEntity player, BlockPos position) {
+	public CreativeBufferScreenHandler(int syncId, Player player, BlockPos position) {
 		super(AstromineTechnologiesScreenHandlers.CREATIVE_BUFFER, syncId, player, position);
 	}
 

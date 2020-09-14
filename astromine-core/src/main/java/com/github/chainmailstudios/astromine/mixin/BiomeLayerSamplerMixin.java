@@ -31,15 +31,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.source.BiomeLayerSampler;
-
 import com.github.chainmailstudios.astromine.AstromineCommon;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.newbiome.layer.Layer;
 
-@Mixin(BiomeLayerSampler.class)
+@Mixin(Layer.class)
 public class BiomeLayerSamplerMixin {
 	@Unique
 	private Registry<Biome> registry;
@@ -53,13 +51,13 @@ public class BiomeLayerSamplerMixin {
 	}
 
 	@ModifyVariable(method = "sample", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/biome/BuiltinBiomes;fromRawId(I)Lnet/minecraft/util/registry/RegistryKey;", ordinal = 0, shift = At.Shift.BY, by = 2), ordinal = 0)
-	private RegistryKey<Biome> modifyBiome(RegistryKey<Biome> original) {
+	private ResourceKey<Biome> modifyBiome(ResourceKey<Biome> original) {
 		if (original != null)
 			return original;
-		Biome biome = registry.get(storedLastBiomeId);
+		Biome biome = registry.byId(storedLastBiomeId);
 		if (biome == null)
 			return original;
-		return registry.getKey(biome).filter(key -> key.getValue().getNamespace().equals(AstromineCommon.MOD_ID)).orElse(original);
+		return registry.getResourceKey(biome).filter(key -> key.location().getNamespace().equals(AstromineCommon.MOD_ID)).orElse(original);
 	}
 
 	@Inject(method = "sample", at = @At("RETURN"))

@@ -24,10 +24,6 @@
 
 package com.github.chainmailstudios.astromine.discoveries.client.rei.infusing;
 
-import net.minecraft.client.resource.language.I18n;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
-
 import com.github.chainmailstudios.astromine.discoveries.client.rei.AstromineDiscoveriesRoughlyEnoughItemsPlugin;
 import com.github.chainmailstudios.astromine.discoveries.registry.AstromineDiscoveriesBlocks;
 import me.shedaniel.math.Point;
@@ -36,19 +32,21 @@ import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.api.RecipeCategory;
 import me.shedaniel.rei.api.widgets.Widgets;
 import me.shedaniel.rei.gui.widget.Widget;
-
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import com.google.common.collect.Lists;
 import java.util.List;
 
 public class InfusingCategory implements RecipeCategory<InfusingDisplay> {
 	@Override
-	public Identifier getIdentifier() {
+	public ResourceLocation getIdentifier() {
 		return AstromineDiscoveriesRoughlyEnoughItemsPlugin.INFUSING;
 	}
 
 	@Override
 	public String getCategoryName() {
-		return I18n.translate("category.astromine.infusing");
+		return I18n.get("category.astromine.infusing");
 	}
 
 	@Override
@@ -66,8 +64,8 @@ public class InfusingCategory implements RecipeCategory<InfusingDisplay> {
 		System.out.println(degrees);
 		for (int i = 0; i < display.getInputEntries().size(); i++) {
 			List<EntryStack> stacks = display.getInputEntries().get(i);
-			int x = (int) (radius * 1.05f * MathHelper.cos(degrees * i * 0.0174532925F));
-			int y = (int) (radius * MathHelper.sin(degrees * i * 0.0174532925F));
+			int x = (int) (radius * 1.05f * Mth.cos(degrees * i * 0.0174532925F));
+			int y = (int) (radius * Mth.sin(degrees * i * 0.0174532925F));
 			widgets.add(Widgets.createSlot(new Point(bounds.x + 65 + x, bounds.y + 54 + y + 15)).entry(EntryStack.create(AstromineDiscoveriesBlocks.ALTAR_PEDESTAL)).noFavoritesInteractable().noInteractable().disableHighlight().disableTooltips().disableBackground());
 			widgets.add(Widgets.createSlot(new Point(bounds.x + 65 + x, bounds.y + 54 + y)).entries(stacks).disableBackground().markInput());
 		}

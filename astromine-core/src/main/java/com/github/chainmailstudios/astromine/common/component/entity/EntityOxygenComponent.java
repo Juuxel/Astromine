@@ -24,11 +24,10 @@
 
 package com.github.chainmailstudios.astromine.common.component.entity;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
-
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import nerdhub.cardinal.components.api.component.Component;
 
 public class EntityOxygenComponent implements Component {
@@ -60,8 +59,8 @@ public class EntityOxygenComponent implements Component {
 	}
 
 	public void simulate(boolean isBreathing) {
-		if (entity instanceof PlayerEntity) {
-			PlayerEntity player = (PlayerEntity) entity;
+		if (entity instanceof Player) {
+			Player player = (Player) entity;
 
 			if (player.isCreative() || player.isSpectator()) {
 				return;
@@ -71,7 +70,7 @@ public class EntityOxygenComponent implements Component {
 		oxygen = nextOxygen(isBreathing, oxygen);
 
 		if (oxygen == getMinimumOxygen()) {
-			entity.damage(DamageSource.GENERIC, 1.0F);
+			entity.hurt(DamageSource.GENERIC, 1.0F);
 		}
 	}
 

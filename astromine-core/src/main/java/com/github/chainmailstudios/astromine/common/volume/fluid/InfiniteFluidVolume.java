@@ -1,9 +1,9 @@
 package com.github.chainmailstudios.astromine.common.volume.fluid;
 
 import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.material.Fluid;
 import com.github.chainmailstudios.astromine.common.volume.base.Volume;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.util.Identifier;
 
 public class InfiniteFluidVolume extends FluidVolume {
 	public InfiniteFluidVolume(Fluid fluid) {
@@ -25,7 +25,7 @@ public class InfiniteFluidVolume extends FluidVolume {
 	}
 
 	@Override
-	public <V extends Volume<Identifier, Fraction>> V copy() {
+	public <V extends Volume<ResourceLocation, Fraction>> V copy() {
 		return (V) of(getFluid());
 	}
 }

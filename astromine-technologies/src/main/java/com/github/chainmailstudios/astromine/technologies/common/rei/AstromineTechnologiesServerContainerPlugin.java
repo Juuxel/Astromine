@@ -6,19 +6,18 @@ import com.github.chainmailstudios.astromine.technologies.common.screenhandler.*
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import me.shedaniel.rei.server.*;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class AstromineTechnologiesServerContainerPlugin implements Runnable {
-	public static final Identifier TRITURATING = AstromineCommon.identifier("triturating");
-	public static final Identifier ELECTRIC_SMELTING = AstromineCommon.identifier("electric_smelting");
-	public static final Identifier SOLID_GENERATING = AstromineCommon.identifier("solid_generating");
-	public static final Identifier PRESSING = AstromineCommon.identifier("pressing");
-	public static final Identifier ALLOY_SMELTING = AstromineCommon.identifier("alloy_smelting");
+	public static final ResourceLocation TRITURATING = AstromineCommon.identifier("triturating");
+	public static final ResourceLocation ELECTRIC_SMELTING = AstromineCommon.identifier("electric_smelting");
+	public static final ResourceLocation SOLID_GENERATING = AstromineCommon.identifier("solid_generating");
+	public static final ResourceLocation PRESSING = AstromineCommon.identifier("pressing");
+	public static final ResourceLocation ALLOY_SMELTING = AstromineCommon.identifier("alloy_smelting");
 
 	@Override
 	public void run() {
@@ -43,14 +42,14 @@ public class AstromineTechnologiesServerContainerPlugin implements Runnable {
 		}
 
 		@Override
-		public Class<? extends ScreenHandler> getContainerClass() {
+		public Class<? extends AbstractContainerMenu> getContainerClass() {
 			return clazz;
 		}
 
 		@Override
 		public List<StackAccessor> getGridStacks(ContainerContext<T> context) {
 			return gridStacks.stream()
-				.map(slotIndex -> new InventoryStackAccessor((Inventory) context.getContainer().syncBlockEntity, slotIndex))
+				.map(slotIndex -> new InventoryStackAccessor((Container) context.getContainer().syncBlockEntity, slotIndex))
 				.collect(Collectors.toList());
 		}
 

@@ -26,14 +26,11 @@ package com.github.chainmailstudios.astromine.registry;
 
 import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
 import net.fabricmc.loader.api.FabricLoader;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.InventoryProvider;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.WorldlyContainerHolder;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import com.github.chainmailstudios.astromine.common.network.NetworkMember;
 import com.github.chainmailstudios.astromine.common.network.NetworkMemberType;
 import com.github.chainmailstudios.astromine.common.network.type.base.NetworkType;
@@ -72,7 +69,7 @@ public class AstromineNetworkMembers {
 			public Collection<NetworkMemberType> get(WorldPos pos) {
 				if (!this.types.containsKey(pos.getBlock())) {
 					BlockEntity blockEntity = pos.getBlockEntity();
-					if (blockEntity instanceof InventoryProvider) {
+					if (blockEntity instanceof WorldlyContainerHolder) {
 						return NetworkMember.REQUESTER_PROVIDER;
 					}
 				}
@@ -82,13 +79,13 @@ public class AstromineNetworkMembers {
 
 		FabricLoader.getInstance().getEntrypoints("astromine-network-members", Runnable.class).forEach(Runnable::run);
 
-		Registry.BLOCK.getEntries().forEach(entry -> acceptBlock(entry.getKey(), entry.getValue()));
+		Registry.BLOCK.entrySet().forEach(entry -> acceptBlock(entry.getKey(), entry.getValue()));
 
-		RegistryEntryAddedCallback.event(Registry.BLOCK).register((index, identifier, block) -> acceptBlock(RegistryKey.of(Registry.BLOCK_KEY, identifier), block));
+		RegistryEntryAddedCallback.event(Registry.BLOCK).register((index, identifier, block) -> acceptBlock(ResourceKey.create(Registry.BLOCK_REGISTRY, identifier), block));
 	}
 
-	public static void acceptBlock(RegistryKey<Block> id, Block block) {
-		if (id.getValue().getNamespace().equals("astromine")) {
+	public static void acceptBlock(ResourceKey<Block> id, Block block) {
+		if (id.location().getNamespace().equals("astromine")) {
 			for (Map.Entry<Predicate<Block>, Consumer<Block>> blockConsumerEntry : BLOCK_CONSUMER.entrySet()) {
 				if (blockConsumerEntry.getKey().test(block)) {
 					blockConsumerEntry.getValue().accept(block);

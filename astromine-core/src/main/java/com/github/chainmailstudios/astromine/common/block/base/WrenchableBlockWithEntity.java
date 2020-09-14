@@ -27,7 +27,7 @@ package com.github.chainmailstudios.astromine.common.block.base;
 import com.github.chainmailstudios.astromine.common.utilities.capability.block.FacingBlockWrenchable;
 
 public abstract class WrenchableBlockWithEntity extends BlockWithEntity implements FacingBlockWrenchable {
-	public WrenchableBlockWithEntity(Settings settings) {
+	public WrenchableBlockWithEntity(Properties settings) {
 		super(settings);
 	}
 }

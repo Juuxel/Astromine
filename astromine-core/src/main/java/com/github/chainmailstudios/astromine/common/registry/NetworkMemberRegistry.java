@@ -24,11 +24,6 @@
 
 package com.github.chainmailstudios.astromine.common.registry;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 import com.github.chainmailstudios.astromine.common.network.NetworkMember;
 import com.github.chainmailstudios.astromine.common.network.NetworkMemberType;
 import com.github.chainmailstudios.astromine.common.network.type.base.NetworkType;
@@ -41,6 +36,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class NetworkMemberRegistry {
 	public static final NetworkMemberRegistry INSTANCE = new NetworkMemberRegistry();
@@ -53,12 +52,12 @@ public class NetworkMemberRegistry {
 		return INSTANCE.new NetworkMemberImpl(pos);
 	}
 
-	public static NetworkMember get(@Nullable World world, @Nullable BlockPos pos) {
+	public static NetworkMember get(@Nullable Level world, @Nullable BlockPos pos) {
 		return get(world != null && pos != null ? WorldPos.of(world, pos) : null);
 	}
 
 	public static NetworkMember get(@Nullable BlockEntity blockEntity) {
-		return blockEntity != null ? get(blockEntity.getWorld(), blockEntity.getPos()) : get(null, null);
+		return blockEntity != null ? get(blockEntity.getLevel(), blockEntity.getBlockPos()) : get(null, null);
 	}
 
 	public <T extends NetworkType, R extends NetworkTypeRegistry<?>> void register(T t, R r) {

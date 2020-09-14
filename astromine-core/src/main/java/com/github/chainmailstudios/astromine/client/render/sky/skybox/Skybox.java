@@ -24,8 +24,8 @@
 
 package com.github.chainmailstudios.astromine.client.render.sky.skybox;
 
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 public abstract class Skybox {
-	public abstract void render(MatrixStack matrices, float tickDelta);
+	public abstract void render(PoseStack matrices, float tickDelta);
 }

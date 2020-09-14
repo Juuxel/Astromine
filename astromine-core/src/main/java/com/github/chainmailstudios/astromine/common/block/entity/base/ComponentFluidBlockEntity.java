@@ -25,9 +25,7 @@
 package com.github.chainmailstudios.astromine.common.block.entity.base;
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-
-import net.minecraft.block.entity.BlockEntityType;
-
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import com.github.chainmailstudios.astromine.common.component.SidedComponentProvider;
 import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;

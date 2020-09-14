@@ -24,11 +24,6 @@
 
 package com.github.chainmailstudios.astromine.common.screenhandler.base.entity;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.screen.ScreenHandlerType;
-
 import com.github.chainmailstudios.astromine.common.entity.base.ComponentEntity;
 import com.github.vini2003.blade.common.collection.TabWidgetCollection;
 import com.github.vini2003.blade.common.handler.BaseScreenHandler;
@@ -41,6 +36,9 @@ import com.github.vini2003.blade.common.widget.base.TextWidget;
 
 import java.util.Collection;
 import java.util.HashSet;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
 
 public abstract class ComponentEntityScreenHandler extends BaseScreenHandler {
 	public ComponentEntity syncEntity;
@@ -48,10 +46,10 @@ public abstract class ComponentEntityScreenHandler extends BaseScreenHandler {
 	public TabWidgetCollection mainTab;
 	protected TabWidget tabs;
 
-	public ComponentEntityScreenHandler(ScreenHandlerType<?> type, int syncId, PlayerEntity player, int entityId) {
+	public ComponentEntityScreenHandler(MenuType<?> type, int syncId, Player player, int entityId) {
 		super(type, syncId, player);
 
-		syncEntity = (ComponentEntity) player.world.getEntityById(entityId);
+		syncEntity = (ComponentEntity) player.level.getEntity(entityId);
 	}
 
 	public abstract ItemStack getSymbol();
@@ -61,7 +59,7 @@ public abstract class ComponentEntityScreenHandler extends BaseScreenHandler {
 	}
 
 	@Override
-	public boolean canUse(PlayerEntity player) {
+	public boolean stillValid(Player player) {
 		return this.syncEntity.isAlive() && this.syncEntity.distanceTo(player) < 8.0F;
 	}
 

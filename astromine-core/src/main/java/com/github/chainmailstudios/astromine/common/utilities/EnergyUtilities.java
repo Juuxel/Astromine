@@ -26,11 +26,6 @@ package com.github.chainmailstudios.astromine.common.utilities;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.Energy;
 import team.reborn.energy.EnergyHandler;
@@ -38,6 +33,11 @@ import team.reborn.energy.EnergySide;
 
 import java.text.DecimalFormat;
 import java.util.Objects;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.Direction;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public class EnergyUtilities {
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###");
@@ -103,11 +103,11 @@ public class EnergyUtilities {
 		}
 	}
 
-	public static double fromPacket(PacketByteBuf buf) {
+	public static double fromPacket(FriendlyByteBuf buf) {
 		return buf.readDouble();
 	}
 
-	public static void toPacket(PacketByteBuf buf, double v) {
+	public static void toPacket(FriendlyByteBuf buf, double v) {
 		buf.writeDouble(v);
 	}
 
@@ -123,20 +123,20 @@ public class EnergyUtilities {
 		return String.valueOf((int) v);
 	}
 
-	public static MutableText simpleDisplay(double energy) {
-		return new TranslatableText("text.astromine.tooltip.energy_value", toRoundingString(energy));
+	public static MutableComponent simpleDisplay(double energy) {
+		return new TranslatableComponent("text.astromine.tooltip.energy_value", toRoundingString(energy));
 	}
 
-	public static MutableText compoundDisplay(double energy, double maxEnergy) {
-		return new TranslatableText("text.astromine.tooltip.compound_energy_value", toRoundingString(energy), toRoundingString(maxEnergy));
+	public static MutableComponent compoundDisplay(double energy, double maxEnergy) {
+		return new TranslatableComponent("text.astromine.tooltip.compound_energy_value", toRoundingString(energy), toRoundingString(maxEnergy));
 	}
 
-	public static MutableText simpleDisplayColored(double energy) {
-		return simpleDisplay(energy).formatted(Formatting.GRAY);
+	public static MutableComponent simpleDisplayColored(double energy) {
+		return simpleDisplay(energy).withStyle(ChatFormatting.GRAY);
 	}
 
-	public static MutableText compoundDisplayColored(double energy, double maxEnergy) {
-		return compoundDisplay(energy, maxEnergy).formatted(Formatting.GRAY);
+	public static MutableComponent compoundDisplayColored(double energy, double maxEnergy) {
+		return compoundDisplay(energy, maxEnergy).withStyle(ChatFormatting.GRAY);
 	}
 
 	@Nullable

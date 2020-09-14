@@ -24,16 +24,14 @@
 
 package com.github.chainmailstudios.astromine.common.utilities;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-
 import com.github.chainmailstudios.astromine.common.component.block.entity.BlockEntityTransferComponent;
 import com.github.chainmailstudios.astromine.common.widget.blade.TransferTypeSelectorButtonWidget;
 import com.github.vini2003.blade.common.collection.TabWidgetCollection;
 import com.github.vini2003.blade.common.miscellaneous.Position;
 import com.github.vini2003.blade.common.miscellaneous.Size;
 import nerdhub.cardinal.components.api.ComponentType;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import com.google.common.collect.ImmutableMap;
 
 public class WidgetUtilities {

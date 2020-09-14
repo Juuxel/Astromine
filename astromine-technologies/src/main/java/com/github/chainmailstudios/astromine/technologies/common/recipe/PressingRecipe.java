@@ -26,16 +26,6 @@ package com.github.chainmailstudios.astromine.technologies.common.recipe;
 
 import com.github.chainmailstudios.astromine.common.recipe.AstromineRecipeType;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.RecipeType;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.world.World;
-
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.compatibility.ItemInventoryComponentFromItemInventory;
@@ -54,15 +44,24 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 
-public class PressingRecipe implements EnergyConsumingRecipe<Inventory> {
-	final Identifier identifier;
+public class PressingRecipe implements EnergyConsumingRecipe<Container> {
+	final ResourceLocation identifier;
 	final Ingredient input;
 	final ItemStack output;
 	final double energyConsumed;
 	final int time;
 
-	public PressingRecipe(Identifier identifier, Ingredient input, ItemStack output, double energyConsumed, int time) {
+	public PressingRecipe(ResourceLocation identifier, Ingredient input, ItemStack output, double energyConsumed, int time) {
 		this.identifier = identifier;
 		this.input = input;
 		this.output = output;
@@ -71,12 +70,12 @@ public class PressingRecipe implements EnergyConsumingRecipe<Inventory> {
 	}
 
 	@Override
-	public boolean matches(Inventory inventory, World world) {
+	public boolean matches(Container inventory, Level world) {
 		return ItemInventoryComponentFromItemInventory.of(inventory).getContents().values().stream().anyMatch(input);
 	}
 
 	@Override
-	public ItemStack craft(Inventory inventory) {
+	public ItemStack craft(Container inventory) {
 		return output.copy();
 	}
 
@@ -91,7 +90,7 @@ public class PressingRecipe implements EnergyConsumingRecipe<Inventory> {
 	}
 
 	@Override
-	public Identifier getId() {
+	public ResourceLocation getId() {
 		return identifier;
 	}
 
@@ -106,8 +105,8 @@ public class PressingRecipe implements EnergyConsumingRecipe<Inventory> {
 	}
 
 	@Override
-	public DefaultedList<Ingredient> getPreviewInputs() {
-		DefaultedList<Ingredient> defaultedList = DefaultedList.of();
+	public NonNullList<Ingredient> getPreviewInputs() {
+		NonNullList<Ingredient> defaultedList = NonNullList.create();
 		defaultedList.add(this.input);
 		return defaultedList;
 	}
@@ -126,7 +125,7 @@ public class PressingRecipe implements EnergyConsumingRecipe<Inventory> {
 	}
 
 	public static final class Serializer implements RecipeSerializer<PressingRecipe> {
-		public static final Identifier ID = AstromineCommon.identifier("pressing");
+		public static final ResourceLocation ID = AstromineCommon.identifier("pressing");
 
 		public static final Serializer INSTANCE = new Serializer();
 
@@ -135,19 +134,19 @@ public class PressingRecipe implements EnergyConsumingRecipe<Inventory> {
 		}
 
 		@Override
-		public PressingRecipe read(Identifier identifier, JsonObject object) {
+		public PressingRecipe read(ResourceLocation identifier, JsonObject object) {
 			PressingRecipe.Format format = new Gson().fromJson(object, PressingRecipe.Format.class);
 
 			return new PressingRecipe(identifier, IngredientUtilities.fromJson(format.input), StackUtilities.fromJson(format.output), EnergyUtilities.fromJson(format.energyConsumed), ParsingUtilities.fromJson(format.time, Integer.class));
 		}
 
 		@Override
-		public PressingRecipe read(Identifier identifier, PacketByteBuf buffer) {
+		public PressingRecipe read(ResourceLocation identifier, FriendlyByteBuf buffer) {
 			return new PressingRecipe(identifier, IngredientUtilities.fromPacket(buffer), StackUtilities.fromPacket(buffer), EnergyUtilities.fromPacket(buffer), PacketUtilities.fromPacket(buffer, Integer.class));
 		}
 
 		@Override
-		public void write(PacketByteBuf buffer, PressingRecipe recipe) {
+		public void write(FriendlyByteBuf buffer, PressingRecipe recipe) {
 			IngredientUtilities.toPacket(buffer, recipe.input);
 			StackUtilities.toPacket(buffer, recipe.output);
 			EnergyUtilities.toPacket(buffer, recipe.energyConsumed);

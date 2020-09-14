@@ -26,23 +26,21 @@ package com.github.chainmailstudios.astromine.discoveries.common.block.entity;
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.util.NbtType;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LightningEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.LongTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.particle.DustParticleEffect;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.Lazy;
-import net.minecraft.util.Tickable;
-import net.minecraft.util.math.BlockPos;
-
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.LazyLoadedValue;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.TickableBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.compatibility.ItemInventoryFromInventoryComponent;
@@ -59,7 +57,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromInventoryComponent, Tickable, BlockEntityClientSerializable {
+public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromInventoryComponent, TickableBlockEntity, BlockEntityClientSerializable {
 	public static final int CRAFTING_TIME = 100;
 	public static final int CRAFTING_TIME_SPIN = 80;
 	public static final int CRAFTING_TIME_FALL = 60;
@@ -112,7 +110,7 @@ public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromIn
 
 		if (craftingTicks > 0) {
 			craftingTicks++;
-			if (!world.isClient) {
+			if (!level.isClientSide) {
 				sync();
 
 				if (craftingTicks == CRAFTING_TIME + CRAFTING_TIME_SPIN / 2 && recipe != null) {
@@ -126,11 +124,11 @@ public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromIn
 					}
 
 					recipe = null;
-					LightningEntity entity = EntityType.LIGHTNING_BOLT.create(world);
-					entity.refreshPositionAfterTeleport(pos.getX() + 0.5, pos.getY() + 1 + HEIGHT_OFFSET, pos.getZ() + 0.5);
-					entity.setCosmetic(true);
-					world.spawnEntity(entity);
-					world.playSound(null, getPos(), AstromineDiscoveriesSoundEvents.ALTAR_FINISH, SoundCategory.BLOCKS, 1.5F, 1);
+					LightningBolt entity = EntityType.LIGHTNING_BOLT.create(level);
+					entity.moveTo(worldPosition.getX() + 0.5, worldPosition.getY() + 1 + HEIGHT_OFFSET, worldPosition.getZ() + 0.5);
+					entity.setVisualOnly(true);
+					level.addFreshEntity(entity);
+					level.playSound(null, getBlockPos(), AstromineDiscoveriesSoundEvents.ALTAR_FINISH, SoundSource.BLOCKS, 1.5F, 1);
 				}
 				if (craftingTicks >= CRAFTING_TIME + CRAFTING_TIME_SPIN + CRAFTING_TIME_FALL) {
 					onRemove();
@@ -138,7 +136,7 @@ public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromIn
 			}
 		}
 
-		if (!world.isClient && !inventory.getStack(0).isEmpty() && craftingTicks > 0 && craftingTicks <= CRAFTING_TIME + CRAFTING_TIME_SPIN + CRAFTING_TIME_FALL) {
+		if (!level.isClientSide && !inventory.getStack(0).isEmpty() && craftingTicks > 0 && craftingTicks <= CRAFTING_TIME + CRAFTING_TIME_SPIN + CRAFTING_TIME_FALL) {
 			spawnParticles();
 		}
 	}
@@ -146,8 +144,8 @@ public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromIn
 	public void spawnParticles() {
 		double yProgress = getYProgress(craftingTicks);
 		float l = AltarBlockEntity.HOVER_HEIGHT + 0.1F;
-		DustParticleEffect effect = new DustParticleEffect(1, 1, 1, 1);
-		((ServerWorld) world).spawnParticles(effect, getPos().getX() + 0.5D, getPos().getY() + l + 1.0D - 0.1D + AltarBlockEntity.HEIGHT_OFFSET * yProgress, getPos().getZ() + 0.5D, 2, 0.1D, 0D, 0.1D, 0);
+		DustParticleOptions effect = new DustParticleOptions(1, 1, 1, 1);
+		((ServerLevel) level).sendParticles(effect, getBlockPos().getX() + 0.5D, getBlockPos().getY() + l + 1.0D - 0.1D + AltarBlockEntity.HEIGHT_OFFSET * yProgress, getBlockPos().getZ() + 0.5D, 2, 0.1D, 0D, 0.1D, 0);
 	}
 
 	public double getYProgress(double craftingTicksDelta) {
@@ -158,8 +156,8 @@ public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromIn
 			if (craftingTicksDelta >= AltarBlockEntity.CRAFTING_TIME + AltarBlockEntity.CRAFTING_TIME_SPIN) {
 				progress *= 1 - Math.min(1, (craftingTicksDelta - AltarBlockEntity.CRAFTING_TIME - AltarBlockEntity.CRAFTING_TIME_SPIN) / (double) AltarBlockEntity.CRAFTING_TIME_FALL);
 			}
-			BlockPos pos = getPos();
-			BlockPos parentPos = getPos();
+			BlockPos pos = getBlockPos();
+			BlockPos parentPos = getBlockPos();
 		}
 
 		return progress;
@@ -183,11 +181,11 @@ public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromIn
 				child.parent = null;
 				iterator.remove();
 			} else {
-				child.parent = pos;
+				child.parent = worldPosition;
 			}
 		}
 
-		Optional<AltarRecipe> match = world.getRecipeManager().getFirstMatch(AltarRecipe.Type.INSTANCE, this, world);
+		Optional<AltarRecipe> match = level.getRecipeManager().getRecipeFor(AltarRecipe.Type.INSTANCE, this, level);
 		if (match.isPresent()) {
 			recipe = match.get();
 			craftingTicks = 1;
@@ -196,7 +194,7 @@ public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromIn
 				child.get().sync();
 			}
 
-			world.playSound(null, getPos(), AstromineDiscoveriesSoundEvents.ALTAR_START, SoundCategory.BLOCKS, 1, 1);
+			level.playSound(null, getBlockPos(), AstromineDiscoveriesSoundEvents.ALTAR_START, SoundSource.BLOCKS, 1, 1);
 
 			return true;
 		} else {
@@ -206,23 +204,23 @@ public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromIn
 	}
 
 	private List<Supplier<AltarPedestalBlockEntity>> scanDisplayers() {
-		return IntStream.range(-4, 5).boxed().flatMap(xOffset -> IntStream.range(-4, 5).boxed().map(zOffset -> world.getBlockEntity(pos.add(xOffset, 0, zOffset)))).filter(blockEntity -> blockEntity instanceof AltarPedestalBlockEntity).map(
-			blockEntity -> (AltarPedestalBlockEntity) blockEntity).filter(blockEntity -> blockEntity.parent == null || pos.equals(blockEntity.parent)).map(blockEntity -> (Supplier<AltarPedestalBlockEntity>) () -> blockEntity).collect(Collectors.toList());
+		return IntStream.range(-4, 5).boxed().flatMap(xOffset -> IntStream.range(-4, 5).boxed().map(zOffset -> level.getBlockEntity(worldPosition.offset(xOffset, 0, zOffset)))).filter(blockEntity -> blockEntity instanceof AltarPedestalBlockEntity).map(
+			blockEntity -> (AltarPedestalBlockEntity) blockEntity).filter(blockEntity -> blockEntity.parent == null || worldPosition.equals(blockEntity.parent)).map(blockEntity -> (Supplier<AltarPedestalBlockEntity>) () -> blockEntity).collect(Collectors.toList());
 	}
 
 	@Override
 	public void fromClientTag(CompoundTag compoundTag) {
-		fromTag(null, compoundTag);
+		load(null, compoundTag);
 	}
 
 	@Override
 	public CompoundTag toClientTag(CompoundTag compoundTag) {
-		return toTag(compoundTag);
+		return save(compoundTag);
 	}
 
 	@Override
-	public void fromTag(BlockState state, CompoundTag tag) {
-		super.fromTag(state, tag);
+	public void load(BlockState state, CompoundTag tag) {
+		super.load(state, tag);
 		inventory.fromTag(tag);
 		craftingTicks = tag.getInt("craftingTicks");
 		if (craftingTicksDelta == 0 || craftingTicks == 0 || craftingTicks == 1)
@@ -230,22 +228,22 @@ public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromIn
 		children.clear();
 		ListTag children = tag.getList("children", NbtType.LONG);
 		for (Tag child : children) {
-			long pos = ((LongTag) child).getLong();
-			Lazy<AltarPedestalBlockEntity> lazy = new Lazy<>(() -> (AltarPedestalBlockEntity) world.getBlockEntity(BlockPos.fromLong(pos)));
+			long pos = ((LongTag) child).getAsLong();
+			LazyLoadedValue<AltarPedestalBlockEntity> lazy = new LazyLoadedValue<>(() -> (AltarPedestalBlockEntity) level.getBlockEntity(BlockPos.of(pos)));
 			this.children.add(lazy::get);
 		}
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
+	public CompoundTag save(CompoundTag tag) {
 		inventory.toTag(tag);
 		tag.putInt("craftingTicks", craftingTicks);
 		ListTag childrenTag = new ListTag();
 		for (Supplier<AltarPedestalBlockEntity> child : children) {
-			childrenTag.add(LongTag.of(child.get().getPos().asLong()));
+			childrenTag.add(LongTag.valueOf(child.get().getBlockPos().asLong()));
 		}
 		tag.put("children", childrenTag);
-		return super.toTag(tag);
+		return super.save(tag);
 	}
 
 	public void onRemove() {
@@ -255,7 +253,7 @@ public class AltarBlockEntity extends BlockEntity implements ItemInventoryFromIn
 
 		for (Supplier<AltarPedestalBlockEntity> child : children) {
 			child.get().parent = null;
-			if (!world.isClient)
+			if (!level.isClientSide)
 				child.get().sync();
 		}
 

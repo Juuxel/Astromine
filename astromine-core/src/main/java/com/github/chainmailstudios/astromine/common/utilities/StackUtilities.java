@@ -24,15 +24,14 @@
 
 package com.github.chainmailstudios.astromine.common.utilities;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.recipe.ShapedRecipe;
-import net.minecraft.text.Text;
-import net.minecraft.util.Pair;
-
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.ShapedRecipe;
 import com.google.gson.JsonObject;
 import java.util.Collection;
 import java.util.List;
@@ -43,7 +42,7 @@ public class StackUtilities {
 		for (ItemStack stackA : stackListA) {
 			boolean found = false;
 			for (ItemStack stackB : stackListB) {
-				if (ItemStack.areEqual(stackA, stackB)) {
+				if (ItemStack.matches(stackA, stackB)) {
 					found = true;
 				}
 				if (found) {
@@ -58,27 +57,27 @@ public class StackUtilities {
 	}
 
 	public static boolean equalItemAndTag(ItemStack stackA, ItemStack stackB) {
-		return ItemStack.areTagsEqual(stackA, stackB) && ItemStack.areItemsEqual(stackA, stackB);
+		return ItemStack.tagMatches(stackA, stackB) && ItemStack.isSameIgnoreDurability(stackA, stackB);
 	}
 
-	public static ItemStack fromPacket(PacketByteBuf buffer) {
-		return buffer.readItemStack();
+	public static ItemStack fromPacket(FriendlyByteBuf buffer) {
+		return buffer.readItem();
 	}
 
-	public static void toPacket(PacketByteBuf buffer, ItemStack stack) {
-		buffer.writeItemStack(stack);
+	public static void toPacket(FriendlyByteBuf buffer, ItemStack stack) {
+		buffer.writeItem(stack);
 	}
 
 	public static ItemStack fromJson(JsonObject jsonObject) {
-		return ShapedRecipe.getItemStack(jsonObject);
+		return ShapedRecipe.itemFromJson(jsonObject);
 	}
 
-	public static ItemStack withLore(ItemStack stack, Collection<Text> texts) {
-		List<Text> entries = (List<Text>) texts;
+	public static ItemStack withLore(ItemStack stack, Collection<Component> texts) {
+		List<Component> entries = (List<Component>) texts;
 
 		ListTag loreListTag = new ListTag();
 
-		entries.forEach(text -> loreListTag.add(StringTag.of(Text.Serializer.toJson(text))));
+		entries.forEach(text -> loreListTag.add(StringTag.valueOf(Component.Serializer.toJson(text))));
 
 		CompoundTag displayTag = stack.getOrCreateTag().getCompound("display");
 
@@ -93,7 +92,7 @@ public class StackUtilities {
 		return stack;
 	}
 
-	public static Pair<ItemStack, ItemStack> merge(Supplier<ItemStack> supplierA, Supplier<ItemStack> supplierB, Supplier<Integer> sA, Supplier<Integer> sB) {
+	public static Tuple<ItemStack, ItemStack> merge(Supplier<ItemStack> supplierA, Supplier<ItemStack> supplierB, Supplier<Integer> sA, Supplier<Integer> sB) {
 		return merge(supplierA.get(), supplierB.get(), sA.get(), sB.get());
 	}
 
@@ -111,7 +110,7 @@ public class StackUtilities {
 	 *
 	 * @return Resulting ItemStacks
 	 */
-	public static Pair<ItemStack, ItemStack> merge(ItemStack stackA, ItemStack stackB, int maxA, int maxB) {
+	public static Tuple<ItemStack, ItemStack> merge(ItemStack stackA, ItemStack stackB, int maxA, int maxB) {
 		if (equalItemAndTag(stackA, stackB)) {
 			int countA = stackA.getCount();
 			int countB = stackB.getCount();
@@ -119,7 +118,7 @@ public class StackUtilities {
 			int availableA = Math.max(0, maxA - countA);
 			int availableB = Math.max(0, maxB - countB);
 
-			stackB.increment(Math.min(countA, availableB));
+			stackB.grow(Math.min(countA, availableB));
 			stackA.setCount(Math.max(countA - availableB, 0));
 		} else {
 			if (stackA.isEmpty() && !stackB.isEmpty()) {
@@ -132,7 +131,7 @@ public class StackUtilities {
 				stackA.setCount(Math.min(countB, availableA));
 
 				stackA.setTag(stackB.getTag());
-				stackB.decrement(Math.min(countB, availableA));
+				stackB.shrink(Math.min(countB, availableA));
 			} else if (stackB.isEmpty() && !stackA.isEmpty()) {
 				int countB = stackB.getCount();
 				int availableB = maxB - countB;
@@ -142,10 +141,10 @@ public class StackUtilities {
 				stackB = stackA.copy();
 				stackB.setCount(Math.min(countA, availableB));
 				stackB.setTag(stackA.getTag());
-				stackA.decrement(Math.min(countA, availableB));
+				stackA.shrink(Math.min(countA, availableB));
 			}
 		}
 
-		return new Pair<>(stackA, stackB);
+		return new Tuple<>(stackA, stackB);
 	}
 }

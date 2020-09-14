@@ -24,28 +24,28 @@
 
 package com.github.chainmailstudios.astromine.access;
 
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 public interface WorldChunkAccess {
 	void astromine_addUnloadListener(Runnable runnable);
 
 	void astromine_runUnloadListeners();
 
-	void astromine_attachEast(WorldChunk chunk);
+	void astromine_attachEast(LevelChunk chunk);
 
-	void astromine_attachWest(WorldChunk chunk);
+	void astromine_attachWest(LevelChunk chunk);
 
-	void astromine_attachNorth(WorldChunk chunk);
+	void astromine_attachNorth(LevelChunk chunk);
 
-	void astromine_attachSouth(WorldChunk chunk);
+	void astromine_attachSouth(LevelChunk chunk);
 
 	void astromine_removeSubchunk(int subchunk);
 
-	WorldChunk astromine_east();
+	LevelChunk astromine_east();
 
-	WorldChunk astromine_west();
+	LevelChunk astromine_west();
 
-	WorldChunk astromine_north();
+	LevelChunk astromine_north();
 
-	WorldChunk astromine_south();
+	LevelChunk astromine_south();
 }

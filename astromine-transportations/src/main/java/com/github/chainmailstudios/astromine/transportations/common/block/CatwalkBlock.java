@@ -26,111 +26,116 @@ package com.github.chainmailstudios.astromine.transportations.common.block;
 
 import com.github.chainmailstudios.astromine.transportations.common.block.property.ConveyorProperties;
 import net.minecraft.block.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import com.zundrel.wrenchable.WrenchableUtilities;
 import com.zundrel.wrenchable.block.BlockWrenchable;
 import grondag.fermion.modkeys.api.ModKeys;
 
 import javax.annotation.Nullable;
 
-public class CatwalkBlock extends Block implements BlockWrenchable, Waterloggable {
-	public CatwalkBlock(Settings settings) {
+public class CatwalkBlock extends Block implements BlockWrenchable, SimpleWaterloggedBlock {
+	public CatwalkBlock(Properties settings) {
 		super(settings);
 
-		setDefaultState(this.getDefaultState().with(ConveyorProperties.FLOOR, true).with(Properties.NORTH, false).with(Properties.EAST, false).with(Properties.SOUTH, false).with(Properties.WEST, false).with(Properties.WATERLOGGED, false));
+		registerDefaultState(this.defaultBlockState().setValue(ConveyorProperties.FLOOR, true).setValue(BlockStateProperties.NORTH, false).setValue(BlockStateProperties.EAST, false).setValue(BlockStateProperties.SOUTH, false).setValue(BlockStateProperties.WEST, false).setValue(BlockStateProperties.WATERLOGGED, false));
 	}
 
 	@Nullable
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext context) {
-		return super.getPlacementState(context).with(Properties.WATERLOGGED, context.getWorld().getBlockState(context.getBlockPos()).getBlock() == Blocks.WATER);
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		return super.getStateForPlacement(context).setValue(BlockStateProperties.WATERLOGGED, context.getLevel().getBlockState(context.getClickedPos()).getBlock() == Blocks.WATER);
 	}
 
 	@Override
 	public FluidState getFluidState(BlockState state) {
-		return (state.contains(Properties.WATERLOGGED) && state.get(Properties.WATERLOGGED)) ? Fluids.WATER.getDefaultState() : super.getFluidState(state);
+		return (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED)) ? Fluids.WATER.defaultFluidState() : super.getFluidState(state);
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-		builder.add(ConveyorProperties.FLOOR, Properties.NORTH, Properties.EAST, Properties.SOUTH, Properties.WEST, Properties.WATERLOGGED);
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(ConveyorProperties.FLOOR, BlockStateProperties.NORTH, BlockStateProperties.EAST, BlockStateProperties.SOUTH, BlockStateProperties.WEST, BlockStateProperties.WATERLOGGED);
 	}
 
 	@Override
-	public void onWrenched(World world, PlayerEntity playerEntity, BlockHitResult blockHitResult) {
+	public void onWrenched(Level world, Player playerEntity, BlockHitResult blockHitResult) {
 		BlockPos pos = blockHitResult.getBlockPos();
 		if (ModKeys.isControlPressed(playerEntity)) {
-			world.setBlockState(pos, world.getBlockState(pos).cycle(ConveyorProperties.FLOOR));
+			world.setBlockAndUpdate(pos, world.getBlockState(pos).cycle(ConveyorProperties.FLOOR));
 			return;
 		}
 
-		if (blockHitResult.getSide().getAxis().isHorizontal()) {
-			world.setBlockState(pos, world.getBlockState(pos).cycle(getPropertyFromDirection(blockHitResult.getSide())));
-		} else if (blockHitResult.getSide().getAxis().isVertical()) {
-			world.setBlockState(pos, world.getBlockState(pos).cycle(getPropertyFromDirection(playerEntity.getHorizontalFacing().getOpposite())));
+		if (blockHitResult.getDirection().getAxis().isHorizontal()) {
+			world.setBlockAndUpdate(pos, world.getBlockState(pos).cycle(getPropertyFromDirection(blockHitResult.getDirection())));
+		} else if (blockHitResult.getDirection().getAxis().isVertical()) {
+			world.setBlockAndUpdate(pos, world.getBlockState(pos).cycle(getPropertyFromDirection(playerEntity.getDirection().getOpposite())));
 		}
 	}
 
 	public BooleanProperty getPropertyFromDirection(Direction direction) {
 		switch (direction) {
 			case NORTH:
-				return Properties.NORTH;
+				return BlockStateProperties.NORTH;
 			case EAST:
-				return Properties.EAST;
+				return BlockStateProperties.EAST;
 			case SOUTH:
-				return Properties.SOUTH;
+				return BlockStateProperties.SOUTH;
 			case WEST:
-				return Properties.WEST;
+				return BlockStateProperties.WEST;
 			default:
 				return null;
 		}
 	}
 
 	@Override
-	public BlockState getStateForNeighborUpdate(BlockState state, Direction facing, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+	public BlockState updateShape(BlockState state, Direction facing, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
 		BlockState newState = state;
 		boolean neighborSameType = neighborState.getBlock() instanceof CatwalkBlock;
 
 		if (facing == Direction.NORTH)
-			newState = newState.with(Properties.NORTH, neighborSameType);
+			newState = newState.setValue(BlockStateProperties.NORTH, neighborSameType);
 		if (facing == Direction.EAST)
-			newState = newState.with(Properties.EAST, neighborSameType);
+			newState = newState.setValue(BlockStateProperties.EAST, neighborSameType);
 		if (facing == Direction.SOUTH)
-			newState = newState.with(Properties.SOUTH, neighborSameType);
+			newState = newState.setValue(BlockStateProperties.SOUTH, neighborSameType);
 		if (facing == Direction.WEST)
-			newState = newState.with(Properties.WEST, neighborSameType);
+			newState = newState.setValue(BlockStateProperties.WEST, neighborSameType);
 
 		return newState;
 	}
 
 	@Override
-	public VoxelShape getOutlineShape(BlockState state, BlockView view, BlockPos pos, ShapeContext context) {
-		Box bottom = new Box(0, 0, 0, 1, (1F / 16F), 1);
-		Box north = new Box(0, 0, 0, 1, 1, (1F / 16F));
-		Box east = new Box((15F / 16F), 0, 0, 1, 1, 1);
-		Box south = new Box(0, 0, (15F / 16F), 1, 1, 1);
-		Box west = new Box(0, 0, 0, (1F / 16F), 1, 1);
-		VoxelShape fullShape = VoxelShapes.union(VoxelShapes.cuboid(bottom), VoxelShapes.cuboid(north), VoxelShapes.cuboid(east), VoxelShapes.cuboid(south), VoxelShapes.cuboid(west));
+	public VoxelShape getShape(BlockState state, BlockGetter view, BlockPos pos, CollisionContext context) {
+		AABB bottom = new AABB(0, 0, 0, 1, (1F / 16F), 1);
+		AABB north = new AABB(0, 0, 0, 1, 1, (1F / 16F));
+		AABB east = new AABB((15F / 16F), 0, 0, 1, 1, 1);
+		AABB south = new AABB(0, 0, (15F / 16F), 1, 1, 1);
+		AABB west = new AABB(0, 0, 0, (1F / 16F), 1, 1);
+		VoxelShape fullShape = Shapes.or(Shapes.create(bottom), Shapes.create(north), Shapes.create(east), Shapes.create(south), Shapes.create(west));
 
-		if (context instanceof EntityShapeContext) {
-			Item heldItem = ((EntityShapeContext) context).heldItem;
+		if (context instanceof EntityCollisionContext) {
+			Item heldItem = ((EntityCollisionContext) context).heldItem;
 
 			if (WrenchableUtilities.isWrench(heldItem)) {
 				return fullShape;
@@ -141,24 +146,24 @@ public class CatwalkBlock extends Block implements BlockWrenchable, Waterloggabl
 	}
 
 	@Override
-	public VoxelShape getCollisionShape(BlockState state, BlockView view, BlockPos pos, ShapeContext entityContext) {
-		Box bottom = new Box(0, 0, 0, 1, (1F / 16F), 1);
-		Box north = new Box(0, 0, 0, 1, 1, (1F / 16F));
-		Box east = new Box((15F / 16F), 0, 0, 1, 1, 1);
-		Box south = new Box(0, 0, (15F / 16F), 1, 1, 1);
-		Box west = new Box(0, 0, 0, (1F / 16F), 1, 1);
-		VoxelShape shape = VoxelShapes.empty();
+	public VoxelShape getCollisionShape(BlockState state, BlockGetter view, BlockPos pos, CollisionContext entityContext) {
+		AABB bottom = new AABB(0, 0, 0, 1, (1F / 16F), 1);
+		AABB north = new AABB(0, 0, 0, 1, 1, (1F / 16F));
+		AABB east = new AABB((15F / 16F), 0, 0, 1, 1, 1);
+		AABB south = new AABB(0, 0, (15F / 16F), 1, 1, 1);
+		AABB west = new AABB(0, 0, 0, (1F / 16F), 1, 1);
+		VoxelShape shape = Shapes.empty();
 
-		if (state.get(ConveyorProperties.FLOOR))
-			shape = VoxelShapes.union(shape, VoxelShapes.cuboid(bottom));
-		if (!state.get(Properties.NORTH))
-			shape = VoxelShapes.union(shape, VoxelShapes.cuboid(north));
-		if (!state.get(Properties.EAST))
-			shape = VoxelShapes.union(shape, VoxelShapes.cuboid(east));
-		if (!state.get(Properties.SOUTH))
-			shape = VoxelShapes.union(shape, VoxelShapes.cuboid(south));
-		if (!state.get(Properties.WEST))
-			shape = VoxelShapes.union(shape, VoxelShapes.cuboid(west));
+		if (state.getValue(ConveyorProperties.FLOOR))
+			shape = Shapes.or(shape, Shapes.create(bottom));
+		if (!state.getValue(BlockStateProperties.NORTH))
+			shape = Shapes.or(shape, Shapes.create(north));
+		if (!state.getValue(BlockStateProperties.EAST))
+			shape = Shapes.or(shape, Shapes.create(east));
+		if (!state.getValue(BlockStateProperties.SOUTH))
+			shape = Shapes.or(shape, Shapes.create(south));
+		if (!state.getValue(BlockStateProperties.WEST))
+			shape = Shapes.or(shape, Shapes.create(west));
 
 		return shape;
 	}

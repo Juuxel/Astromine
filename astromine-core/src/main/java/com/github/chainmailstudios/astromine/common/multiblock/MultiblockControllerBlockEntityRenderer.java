@@ -24,12 +24,12 @@
 
 package com.github.chainmailstudios.astromine.common.multiblock;
 
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 
 public abstract class MultiblockControllerBlockEntityRenderer<T extends MultiblockControllerBlockEntity> extends BlockEntityRenderer<T> {
 	private final ModelPart model;
@@ -40,7 +40,7 @@ public abstract class MultiblockControllerBlockEntityRenderer<T extends Multiblo
 	}
 
 	@Override
-	public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider provider, int light, int overlay) {
-		model.render(matrices, provider.getBuffer(RenderLayer.getSolid()), light, overlay);
+	public void render(T entity, float tickDelta, PoseStack matrices, MultiBufferSource provider, int light, int overlay) {
+		model.render(matrices, provider.getBuffer(RenderType.solid()), light, overlay);
 	}
 }

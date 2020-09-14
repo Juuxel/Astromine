@@ -24,14 +24,13 @@
 
 package com.github.chainmailstudios.astromine.registry;
 
-import net.minecraft.entity.attribute.ClampedEntityAttribute;
-import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.util.registry.Registry;
-
 import com.github.chainmailstudios.astromine.AstromineCommon;
+import net.minecraft.core.Registry;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
 public class AstromineAttributes {
-	public static final EntityAttribute GRAVITY_MULTIPLIER = Registry.register(Registry.ATTRIBUTE, AstromineCommon.identifier("gravity_multiplier"), new ClampedEntityAttribute("attribute.name.generic.astromine.gravity_multiplier", 1d, -100d, 100d));
+	public static final Attribute GRAVITY_MULTIPLIER = Registry.register(Registry.ATTRIBUTE, AstromineCommon.identifier("gravity_multiplier"), new RangedAttribute("attribute.name.generic.astromine.gravity_multiplier", 1d, -100d, 100d));
 
 	public static void initialize() {}
 

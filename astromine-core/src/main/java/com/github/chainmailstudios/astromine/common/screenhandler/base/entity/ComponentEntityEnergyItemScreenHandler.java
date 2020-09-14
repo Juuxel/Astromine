@@ -24,23 +24,22 @@
 
 package com.github.chainmailstudios.astromine.common.screenhandler.base.entity;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.screen.ScreenHandlerType;
-
 import com.github.chainmailstudios.astromine.common.entity.base.ComponentEnergyItemEntity;
 import com.github.chainmailstudios.astromine.common.widget.blade.EnergyVerticalBarWidget;
 import com.github.vini2003.blade.common.miscellaneous.Position;
 import com.github.vini2003.blade.common.miscellaneous.Size;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
 
 public abstract class ComponentEntityEnergyItemScreenHandler extends ComponentEntityScreenHandler {
 	public ComponentEnergyItemEntity entity;
 
 	public EnergyVerticalBarWidget energyBar;
 
-	public ComponentEntityEnergyItemScreenHandler(ScreenHandlerType<?> type, int syncId, PlayerEntity player, int entityId) {
+	public ComponentEntityEnergyItemScreenHandler(MenuType<?> type, int syncId, Player player, int entityId) {
 		super(type, syncId, player, entityId);
 
-		entity = (ComponentEnergyItemEntity) player.world.getEntityById(entityId);
+		entity = (ComponentEnergyItemEntity) player.level.getEntity(entityId);
 	}
 
 	@Override

@@ -31,14 +31,12 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import net.minecraft.util.Identifier;
-
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.registry.IdentifierFixRegistry;
 import com.github.chainmailstudios.astromine.registry.AstromineConfig;
+import net.minecraft.resources.ResourceLocation;
 
-@Mixin(Identifier.class)
+@Mixin(ResourceLocation.class)
 public class IdentifierMixin {
 	@Mutable
 	@Shadow

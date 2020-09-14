@@ -24,8 +24,6 @@
 
 package com.github.chainmailstudios.astromine.discoveries.client.rei;
 
-import net.minecraft.util.Identifier;
-
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.client.rei.AstromineRoughlyEnoughItemsPlugin;
 import com.github.chainmailstudios.astromine.discoveries.client.rei.infusing.InfusingCategory;
@@ -34,12 +32,13 @@ import com.github.chainmailstudios.astromine.discoveries.common.recipe.AltarReci
 import com.github.chainmailstudios.astromine.discoveries.registry.AstromineDiscoveriesBlocks;
 import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.api.RecipeHelper;
+import net.minecraft.resources.ResourceLocation;
 
 public class AstromineDiscoveriesRoughlyEnoughItemsPlugin extends AstromineRoughlyEnoughItemsPlugin {
-	public static final Identifier INFUSING = AstromineCommon.identifier("infusing");
+	public static final ResourceLocation INFUSING = AstromineCommon.identifier("infusing");
 
 	@Override
-	public Identifier getPluginIdentifier() {
+	public ResourceLocation getPluginIdentifier() {
 		return AstromineCommon.identifier("discoveries_rei_plugin");
 	}
 

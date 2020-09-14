@@ -24,15 +24,14 @@
 
 package com.github.chainmailstudios.astromine.common.component.world;
 
-import net.minecraft.block.Block;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3i;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.World;
-
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import com.github.chainmailstudios.astromine.common.utilities.VoxelShapeUtilities;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import nerdhub.cardinal.components.api.component.Component;
@@ -44,13 +43,13 @@ import java.util.Set;
 public class WorldBridgeComponent implements Component {
 	public final Long2ObjectArrayMap<Set<Vec3i>> entries = new Long2ObjectArrayMap<>();
 
-	private final World world;
+	private final Level world;
 
-	public WorldBridgeComponent(World world) {
+	public WorldBridgeComponent(Level world) {
 		this.world = world;
 	}
 
-	public World getWorld() {
+	public Level getWorld() {
 		return world;
 	}
 
@@ -86,12 +85,12 @@ public class WorldBridgeComponent implements Component {
 	public VoxelShape getShape(long pos) {
 		Set<Vec3i> vecs = get(pos);
 		if (vecs == null)
-			return VoxelShapes.fullCube();
+			return Shapes.block();
 		else return getShape(vecs);
 	}
 
 	private VoxelShape getShape(Set<Vec3i> vecs) {
-		VoxelShape shape = VoxelShapes.empty();
+		VoxelShape shape = Shapes.empty();
 
 		boolean a = vecs.stream().allMatch(vec -> vec.getZ() == 0);
 		boolean b = vecs.stream().allMatch(vec -> vec.getX() == 0);
@@ -104,7 +103,7 @@ public class WorldBridgeComponent implements Component {
 			if (!d && vec.getZ() < 0)
 				d = true;
 
-			shape = VoxelShapes.union(shape, Block.createCuboidShape(Math.abs(vec.getX()), Math.abs(vec.getY()) - 1, Math.abs(vec.getZ()), b ? 16 : Math.abs(vec.getX() + 1), Math.abs(vec.getY()) + 1, a ? 16 : Math.abs(vec.getZ() + 1)));
+			shape = Shapes.or(shape, Block.box(Math.abs(vec.getX()), Math.abs(vec.getY()) - 1, Math.abs(vec.getZ()), b ? 16 : Math.abs(vec.getX() + 1), Math.abs(vec.getY()) + 1, a ? 16 : Math.abs(vec.getZ() + 1)));
 		}
 
 		if (c || d) {
@@ -150,14 +149,14 @@ public class WorldBridgeComponent implements Component {
 	public void fromTag(CompoundTag tag) {
 		CompoundTag dataTag = tag.getCompound("data");
 
-		for (String key : dataTag.getKeys()) {
+		for (String key : dataTag.getAllKeys()) {
 			CompoundTag pointTag = dataTag.getCompound(key);
 			CompoundTag vecTag = pointTag.getCompound("vecs");
 
 			long pos = pointTag.getLong("pos");
 
-			for (String vecKey : vecTag.getKeys()) {
-				add(pos, BlockPos.fromLong(vecTag.getLong(vecKey)));
+			for (String vecKey : vecTag.getAllKeys()) {
+				add(pos, BlockPos.of(vecTag.getLong(vecKey)));
 			}
 		}
 	}

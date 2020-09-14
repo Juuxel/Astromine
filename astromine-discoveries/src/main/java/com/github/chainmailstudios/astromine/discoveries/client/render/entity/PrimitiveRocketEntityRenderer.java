@@ -28,19 +28,18 @@ import com.github.chainmailstudios.astromine.discoveries.client.model.PrimitiveR
 
 
 import com.github.chainmailstudios.astromine.discoveries.common.entity.PrimitiveRocketEntity;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
-import net.minecraft.util.Identifier;
-
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.ResourceLocation;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 
 public class PrimitiveRocketEntityRenderer extends EntityRenderer<PrimitiveRocketEntity> {
-	public static final Identifier ID = AstromineCommon.identifier("textures/entity/rocket/primitive_rocket.png");
+	public static final ResourceLocation ID = AstromineCommon.identifier("textures/entity/rocket/primitive_rocket.png");
 
 	private final PrimitiveRocketEntityModel model = new PrimitiveRocketEntityModel();
 
@@ -49,8 +48,8 @@ public class PrimitiveRocketEntityRenderer extends EntityRenderer<PrimitiveRocke
 	}
 
 	@Override
-	public void render(PrimitiveRocketEntity rocket, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider provider, int light) {
-		matrices.push();
+	public void render(PrimitiveRocketEntity rocket, float yaw, float tickDelta, PoseStack matrices, MultiBufferSource provider, int light) {
+		matrices.pushPose();
 
 		matrices.translate(0.0D, 3.0D, 0.0D);
 
@@ -58,21 +57,21 @@ public class PrimitiveRocketEntityRenderer extends EntityRenderer<PrimitiveRocke
 
 		matrices.scale(2, 2, 2);
 
-		matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(90.0F));
+		matrices.mulPose(Vector3f.YP.rotationDegrees(90.0F));
 
 		this.model.setAngles(rocket, 0, 0.0F, -0.1F, rocket.getYaw(tickDelta), rocket.getPitch(tickDelta));
 
-		VertexConsumer vertexConsumer = provider.getBuffer(this.model.getLayer(this.getTexture(rocket)));
+		VertexConsumer vertexConsumer = provider.getBuffer(this.model.renderType(this.getTexture(rocket)));
 
-		this.model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1.0F, 1.0F, 1.0F, 1.0F);
+		this.model.renderToBuffer(matrices, vertexConsumer, light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
 
-		matrices.pop();
+		matrices.popPose();
 
 		super.render(rocket, yaw, tickDelta, matrices, provider, light);
 	}
 
 	@Override
-	public Identifier getTexture(PrimitiveRocketEntity entity) {
+	public ResourceLocation getTexture(PrimitiveRocketEntity entity) {
 		return ID;
 	}
 }

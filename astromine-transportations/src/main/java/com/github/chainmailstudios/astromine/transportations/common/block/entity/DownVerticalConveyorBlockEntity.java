@@ -24,16 +24,15 @@
 
 package com.github.chainmailstudios.astromine.transportations.common.block.entity;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import com.github.chainmailstudios.astromine.transportations.common.block.property.ConveyorProperties;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.Conveyable;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.Conveyor;
@@ -52,15 +51,15 @@ public class DownVerticalConveyorBlockEntity extends ConveyorBlockEntity {
 
 	@Override
 	public void tick() {
-		Direction direction = getCachedState().get(HorizontalFacingBlock.FACING);
-		int speed = ((Conveyor) getCachedState().getBlock()).getSpeed();
+		Direction direction = getBlockState().getValue(HorizontalDirectionalBlock.FACING);
+		int speed = ((Conveyor) getBlockState().getBlock()).getSpeed();
 
 		if (!isEmpty()) {
-			if (getCachedState().get(ConveyorProperties.FRONT)) {
-				BlockPos frontPos = getPos().offset(direction.getOpposite());
-				if (getWorld().getBlockEntity(frontPos) instanceof Conveyable) {
-					Conveyable conveyable = (Conveyable) getWorld().getBlockEntity(frontPos);
-					if (getCachedState().get(ConveyorProperties.CONVEYOR)) {
+			if (getBlockState().getValue(ConveyorProperties.FRONT)) {
+				BlockPos frontPos = getBlockPos().relative(direction.getOpposite());
+				if (getLevel().getBlockEntity(frontPos) instanceof Conveyable) {
+					Conveyable conveyable = (Conveyable) getLevel().getBlockEntity(frontPos);
+					if (getBlockState().getValue(ConveyorProperties.CONVEYOR)) {
 						if (position < speed) {
 							handleMovement(conveyable, speed, false);
 						} else {
@@ -72,10 +71,10 @@ public class DownVerticalConveyorBlockEntity extends ConveyorBlockEntity {
 					}
 				}
 			} else if (down) {
-				BlockPos downPos = getPos().down();
-				if (getWorld().getBlockEntity(downPos) instanceof Conveyable) {
-					Conveyable conveyable = (Conveyable) getWorld().getBlockEntity(downPos);
-					if (getCachedState().get(ConveyorProperties.CONVEYOR)) {
+				BlockPos downPos = getBlockPos().below();
+				if (getLevel().getBlockEntity(downPos) instanceof Conveyable) {
+					Conveyable conveyable = (Conveyable) getLevel().getBlockEntity(downPos);
+					if (getBlockState().getValue(ConveyorProperties.CONVEYOR)) {
 						handleMovement(conveyable, speed * 2, true);
 					} else {
 						handleMovement(conveyable, speed, true);
@@ -95,7 +94,7 @@ public class DownVerticalConveyorBlockEntity extends ConveyorBlockEntity {
 				setHorizontalPosition(getHorizontalPosition() + 1);
 			} else if (transition && horizontalPosition >= speed) {
 				conveyable.give(getStack());
-				if (!world.isClient() || world.isClient && MinecraftClient.getInstance().player.squaredDistanceTo(Vec3d.of(getPos())) > 24 * 24)
+				if (!level.isClientSide() || level.isClientSide && Minecraft.getInstance().player.distanceToSqr(Vec3.atLowerCornerOf(getBlockPos())) > 24 * 24)
 					removeStack();
 			}
 		} else if (conveyable instanceof ConveyorConveyable) {
@@ -111,12 +110,12 @@ public class DownVerticalConveyorBlockEntity extends ConveyorBlockEntity {
 
 	@Override
 	public boolean validInputSide(Direction direction) {
-		return direction == Direction.UP || direction == getCachedState().get(HorizontalFacingBlock.FACING);
+		return direction == Direction.UP || direction == getBlockState().getValue(HorizontalDirectionalBlock.FACING);
 	}
 
 	@Override
 	public boolean isOutputSide(Direction direction, ConveyorTypes type) {
-		return getCachedState().get(HorizontalFacingBlock.FACING).getOpposite() == direction || direction == Direction.DOWN;
+		return getBlockState().getValue(HorizontalDirectionalBlock.FACING).getOpposite() == direction || direction == Direction.DOWN;
 	}
 
 	@Override
@@ -134,9 +133,9 @@ public class DownVerticalConveyorBlockEntity extends ConveyorBlockEntity {
 	@Override
 	public void setDown(boolean down) {
 		this.down = down;
-		markDirty();
-		if (!world.isClient())
-			sendPacket((ServerWorld) world, toTag(new CompoundTag()));
+		setChanged();
+		if (!level.isClientSide())
+			sendPacket((ServerLevel) level, save(new CompoundTag()));
 	}
 
 	@Override
@@ -157,8 +156,8 @@ public class DownVerticalConveyorBlockEntity extends ConveyorBlockEntity {
 	}
 
 	@Override
-	public void fromTag(BlockState state, CompoundTag compoundTag) {
-		super.fromTag(state, compoundTag);
+	public void load(BlockState state, CompoundTag compoundTag) {
+		super.load(state, compoundTag);
 		down = compoundTag.getBoolean("down_vertical");
 		horizontalPosition = compoundTag.getInt("horizontalPosition");
 		prevHorizontalPosition = horizontalPosition = compoundTag.getInt("horizontalPosition");
@@ -166,18 +165,18 @@ public class DownVerticalConveyorBlockEntity extends ConveyorBlockEntity {
 
 	@Override
 	public void fromClientTag(CompoundTag compoundTag) {
-		fromTag(getCachedState(), compoundTag);
+		load(getBlockState(), compoundTag);
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag compoundTag) {
+	public CompoundTag save(CompoundTag compoundTag) {
 		compoundTag.putBoolean("down_vertical", down);
 		compoundTag.putInt("horizontalPosition", horizontalPosition);
-		return super.toTag(compoundTag);
+		return super.save(compoundTag);
 	}
 
 	@Override
 	public CompoundTag toClientTag(CompoundTag compoundTag) {
-		return toTag(compoundTag);
+		return save(compoundTag);
 	}
 }

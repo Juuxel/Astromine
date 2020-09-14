@@ -24,7 +24,7 @@
 
 package com.github.chainmailstudios.astromine.common.utilities;
 
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
 
 public class DirectionUtilities {
 	public static Direction byNameOrId(String name) {
@@ -40,6 +40,6 @@ public class DirectionUtilities {
 			return Direction.WEST;
 		else if (name.equals("east"))
 			return Direction.EAST;
-		else return Direction.byId(Integer.parseInt(name));
+		else return Direction.from3DDataValue(Integer.parseInt(name));
 	}
 }

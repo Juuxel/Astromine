@@ -24,13 +24,11 @@
 
 package com.github.chainmailstudios.astromine.common.multiblock;
 
-import net.minecraft.block.Block;
-import net.minecraft.util.math.BlockPos;
-
 import com.github.chainmailstudios.astromine.common.utilities.MapUtilities;
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.Component;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import java.util.Map;

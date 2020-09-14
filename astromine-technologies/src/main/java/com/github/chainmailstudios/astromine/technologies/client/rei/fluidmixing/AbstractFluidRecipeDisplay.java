@@ -26,9 +26,7 @@ package com.github.chainmailstudios.astromine.technologies.client.rei.fluidmixin
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import net.minecraft.util.Identifier;
-
+import net.minecraft.resources.ResourceLocation;
 import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
 import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.api.RecipeDisplay;
@@ -42,9 +40,9 @@ public abstract class AbstractFluidRecipeDisplay implements RecipeDisplay {
 	private final double energy;
 	private final FluidVolume input;
 	private final FluidVolume output;
-	private final Identifier id;
+	private final ResourceLocation id;
 
-	public AbstractFluidRecipeDisplay(double energy, FluidVolume input, FluidVolume output, Identifier id) {
+	public AbstractFluidRecipeDisplay(double energy, FluidVolume input, FluidVolume output, ResourceLocation id) {
 		this.energy = energy;
 		this.input = input;
 		this.output = output;
@@ -52,7 +50,7 @@ public abstract class AbstractFluidRecipeDisplay implements RecipeDisplay {
 	}
 
 	@Override
-	public Optional<Identifier> getRecipeLocation() {
+	public Optional<ResourceLocation> getRecipeLocation() {
 		return Optional.ofNullable(id);
 	}
 

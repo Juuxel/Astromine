@@ -25,7 +25,7 @@
 package com.github.chainmailstudios.astromine.common.volume.energy;
 
 import com.github.chainmailstudios.astromine.common.volume.base.Volume;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class InfiniteEnergyVolume extends EnergyVolume {
 	public InfiniteEnergyVolume() {
@@ -47,7 +47,7 @@ public class InfiniteEnergyVolume extends EnergyVolume {
 	}
 
 	@Override
-	public <V extends Volume<Identifier, Double>> V copy() {
+	public <V extends Volume<ResourceLocation, Double>> V copy() {
 		return (V) of();
 	}
 }

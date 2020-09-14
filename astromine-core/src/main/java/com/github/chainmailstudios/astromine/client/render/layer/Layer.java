@@ -24,34 +24,34 @@
 
 package com.github.chainmailstudios.astromine.client.render.layer;
 
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderPhase;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
-import net.minecraft.util.Identifier;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 
-public class Layer extends RenderLayer {
-	private static final RenderLayer HOLOGRAPHIC_BRIDGE = RenderLayer.of("holographic_bridge", VertexFormats.POSITION_COLOR_LIGHT, 7, 256, false, true, RenderLayer.MultiPhaseParameters.builder().cull(RenderPhase.DISABLE_CULLING).lightmap(ENABLE_LIGHTMAP).shadeModel(
-		RenderLayer.SMOOTH_SHADE_MODEL).transparency(RenderLayer.TRANSLUCENT_TRANSPARENCY).alpha(RenderLayer.ONE_TENTH_ALPHA).layering(RenderLayer.VIEW_OFFSET_Z_LAYERING).build(false));
+public class Layer extends RenderType {
+	private static final RenderType HOLOGRAPHIC_BRIDGE = RenderType.create("holographic_bridge", DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, 7, 256, false, true, RenderType.CompositeState.builder().setCullState(RenderStateShard.NO_CULL).setLightmapState(LIGHTMAP).setShadeModelState(
+		RenderType.SMOOTH_SHADE).setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY).setAlphaState(RenderType.DEFAULT_ALPHA).setLayeringState(RenderType.VIEW_OFFSET_Z_LAYERING).createCompositeState(false));
 
-	private static final RenderLayer FLAT_NO_CUTOUT = of("flat_no_cutout", VertexFormats.POSITION_COLOR_LIGHT, 7, 256, RenderLayer.MultiPhaseParameters.builder().texture(NO_TEXTURE).cull(DISABLE_CULLING).lightmap(ENABLE_LIGHTMAP).shadeModel(SMOOTH_SHADE_MODEL).depthTest(
-		ALWAYS_DEPTH_TEST).transparency(TRANSLUCENT_TRANSPARENCY).alpha(ONE_TENTH_ALPHA).layering(VIEW_OFFSET_Z_LAYERING).build(false));
+	private static final RenderType FLAT_NO_CUTOUT = create("flat_no_cutout", DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, 7, 256, RenderType.CompositeState.builder().setTextureState(NO_TEXTURE).setCullState(NO_CULL).setLightmapState(LIGHTMAP).setShadeModelState(SMOOTH_SHADE).setDepthTestState(
+		NO_DEPTH_TEST).setTransparencyState(TRANSLUCENT_TRANSPARENCY).setAlphaState(DEFAULT_ALPHA).setLayeringState(VIEW_OFFSET_Z_LAYERING).createCompositeState(false));
 
 	public Layer(String name, VertexFormat vertexFormat, int drawMode, int expectedBufferSize, boolean hasCrumbling, boolean translucent, Runnable startAction, Runnable endAction) {
 		super(name, vertexFormat, drawMode, expectedBufferSize, hasCrumbling, translucent, startAction, endAction);
 	}
 
-	public static RenderLayer get(Identifier texture) {
-		RenderLayer.MultiPhaseParameters multiPhaseParameters = RenderLayer.MultiPhaseParameters.builder().texture(new RenderPhase.Texture(texture, false, false)).transparency(TRANSLUCENT_TRANSPARENCY).diffuseLighting(DISABLE_DIFFUSE_LIGHTING).alpha(ONE_TENTH_ALPHA).lightmap(
-			DISABLE_LIGHTMAP).overlay(DISABLE_OVERLAY_COLOR).build(true);
-		return of("entity_cutout", VertexFormats.POSITION_COLOR_TEXTURE_LIGHT, 7, 256, true, true, multiPhaseParameters);
+	public static RenderType get(ResourceLocation texture) {
+		RenderType.CompositeState multiPhaseParameters = RenderType.CompositeState.builder().setTextureState(new RenderStateShard.TextureStateShard(texture, false, false)).setTransparencyState(TRANSLUCENT_TRANSPARENCY).setDiffuseLightingState(NO_DIFFUSE_LIGHTING).setAlphaState(DEFAULT_ALPHA).setLightmapState(
+			NO_LIGHTMAP).setOverlayState(NO_OVERLAY).createCompositeState(true);
+		return create("entity_cutout", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, 7, 256, true, true, multiPhaseParameters);
 	}
 
-	public static RenderLayer getHolographicBridge() {
+	public static RenderType getHolographicBridge() {
 		return HOLOGRAPHIC_BRIDGE;
 	}
 
-	public static RenderLayer getFlatNoCutout() {
+	public static RenderType getFlatNoCutout() {
 		return FLAT_NO_CUTOUT;
 	}
 }

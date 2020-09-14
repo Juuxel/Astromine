@@ -26,11 +26,9 @@ package com.github.chainmailstudios.astromine.common.utilities;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.Ingredient;
-
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import com.github.chainmailstudios.astromine.common.inventory.BaseInventory;
 
 import java.util.ArrayList;
@@ -44,7 +42,7 @@ public class InventoryUtilities {
 	public static List<ItemStack> toList(Ingredient ingredient) {
 		return new ArrayList<ItemStack>() {
 			{
-				for (ItemStack stack : ingredient.getMatchingStacksClient()) {
+				for (ItemStack stack : ingredient.getItems()) {
 					this.add(stack);
 				}
 			}
@@ -55,7 +53,7 @@ public class InventoryUtilities {
 		return Arrays.asList(array);
 	}
 
-	public static List<ItemStack> toListNonEmpty(Inventory inventory) {
+	public static List<ItemStack> toListNonEmpty(Container inventory) {
 		List<ItemStack> stackSet = new ArrayList<>();
 		for (ItemStack stack : toList(inventory)) {
 			if (stack.isEmpty()) {
@@ -66,23 +64,23 @@ public class InventoryUtilities {
 		return stackSet;
 	}
 
-	public static List<ItemStack> toList(Inventory inventory) {
+	public static List<ItemStack> toList(Container inventory) {
 		List<ItemStack> stackSet = new ArrayList();
-		for (int i = 0; i < inventory.size(); ++i) {
-			stackSet.add(inventory.getStack(i));
+		for (int i = 0; i < inventory.getContainerSize(); ++i) {
+			stackSet.add(inventory.getItem(i));
 		}
 		return stackSet;
 	}
 
-	public static BaseInventory singleOf(Inventory origin, int slot) {
+	public static BaseInventory singleOf(Container origin, int slot) {
 		return rangedOf(origin, new int[]{ slot });
 	}
 
-	public static BaseInventory rangedOf(Inventory origin, int[] slots) {
+	public static BaseInventory rangedOf(Container origin, int[] slots) {
 		BaseInventory recipeInventory = new BaseInventory(slots.length);
 		int k = 0;
 		for (int i : slots) {
-			recipeInventory.setStack(k, origin.getStack(i));
+			recipeInventory.setItem(k, origin.getItem(i));
 		}
 		return recipeInventory;
 	}
@@ -93,21 +91,21 @@ public class InventoryUtilities {
 	 * @param inventory
 	 *        the specified inventory.
 	 */
-	public static void sort(Inventory inventory) {
+	public static void sort(Container inventory) {
 		TreeMap<String, ArrayList<ItemStack>> byType = new TreeMap<>();
 
-		for (int i = 0; i < inventory.size(); ++i) {
-			ItemStack stack = inventory.getStack(i);
+		for (int i = 0; i < inventory.getContainerSize(); ++i) {
+			ItemStack stack = inventory.getItem(i);
 
-			if (!byType.containsKey(stack.getName().asString()) && !stack.isEmpty()) {
-				byType.put(stack.getName().asString(), new ArrayList<>());
+			if (!byType.containsKey(stack.getHoverName().getContents()) && !stack.isEmpty()) {
+				byType.put(stack.getHoverName().getContents(), new ArrayList<>());
 			}
 
 			if (!stack.isEmpty()) {
-				byType.get(stack.getName().asString()).add(stack.copy());
+				byType.get(stack.getHoverName().getContents()).add(stack.copy());
 			}
 
-			inventory.setStack(i, ItemStack.EMPTY);
+			inventory.setItem(i, ItemStack.EMPTY);
 		}
 
 		int i = 0;
@@ -134,7 +132,7 @@ public class InventoryUtilities {
 			}
 
 			for (ItemStack stack : stacks) {
-				inventory.setStack(i, stack);
+				inventory.setItem(i, stack);
 				++i;
 			}
 		}

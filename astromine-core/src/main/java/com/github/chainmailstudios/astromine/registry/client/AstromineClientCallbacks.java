@@ -29,9 +29,7 @@ import com.github.chainmailstudios.astromine.common.item.base.FluidVolumeItem;
 import com.github.chainmailstudios.astromine.common.utilities.EnergyUtilities;
 import com.github.chainmailstudios.astromine.common.volume.handler.FluidHandler;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
-
+import net.minecraft.network.chat.TextComponent;
 import team.reborn.energy.EnergyHandler;
 
 public class AstromineClientCallbacks {
@@ -41,7 +39,7 @@ public class AstromineClientCallbacks {
 				FluidHandler.ofOptional(stack).ifPresent(handler -> {
 					handler.withVolume(0, optionalVolume -> {
 						optionalVolume.ifPresent(volume -> {
-							tooltip.add(Math.min(tooltip.size(), 1), new LiteralText(volume.toString()));
+							tooltip.add(Math.min(tooltip.size(), 1), new TextComponent(volume.toString()));
 						});
 					});
 				});

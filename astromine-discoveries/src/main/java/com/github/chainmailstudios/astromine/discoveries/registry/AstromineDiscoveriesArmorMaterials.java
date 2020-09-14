@@ -25,11 +25,7 @@
 package com.github.chainmailstudios.astromine.discoveries.registry;
 
 import net.fabricmc.fabric.api.tag.TagRegistry;
-
-import net.minecraft.item.ArmorMaterial;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.world.item.ArmorMaterial;
 import com.github.chainmailstudios.astromine.registry.AstromineArmorMaterials;
 
 public class AstromineDiscoveriesArmorMaterials extends AstromineArmorMaterials {

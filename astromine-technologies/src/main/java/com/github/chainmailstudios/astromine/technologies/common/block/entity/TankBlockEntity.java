@@ -38,11 +38,8 @@ import com.github.chainmailstudios.astromine.technologies.common.block.entity.ma
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.SpeedProvider;
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.TierProvider;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlockEntityTypes;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import com.github.chainmailstudios.astromine.registry.AstromineConfig;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 
 public abstract class TankBlockEntity extends ComponentFluidInventoryBlockEntity implements TierProvider, FluidSizeProvider, SpeedProvider {
 	public TankBlockEntity(BlockEntityType<?> type) {

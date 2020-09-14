@@ -28,10 +28,10 @@ import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleEnergyInventoryComponent;
 import com.github.chainmailstudios.astromine.common.volume.base.Volume;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
-public class EnergyVolume extends Volume<Identifier, Double> {
-	public static final Identifier ID = AstromineCommon.identifier("energy");
+public class EnergyVolume extends Volume<ResourceLocation, Double> {
+	public static final ResourceLocation ID = AstromineCommon.identifier("energy");
 
 	public EnergyVolume(double amount, double size) {
 		super(ID, amount, size);
@@ -42,7 +42,7 @@ public class EnergyVolume extends Volume<Identifier, Double> {
 	}
 
 	@Override
-	public <V extends Volume<Identifier, Double>> V add(V v, Double doubleA) {
+	public <V extends Volume<ResourceLocation, Double>> V add(V v, Double doubleA) {
 		if (!(v instanceof EnergyVolume)) return (V) this;
 
 		double amount = Math.min(v.getSize() - v.getAmount(), Math.min(getAmount(), doubleA));
@@ -56,7 +56,7 @@ public class EnergyVolume extends Volume<Identifier, Double> {
 	}
 
 	@Override
-	public <V extends Volume<Identifier, Double>> V add(Double aDouble) {
+	public <V extends Volume<ResourceLocation, Double>> V add(Double aDouble) {
 		double amount = Math.min(getSize() - getAmount(), aDouble);
 
 		setAmount(getAmount() + amount);
@@ -65,7 +65,7 @@ public class EnergyVolume extends Volume<Identifier, Double> {
 	}
 
 	@Override
-	public <V extends Volume<Identifier, Double>> V moveFrom(V v, Double doubleA) {
+	public <V extends Volume<ResourceLocation, Double>> V moveFrom(V v, Double doubleA) {
 		if (!(v instanceof EnergyVolume)) return (V) this;
 
 		v.add(this, doubleA);
@@ -74,7 +74,7 @@ public class EnergyVolume extends Volume<Identifier, Double> {
 	}
 
 	@Override
-	public <V extends Volume<Identifier, Double>> V minus(Double aDouble) {
+	public <V extends Volume<ResourceLocation, Double>> V minus(Double aDouble) {
 		double amount = Math.min(getAmount(), aDouble);
 
 		setAmount(getAmount() - amount);
@@ -115,7 +115,7 @@ public class EnergyVolume extends Volume<Identifier, Double> {
 	}
 
 	@Override
-	public <V extends Volume<Identifier, Double>> V copy() {
+	public <V extends Volume<ResourceLocation, Double>> V copy() {
 		return (V) of(getAmount(), getSize());
 	}
 }

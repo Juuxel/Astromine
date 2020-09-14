@@ -24,11 +24,10 @@
 
 package com.github.chainmailstudios.astromine.common.network;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Tickable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.network.type.base.NetworkType;
 import com.github.chainmailstudios.astromine.common.registry.NetworkTypeRegistry;
@@ -37,13 +36,13 @@ import com.google.common.collect.Sets;
 import java.util.Iterator;
 import java.util.Set;
 
-public class NetworkInstance implements Iterable<NetworkNode>, Tickable {
+public class NetworkInstance implements Iterable<NetworkNode>, TickableBlockEntity {
 	public static final NetworkInstance EMPTY = new NetworkInstance();
 
 	public final Set<NetworkMemberNode> members = Sets.newConcurrentHashSet();
 	public final Set<NetworkNode> nodes = Sets.newConcurrentHashSet();
 
-	private final World world;
+	private final Level world;
 	public NetworkType type;
 	private CompoundTag additionalData = new CompoundTag();
 
@@ -52,7 +51,7 @@ public class NetworkInstance implements Iterable<NetworkNode>, Tickable {
 		this.world = null;
 	}
 
-	public NetworkInstance(World world, NetworkType type) {
+	public NetworkInstance(Level world, NetworkType type) {
 		this.type = type;
 		this.world = world;
 	}
@@ -106,7 +105,7 @@ public class NetworkInstance implements Iterable<NetworkNode>, Tickable {
 		return this;
 	}
 
-	public World getWorld() {
+	public Level getWorld() {
 		return world;
 	}
 
@@ -121,7 +120,7 @@ public class NetworkInstance implements Iterable<NetworkNode>, Tickable {
 
 	@Override
 	public String toString() {
-		return "NetworkInstance{" + "type=" + NetworkTypeRegistry.INSTANCE.getKey(type) + ", world=" + world.getRegistryKey().getValue() + ", members=" + members + ", nodes=" + nodes + ", additionalData=" + additionalData + '}';
+		return "NetworkInstance{" + "type=" + NetworkTypeRegistry.INSTANCE.getKey(type) + ", world=" + world.dimension().location() + ", members=" + members + ", nodes=" + nodes + ", additionalData=" + additionalData + '}';
 	}
 
 	public boolean isStupidlyEmpty() {

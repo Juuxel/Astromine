@@ -24,19 +24,18 @@
 
 package com.github.chainmailstudios.astromine.common.inventory;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventories;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.InventoryChangedListener;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.RecipeFinder;
-import net.minecraft.recipe.RecipeInputProvider;
-import net.minecraft.util.collection.DefaultedList;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.Container;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.ContainerListener;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.StackedContents;
+import net.minecraft.world.inventory.StackedContentsCompatible;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * A BaseInventory is a class responsible for
@@ -44,19 +43,19 @@ import java.util.stream.Collectors;
  * does, however, allowing stack sizes
  * higher than the default of 64.
  */
-public class BaseInventory implements Inventory, RecipeInputProvider {
+public class BaseInventory implements Container, StackedContentsCompatible {
 	protected int size;
-	protected DefaultedList<ItemStack> stacks;
-	protected List<InventoryChangedListener> listeners = new ArrayList<>();
+	protected NonNullList<ItemStack> stacks;
+	protected List<ContainerListener> listeners = new ArrayList<>();
 
 	public BaseInventory(int size) {
 		this.size = size;
-		this.stacks = DefaultedList.ofSize(size, ItemStack.EMPTY);
+		this.stacks = NonNullList.withSize(size, ItemStack.EMPTY);
 	}
 
 	public BaseInventory(ItemStack... items) {
 		this.size = items.length;
-		this.stacks = DefaultedList.copyOf(ItemStack.EMPTY, items);
+		this.stacks = NonNullList.of(ItemStack.EMPTY, items);
 	}
 
 	public static BaseInventory of(int size) {
@@ -67,16 +66,16 @@ public class BaseInventory implements Inventory, RecipeInputProvider {
 		return new BaseInventory(items);
 	}
 
-	public void addListener(InventoryChangedListener... listeners) {
+	public void addListener(ContainerListener... listeners) {
 		this.listeners.addAll(Arrays.asList(listeners));
 	}
 
-	public void removeListener(InventoryChangedListener... listeners) {
+	public void removeListener(ContainerListener... listeners) {
 		this.listeners.removeAll(Arrays.asList(listeners));
 	}
 
 	@Override
-	public int size() {
+	public int getContainerSize() {
 		return this.size;
 	}
 
@@ -86,55 +85,55 @@ public class BaseInventory implements Inventory, RecipeInputProvider {
 	}
 
 	@Override
-	public ItemStack getStack(int slot) {
+	public ItemStack getItem(int slot) {
 		return slot >= 0 && slot < this.stacks.size() ? this.stacks.get(slot) : ItemStack.EMPTY;
 	}
 
 	@Override
-	public ItemStack removeStack(int slot, int amount) {
-		ItemStack stack = Inventories.splitStack(this.stacks, slot, amount);
+	public ItemStack removeItem(int slot, int amount) {
+		ItemStack stack = ContainerHelper.removeItem(this.stacks, slot, amount);
 		if (!stack.isEmpty()) {
-			this.markDirty();
+			this.setChanged();
 		}
 
 		return stack;
 	}
 
 	@Override
-	public ItemStack removeStack(int slot) {
+	public ItemStack removeItemNoUpdate(int slot) {
 		ItemStack stack = this.stacks.get(slot);
 		if (stack.isEmpty()) {
 			return ItemStack.EMPTY;
 		} else {
 			this.stacks.set(slot, ItemStack.EMPTY);
-			this.markDirty();
+			this.setChanged();
 			return stack;
 		}
 	}
 
 	@Override
-	public void setStack(int slot, ItemStack stack) {
+	public void setItem(int slot, ItemStack stack) {
 		this.stacks.set(slot, stack);
 
-		this.markDirty();
+		this.setChanged();
 	}
 
 	@Override
-	public void markDirty() {
-		for (InventoryChangedListener listener : listeners) {
-			listener.onInventoryChanged(this);
+	public void setChanged() {
+		for (ContainerListener listener : listeners) {
+			listener.containerChanged(this);
 		}
 	}
 
 	@Override
-	public boolean canPlayerUse(PlayerEntity player) {
+	public boolean stillValid(Player player) {
 		return true;
 	}
 
 	@Override
-	public void clear() {
+	public void clearContent() {
 		this.stacks.clear();
-		this.markDirty();
+		this.setChanged();
 	}
 
 	public String toString() {
@@ -142,5 +141,5 @@ public class BaseInventory implements Inventory, RecipeInputProvider {
 	}
 
 	@Override
-	public void provideRecipeInputs(RecipeFinder recipeFinder) {}
+	public void fillStackedContents(StackedContents recipeFinder) {}
 }

@@ -24,15 +24,6 @@
 
 package com.github.chainmailstudios.astromine.discoveries.common.recipe;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.RecipeType;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.world.World;
-
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.recipe.AstromineRecipeType;
 import com.github.chainmailstudios.astromine.common.recipe.base.AstromineRecipe;
@@ -48,20 +39,28 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 
 public class AltarRecipe implements AstromineRecipe<AltarBlockEntity> {
 	private final List<Ingredient> ingredients;
 	private final ItemStack output;
-	private final Identifier id;
+	private final ResourceLocation id;
 
-	public AltarRecipe(Identifier id, List<Ingredient> ingredients, ItemStack output) {
+	public AltarRecipe(ResourceLocation id, List<Ingredient> ingredients, ItemStack output) {
 		this.ingredients = ingredients;
 		this.output = output;
 		this.id = id;
 	}
 
 	@Override
-	public boolean matches(AltarBlockEntity inventory, World world) {
+	public boolean matches(AltarBlockEntity inventory, Level world) {
 		List<Ingredient> ingredients = Lists.newArrayList(this.ingredients);
 		a:
 		for (ItemStack stack : inventory.children.stream().map(blockEntity -> blockEntity.get().getStack(0)).collect(Collectors.toList())) {
@@ -101,7 +100,7 @@ public class AltarRecipe implements AstromineRecipe<AltarBlockEntity> {
 	}
 
 	@Override
-	public Identifier getId() {
+	public ResourceLocation getId() {
 		return id;
 	}
 
@@ -116,12 +115,12 @@ public class AltarRecipe implements AstromineRecipe<AltarBlockEntity> {
 	}
 
 	@Override
-	public DefaultedList<Ingredient> getPreviewInputs() {
-		return DefaultedList.copyOf(Ingredient.EMPTY, ingredients.toArray(new Ingredient[0]));
+	public NonNullList<Ingredient> getPreviewInputs() {
+		return NonNullList.of(Ingredient.EMPTY, ingredients.toArray(new Ingredient[0]));
 	}
 
 	public static final class Serializer implements RecipeSerializer<AltarRecipe> {
-		public static final Identifier ID = AstromineCommon.identifier("altar");
+		public static final ResourceLocation ID = AstromineCommon.identifier("altar");
 
 		public static final Serializer INSTANCE = new Serializer();
 
@@ -130,14 +129,14 @@ public class AltarRecipe implements AstromineRecipe<AltarBlockEntity> {
 		}
 
 		@Override
-		public AltarRecipe read(Identifier identifier, JsonObject object) {
+		public AltarRecipe read(ResourceLocation identifier, JsonObject object) {
 			AltarRecipe.Format format = new Gson().fromJson(object, AltarRecipe.Format.class);
 
 			return new AltarRecipe(identifier, format.inputs.stream().map(IngredientUtilities::fromJson).collect(Collectors.toList()), StackUtilities.fromJson(format.output));
 		}
 
 		@Override
-		public AltarRecipe read(Identifier identifier, PacketByteBuf buffer) {
+		public AltarRecipe read(ResourceLocation identifier, FriendlyByteBuf buffer) {
 			int size = buffer.readInt();
 			List<Ingredient> inputs = new ArrayList<>(size);
 			for (int i = 0; i < size; i++) {
@@ -147,7 +146,7 @@ public class AltarRecipe implements AstromineRecipe<AltarBlockEntity> {
 		}
 
 		@Override
-		public void write(PacketByteBuf buffer, AltarRecipe recipe) {
+		public void write(FriendlyByteBuf buffer, AltarRecipe recipe) {
 			buffer.writeInt(recipe.ingredients.size());
 			for (Ingredient ingredient : recipe.ingredients) {
 				IngredientUtilities.toPacket(buffer, ingredient);

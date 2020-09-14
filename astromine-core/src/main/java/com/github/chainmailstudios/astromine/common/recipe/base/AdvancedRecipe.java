@@ -24,15 +24,14 @@
 
 package com.github.chainmailstudios.astromine.common.recipe.base;
 
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.world.World;
-
 import com.github.chainmailstudios.astromine.common.block.entity.base.ComponentBlockEntity;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
 
-public interface AdvancedRecipe<C extends Inventory> extends AstromineRecipe<C> {
+public interface AdvancedRecipe<C extends Container> extends AstromineRecipe<C> {
 	<T extends ComponentBlockEntity> boolean canCraft(T t);
 
 	<T extends ComponentBlockEntity> void craft(T t);
@@ -40,37 +39,37 @@ public interface AdvancedRecipe<C extends Inventory> extends AstromineRecipe<C> 
 	<T extends RecipeConsumer> void tick(T t);
 
 	@Override
-	default boolean matches(C inventory, World world) {
+	default boolean matches(C inventory, Level world) {
 		return false;
 	}
 
 	@Override
-	default ItemStack craft(C inventory) {
+	default ItemStack assemble(C inventory) {
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	default boolean fits(int width, int height) {
+	default boolean canCraftInDimensions(int width, int height) {
 		return true;
 	}
 
 	@Override
-	default ItemStack getOutput() {
+	default ItemStack getResultItem() {
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	default DefaultedList<ItemStack> getRemainingStacks(C inventory) {
-		return DefaultedList.of();
+	default NonNullList<ItemStack> getRemainingItems(C inventory) {
+		return NonNullList.create();
 	}
 
 	@Override
-	default DefaultedList<Ingredient> getPreviewInputs() {
-		return DefaultedList.of();
+	default NonNullList<Ingredient> getIngredients() {
+		return NonNullList.create();
 	}
 
 	@Override
-	default boolean isIgnoredInRecipeBook() {
+	default boolean isSpecial() {
 		return false;
 	}
 

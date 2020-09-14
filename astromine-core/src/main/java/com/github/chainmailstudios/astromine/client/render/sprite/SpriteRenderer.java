@@ -24,18 +24,17 @@
 
 package com.github.chainmailstudios.astromine.client.render.sprite;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.texture.Sprite;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Matrix3f;
-import net.minecraft.util.math.Matrix4f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.resources.ResourceLocation;
 
 @Environment(EnvType.CLIENT)
 public class SpriteRenderer {
@@ -63,32 +62,32 @@ public class SpriteRenderer {
 		float nX = 0;
 		float nY = 0;
 		float nZ = 0;
-		Sprite sprite;
+		TextureAtlasSprite sprite;
 		VertexConsumer consumer;
-		VertexConsumerProvider consumers;
-		MatrixStack matrices;
+		MultiBufferSource consumers;
+		PoseStack matrices;
 		Matrix4f model;
 		Matrix3f normal;
-		RenderLayer layer;
+		RenderType layer;
 
 		private RenderPass() {}
 
-		public RenderPass setup(VertexConsumerProvider consumers, RenderLayer layer) {
+		public RenderPass setup(MultiBufferSource consumers, RenderType layer) {
 			this.consumers = consumers;
 			this.setup(consumers.getBuffer(layer), layer);
 
 			return this;
 		}
 
-		public RenderPass setup(VertexConsumer consumer, RenderLayer layer) {
+		public RenderPass setup(VertexConsumer consumer, RenderType layer) {
 			this.consumer = consumer;
-			this.matrices = new MatrixStack();
+			this.matrices = new PoseStack();
 			this.layer = layer;
 
 			return this;
 		}
 
-		public RenderPass setup(VertexConsumerProvider consumers, MatrixStack matrices, RenderLayer layer) {
+		public RenderPass setup(MultiBufferSource consumers, PoseStack matrices, RenderType layer) {
 			this.consumers = consumers;
 			this.consumer = consumers.getBuffer(layer);
 			this.matrices = matrices;
@@ -114,11 +113,11 @@ public class SpriteRenderer {
 			return this;
 		}
 
-		public RenderPass sprite(Sprite sprite) {
-			this.uStart = sprite.getMinU();
-			this.uEnd = sprite.getMaxU();
-			this.vStart = sprite.getMinV();
-			this.vEnd = sprite.getMaxV();
+		public RenderPass sprite(TextureAtlasSprite sprite) {
+			this.uStart = sprite.getU0();
+			this.uEnd = sprite.getU1();
+			this.vStart = sprite.getV0();
+			this.vEnd = sprite.getV1();
 
 			this.sprite = sprite;
 
@@ -193,10 +192,10 @@ public class SpriteRenderer {
 				throw new RuntimeException("Invalid Sprite!");
 			}
 
-			next(sprite.getId());
+			next(sprite.getName());
 		}
 
-		public void next(Identifier texture) {
+		public void next(ResourceLocation texture) {
 			if (this.consumer == null) {
 				throw new RuntimeException("Invalid VertexConsumer!");
 			}
@@ -208,16 +207,16 @@ public class SpriteRenderer {
 			}
 
 			if (this.model == null) {
-				this.model = this.matrices.peek().getModel();
+				this.model = this.matrices.last().pose();
 			}
 			if (this.normal == null) {
-				this.normal = this.matrices.peek().getNormal();
+				this.normal = this.matrices.last().normal();
 			}
 
 			float sX = sprite.getWidth();
 			float sY = sprite.getHeight();
 
-			MinecraftClient.getInstance().getTextureManager().bindTexture(texture);
+			Minecraft.getInstance().getTextureManager().bind(texture);
 
 			for (float y = y1; y < y2; y += Math.min(y2 - y, sY)) {
 				for (float x = x1; x < x2; x += Math.min(x2 - x, sX)) {
@@ -238,12 +237,12 @@ public class SpriteRenderer {
 						dY = (uEnd - uStart) * (1 - (nSY / sY));
 					}
 
-					this.consumer = consumers.getBuffer(RenderLayer.getSolid());
+					this.consumer = consumers.getBuffer(RenderType.solid());
 
-					this.consumer.vertex(this.model, x, y + nSY, z1).color(this.r, this.g, this.b, this.a).texture(this.uStart, this.vEnd - dY).overlay(this.u, this.v).light(this.l).normal(this.normal, this.nX, this.nY, this.nZ).next();
-					this.consumer.vertex(this.model, x + nSX, y + nSY, z1).color(this.r, this.g, this.b, this.a).texture(this.uEnd - dX, this.vEnd - dY).overlay(this.u, this.v).light(this.l).normal(this.normal, this.nX, this.nY, this.nZ).next();
-					this.consumer.vertex(this.model, x + nSX, y, z1).color(this.r, this.g, this.b, this.a).texture(this.uEnd - dX, this.vStart).overlay(this.u, this.v).light(this.l).normal(this.normal, this.nX, this.nY, this.nZ).next();
-					this.consumer.vertex(this.model, x, y, z1).color(this.r, this.g, this.b, this.a).texture(this.uStart, this.vStart).overlay(this.u, this.v).light(this.l).normal(this.normal, this.nX, this.nY, this.nZ).next();
+					this.consumer.vertex(this.model, x, y + nSY, z1).color(this.r, this.g, this.b, this.a).uv(this.uStart, this.vEnd - dY).overlayCoords(this.u, this.v).uv2(this.l).normal(this.normal, this.nX, this.nY, this.nZ).endVertex();
+					this.consumer.vertex(this.model, x + nSX, y + nSY, z1).color(this.r, this.g, this.b, this.a).uv(this.uEnd - dX, this.vEnd - dY).overlayCoords(this.u, this.v).uv2(this.l).normal(this.normal, this.nX, this.nY, this.nZ).endVertex();
+					this.consumer.vertex(this.model, x + nSX, y, z1).color(this.r, this.g, this.b, this.a).uv(this.uEnd - dX, this.vStart).overlayCoords(this.u, this.v).uv2(this.l).normal(this.normal, this.nX, this.nY, this.nZ).endVertex();
+					this.consumer.vertex(this.model, x, y, z1).color(this.r, this.g, this.b, this.a).uv(this.uStart, this.vStart).overlayCoords(this.u, this.v).uv2(this.l).normal(this.normal, this.nX, this.nY, this.nZ).endVertex();
 				}
 			}
 

@@ -24,12 +24,11 @@
 
 package com.github.chainmailstudios.astromine.common.registry;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.fluid.Fluid;
-
 import com.github.chainmailstudios.astromine.common.registry.base.UniRegistry;
 
 import java.util.function.Consumer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.material.Fluid;
 
 public class FluidEffectRegistry extends UniRegistry<Fluid, Consumer<LivingEntity>> {
 	public static final FluidEffectRegistry INSTANCE = new FluidEffectRegistry();

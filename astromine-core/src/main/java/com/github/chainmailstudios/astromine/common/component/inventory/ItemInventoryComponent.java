@@ -24,15 +24,14 @@
 
 package com.github.chainmailstudios.astromine.common.component.inventory;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.math.Direction;
-
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.utilities.data.Range;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
@@ -57,8 +56,8 @@ public interface ItemInventoryComponent extends NameableComponent {
 		return AstromineItems.ITEM;
 	}
 
-	default TranslatableText getName() {
-		return new TranslatableText("text.astromine.item");
+	default TranslatableComponent getName() {
+		return new TranslatableComponent("text.astromine.item");
 	}
 
 	/**
@@ -129,11 +128,11 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 *
 	 * @return SUCCESS w. empty if inserted; FAIL w. stack if not.
 	 */
-	default TypedActionResult<ItemStack> insert(Direction direction, ItemStack stack) {
+	default InteractionResultHolder<ItemStack> insert(Direction direction, ItemStack stack) {
 		if (this.canInsert()) {
 			return this.insert(direction, stack, stack.getCount());
 		} else {
-			return new TypedActionResult<>(ActionResult.FAIL, stack);
+			return new InteractionResultHolder<>(InteractionResult.FAIL, stack);
 		}
 	}
 
@@ -148,12 +147,12 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 *
 	 * @return SUCCESS w. modified stack if inserted; FAIL w. unmodified stack if not.
 	 */
-	default TypedActionResult<ItemStack> insert(Direction direction, ItemStack stack, int count) {
+	default InteractionResultHolder<ItemStack> insert(Direction direction, ItemStack stack, int count) {
 		ItemStack finalStack = stack;
 		Optional<Map.Entry<Integer, ItemStack>> matchingStackOptional = this.getContents().entrySet().stream().filter(entry -> {
 			ItemStack storedStack = entry.getValue();
 
-			return (this.canInsert(direction, finalStack, entry.getKey())) && (storedStack.getItem() == finalStack.getItem() && storedStack.getMaxCount() - storedStack.getCount() >= count && (!storedStack.hasTag() && !finalStack.hasTag()) || (storedStack.hasTag() && finalStack
+			return (this.canInsert(direction, finalStack, entry.getKey())) && (storedStack.getItem() == finalStack.getItem() && storedStack.getMaxStackSize() - storedStack.getCount() >= count && (!storedStack.hasTag() && !finalStack.hasTag()) || (storedStack.hasTag() && finalStack
 				.hasTag() && storedStack.getTag().equals(finalStack.getTag()) || storedStack.isEmpty()));
 		}).findFirst();
 
@@ -164,12 +163,12 @@ public interface ItemInventoryComponent extends NameableComponent {
 				stack = ItemStack.EMPTY;
 				this.setStack(matchingStackOptional.get().getKey(), matchingStack);
 			} else {
-				matchingStack.increment(stack.getCount());
-				stack.decrement(stack.getCount());
+				matchingStack.grow(stack.getCount());
+				stack.shrink(stack.getCount());
 			}
-			return new TypedActionResult<>(ActionResult.SUCCESS, stack);
+			return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
 		} else {
-			return new TypedActionResult<>(ActionResult.FAIL, stack);
+			return new InteractionResultHolder<>(InteractionResult.FAIL, stack);
 		}
 	}
 
@@ -211,22 +210,22 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 *
 	 * @return SUCCESS w. the retrieved collection if extracted anything; FAIL w. empty if not.
 	 */
-	default TypedActionResult<Collection<ItemStack>> extractMatching(Direction direction, Predicate<ItemStack> predicate) {
+	default InteractionResultHolder<Collection<ItemStack>> extractMatching(Direction direction, Predicate<ItemStack> predicate) {
 		HashSet<ItemStack> extractedStacks = new HashSet<>();
 		this.getContents().forEach((slot, stack) -> {
 			if (predicate.test(stack)) {
-				TypedActionResult<ItemStack> extractionResult = this.extract(direction, slot);
+				InteractionResultHolder<ItemStack> extractionResult = this.extract(direction, slot);
 
-				if (extractionResult.getResult().isAccepted()) {
-					extractedStacks.add(extractionResult.getValue());
+				if (extractionResult.getResult().consumesAction()) {
+					extractedStacks.add(extractionResult.getObject());
 				}
 			}
 		});
 
 		if (!extractedStacks.isEmpty()) {
-			return new TypedActionResult<>(ActionResult.SUCCESS, extractedStacks);
+			return new InteractionResultHolder<>(InteractionResult.SUCCESS, extractedStacks);
 		} else {
-			return new TypedActionResult<>(ActionResult.FAIL, extractedStacks);
+			return new InteractionResultHolder<>(InteractionResult.FAIL, extractedStacks);
 		}
 	}
 
@@ -238,25 +237,25 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 *
 	 * @return SUCCESS w. the retrieved collection if extracted anything; FAIL w. empty if not.
 	 */
-	default TypedActionResult<ItemStack> extractFirstMatching(Direction direction, Predicate<ItemStack> predicate) {
+	default InteractionResultHolder<ItemStack> extractFirstMatching(Direction direction, Predicate<ItemStack> predicate) {
 		AtomicReference<ItemStack> extractedStack = new AtomicReference<>();
 		extractedStack.set(ItemStack.EMPTY);
 		for (int slot = 0; slot < this.getContents().size(); slot++) {
 			ItemStack stack = this.getContents().get(slot);
 			if (predicate.test(stack)) {
-				TypedActionResult<ItemStack> extractionResult = this.extract(direction, slot);
+				InteractionResultHolder<ItemStack> extractionResult = this.extract(direction, slot);
 
-				if (extractionResult.getResult().isAccepted()) {
-					extractedStack.set(extractionResult.getValue());
+				if (extractionResult.getResult().consumesAction()) {
+					extractedStack.set(extractionResult.getObject());
 					break;
 				}
 			}
 		}
 
 		if (!extractedStack.get().isEmpty()) {
-			return new TypedActionResult<>(ActionResult.SUCCESS, extractedStack.get());
+			return new InteractionResultHolder<>(InteractionResult.SUCCESS, extractedStack.get());
 		} else {
-			return new TypedActionResult<>(ActionResult.FAIL, extractedStack.get());
+			return new InteractionResultHolder<>(InteractionResult.FAIL, extractedStack.get());
 		}
 	}
 
@@ -268,13 +267,13 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 *
 	 * @return SUCCESS w. stack if extracted; FAIL w. empty if not.
 	 */
-	default TypedActionResult<ItemStack> extract(Direction direction, int slot) {
+	default InteractionResultHolder<ItemStack> extract(Direction direction, int slot) {
 		ItemStack matchingStack = this.getStack(slot);
 
 		if (this.canExtract(direction, matchingStack, slot)) {
 			return this.extract(slot, matchingStack.getCount());
 		} else {
-			return new TypedActionResult<>(ActionResult.FAIL, ItemStack.EMPTY);
+			return new InteractionResultHolder<>(InteractionResult.FAIL, ItemStack.EMPTY);
 		}
 	}
 
@@ -296,22 +295,22 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 *
 	 * @return SUCCESS w. stack if extracted; FAIL w. empty if not.
 	 */
-	default TypedActionResult<ItemStack> extract(int slot, int count) {
+	default InteractionResultHolder<ItemStack> extract(int slot, int count) {
 		Optional<ItemStack> matchingStackOptional = Optional.ofNullable(this.getStack(slot));
 
 		if (matchingStackOptional.isPresent()) {
 			if (matchingStackOptional.get().getCount() >= count) {
 				ItemStack matchingStack = matchingStackOptional.get();
 				ItemStack remainingStack = matchingStack.copy();
-				remainingStack.decrement(count);
+				remainingStack.shrink(count);
 				matchingStack.setCount(count);
 				this.setStack(slot, remainingStack);
-				return new TypedActionResult<>(ActionResult.SUCCESS, matchingStack);
+				return new InteractionResultHolder<>(InteractionResult.SUCCESS, matchingStack);
 			} else {
-				return new TypedActionResult<>(ActionResult.FAIL, ItemStack.EMPTY);
+				return new InteractionResultHolder<>(InteractionResult.FAIL, ItemStack.EMPTY);
 			}
 		} else {
-			return new TypedActionResult<>(ActionResult.FAIL, ItemStack.EMPTY);
+			return new InteractionResultHolder<>(InteractionResult.FAIL, ItemStack.EMPTY);
 		}
 	}
 
@@ -364,9 +363,9 @@ public interface ItemInventoryComponent extends NameableComponent {
 
 			CompoundTag stackTag;
 			if (stack != null && !stack.isEmpty()) {
-				stackTag = source.getStack(position).toTag(new CompoundTag());
+				stackTag = source.getStack(position).save(new CompoundTag());
 			} else {
-				stackTag = ItemStack.EMPTY.toTag(new CompoundTag());
+				stackTag = ItemStack.EMPTY.save(new CompoundTag());
 			}
 			if (!stackTag.isEmpty()) {
 				stacksTag.put(String.valueOf(position), stackTag);
@@ -468,7 +467,7 @@ public interface ItemInventoryComponent extends NameableComponent {
 
 				CompoundTag stackTag = (CompoundTag) rawStackTag;
 
-				ItemStack stack = ItemStack.fromTag(stackTag);
+				ItemStack stack = ItemStack.of(stackTag);
 
 				if (target.getItemSize() >= position) {
 					target.getContents().put(position, stack);

@@ -29,7 +29,6 @@ import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
 import com.github.chainmailstudios.astromine.common.registry.BreathableRegistry;
 import com.github.chainmailstudios.astromine.common.registry.FluidEffectRegistry;
 import com.github.chainmailstudios.astromine.common.volume.handler.FluidHandler;
-import net.minecraft.util.registry.Registry;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -39,19 +38,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FluidBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-
 import com.github.chainmailstudios.astromine.common.component.entity.EntityOxygenComponent;
 import com.github.chainmailstudios.astromine.common.component.world.ChunkAtmosphereComponent;
 import com.github.chainmailstudios.astromine.common.entity.GravityEntity;
@@ -62,7 +48,18 @@ import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import com.github.chainmailstudios.astromine.registry.AstromineDimensions;
 import com.github.chainmailstudios.astromine.registry.AstromineTags;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.Registry;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -70,10 +67,10 @@ import java.util.stream.Collectors;
 public abstract class LivingEntityMixin implements GravityEntity {
 	@Shadow
 	@Final
-	private DefaultedList<ItemStack> equippedArmor;
+	private NonNullList<ItemStack> equippedArmor;
 
 	@Shadow
-	public abstract double getAttributeValue(EntityAttribute attribute);
+	public abstract double getAttributeValue(Attribute attribute);
 
 	@Shadow public abstract Iterable<ItemStack> getArmorItems();
 
@@ -91,37 +88,37 @@ public abstract class LivingEntityMixin implements GravityEntity {
 	@Inject(at = @At("HEAD"), method = "tick()V")
 	void onTick(CallbackInfo callbackInformation) {
 		Entity entity = (Entity) (Object) this;
-		if (entity.world.isClient) return;
+		if (entity.level.isClientSide) return;
 
-		if (!entity.getType().isIn(AstromineTags.DOES_NOT_BREATHE)) {
-			ComponentProvider chunkProvider = ComponentProvider.fromChunk(entity.world.getChunk(entity.getBlockPos()));
+		if (!entity.getType().is(AstromineTags.DOES_NOT_BREATHE)) {
+			ComponentProvider chunkProvider = ComponentProvider.fromChunk(entity.level.getChunk(entity.blockPosition()));
 
 			ChunkAtmosphereComponent atmosphereComponent = chunkProvider.getComponent(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT);
 
 			if (atmosphereComponent != null) {
 				FluidVolume atmosphereVolume;
 
-				if (!AstromineDimensions.isAstromine(entity.world.getRegistryKey())) {
-					atmosphereVolume = atmosphereComponent.get(entity.getBlockPos().offset(Direction.UP));
+				if (!AstromineDimensions.isAstromine(entity.level.dimension())) {
+					atmosphereVolume = atmosphereComponent.get(entity.blockPosition().relative(Direction.UP));
 
 					if (atmosphereVolume.isEmpty()) {
 						atmosphereVolume = FluidVolume.oxygen();
 					}
 				} else {
-					atmosphereVolume = atmosphereComponent.get(entity.getBlockPos().offset(Direction.UP));
+					atmosphereVolume = atmosphereComponent.get(entity.blockPosition().relative(Direction.UP));
 				}
 
 				boolean isSubmerged = false;
 
-				Box collisionBox = entity.getBoundingBox();
+				AABB collisionBox = entity.getBoundingBox();
 
-				for (BlockPos blockPos : (Iterable<BlockPos>) () -> BlockPos.method_29715(collisionBox).iterator()) {
-					BlockState blockState = entity.world.getBlockState(blockPos);
+				for (BlockPos blockPos : (Iterable<BlockPos>) () -> BlockPos.betweenClosedStream(collisionBox).iterator()) {
+					BlockState blockState = entity.level.getBlockState(blockPos);
 
-					if (blockState.getBlock() instanceof FluidBlock) {
+					if (blockState.getBlock() instanceof LiquidBlock) {
 						isSubmerged = true;
 
-						Optional.ofNullable(FluidEffectRegistry.INSTANCE.get(blockState.getFluidState().getFluid())).ifPresent(it -> it.accept((LivingEntity) (Object) this));
+						Optional.ofNullable(FluidEffectRegistry.INSTANCE.get(blockState.getFluidState().getType())).ifPresent(it -> it.accept((LivingEntity) (Object) this));
 					}
 				}
 
@@ -140,16 +137,16 @@ public abstract class LivingEntityMixin implements GravityEntity {
 
 						for (ItemStack stack : getArmorItems()) {
 							if (!stack.isEmpty()) {
-								if (Registry.ITEM.getId(stack.getItem()).toString().equals("astromine:space_suit_helmet")) {
+								if (Registry.ITEM.getKey(stack.getItem()).toString().equals("astromine:space_suit_helmet")) {
 									hasHelmet = true;
 								}
-								if (Registry.ITEM.getId(stack.getItem()).toString().equals("astromine:space_suit_chestplate")) {
+								if (Registry.ITEM.getKey(stack.getItem()).toString().equals("astromine:space_suit_chestplate")) {
 									hasChestplate = true;
 								}
-								if (Registry.ITEM.getId(stack.getItem()).toString().equals("astromine:space_suit_leggings")) {
+								if (Registry.ITEM.getKey(stack.getItem()).toString().equals("astromine:space_suit_leggings")) {
 									hasLeggings = true;
 								}
-								if (Registry.ITEM.getId(stack.getItem()).toString().equals("astromine:space_suit_boots")) {
+								if (Registry.ITEM.getKey(stack.getItem()).toString().equals("astromine:space_suit_boots")) {
 									hasBoots = true;
 								}
 							}
@@ -159,7 +156,7 @@ public abstract class LivingEntityMixin implements GravityEntity {
 
 						for (ItemStack stack : getArmorItems()) {
 							if (!stack.isEmpty()) {
-								if (Registry.ITEM.getId(stack.getItem()).toString().equals("astromine:space_suit_chestplate")) { // TODO: Properly verify for Space Suit.
+								if (Registry.ITEM.getKey(stack.getItem()).toString().equals("astromine:space_suit_chestplate")) { // TODO: Properly verify for Space Suit.
 									ComponentProvider provider = ComponentProvider.fromItemStack(stack);
 
 									FluidInventoryComponent fluidComponent = provider.getComponent(AstromineComponentTypes.FLUID_INVENTORY_COMPONENT);
@@ -203,7 +200,7 @@ public abstract class LivingEntityMixin implements GravityEntity {
 	}
 
 	@Inject(at = @At("RETURN"), method = "createLivingAttributes()Lnet/minecraft/entity/attribute/DefaultAttributeContainer$Builder;")
-	private static void createLivingAttributesInject(CallbackInfoReturnable<DefaultAttributeContainer.Builder> cir) {
+	private static void createLivingAttributesInject(CallbackInfoReturnable<AttributeSupplier.Builder> cir) {
 		cir.getReturnValue().add(AstromineAttributes.GRAVITY_MULTIPLIER);
 	}
 }

@@ -24,36 +24,35 @@
 
 package com.github.chainmailstudios.astromine.common.utilities.data.position;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 public final class WorldPos {
 	@NotNull
-	private final World world;
+	private final Level world;
 	@NotNull
 	private final BlockPos pos;
 	private BlockState blockState;
 
-	private WorldPos(World world, BlockPos pos) {
+	private WorldPos(Level world, BlockPos pos) {
 		this.world = Objects.requireNonNull(world);
 		this.pos = Objects.requireNonNull(pos);
 	}
 
-	public static WorldPos of(World world, BlockPos pos) {
+	public static WorldPos of(Level world, BlockPos pos) {
 		return new WorldPos(world, pos);
 	}
 
 	public WorldPos offset(Direction direction) {
-		return of(world, getBlockPos().offset(direction));
+		return of(world, getBlockPos().relative(direction));
 	}
 
 	public BlockState getBlockState() {
@@ -67,7 +66,7 @@ public final class WorldPos {
 	public void setBlockState(BlockState state) {
 		this.blockState = null;
 
-		this.world.setBlockState(pos, state);
+		this.world.setBlockAndUpdate(pos, state);
 	}
 
 	public Block getBlock() {
@@ -75,7 +74,7 @@ public final class WorldPos {
 	}
 
 	@NotNull
-	public World getWorld() {
+	public Level getWorld() {
 		return world;
 	}
 

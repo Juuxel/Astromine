@@ -6,27 +6,6 @@ import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
 import com.github.chainmailstudios.astromine.common.volume.handler.FluidHandler;
 import com.github.chainmailstudios.astromine.common.volume.handler.ItemHandler;
 import com.github.chainmailstudios.astromine.discoveries.registry.AstromineDiscoveriesParticles;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MovementType;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Arm;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.ItemScatterer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
@@ -34,9 +13,26 @@ import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Containers;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public abstract class RocketEntity extends ComponentFluidInventoryEntity {
-	public static final TrackedData<Boolean> IS_RUNNING = DataTracker.registerData(RocketEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	public static final EntityDataAccessor<Boolean> IS_RUNNING = SynchedEntityData.defineId(RocketEntity.class, EntityDataSerializers.BOOLEAN);
 
 	protected abstract Predicate<FluidVolume> createFuelPredicate();
 
@@ -58,7 +54,7 @@ public abstract class RocketEntity extends ComponentFluidInventoryEntity {
 
 	private final Supplier<Vector3f> passengerPosition = createPassengerPosition();
 
-	public RocketEntity(EntityType<?> type, World world) {
+	public RocketEntity(EntityType<?> type, Level world) {
 		super(type, world);
 	}
 
@@ -71,7 +67,7 @@ public abstract class RocketEntity extends ComponentFluidInventoryEntity {
 	public void updatePassengerPosition(Entity passenger) {
 		if (this.hasPassenger(passenger)) {
 			Vector3f position = passengerPosition.get();
-			passenger.updatePosition(getX() + position.x, getY() + position.y, getZ() + position.z);
+			passenger.setPos(getX() + position.x, getY() + position.y, getZ() + position.z);
 		}
 	}
 
@@ -95,22 +91,22 @@ public abstract class RocketEntity extends ComponentFluidInventoryEntity {
 					Vector3d acceleration = accelerationFunction.apply(this);
 
 					this.addVelocity(0, acceleration.y, 0);
-					this.move(MovementType.SELF, this.getVelocity());
+					this.move(MoverType.SELF, this.getVelocity());
 
 					if (!this.world.isClient) {
-						Box box = getBoundingBox();
+						AABB box = getBoundingBox();
 
 						double y = getY();
 
 						for (double x = box.minX; x < box.maxX; x += 0.0625) {
 							for (double z = box.minZ; z < box.maxZ; z += 0.0625) {
-								((ServerWorld) world).spawnParticles(AstromineDiscoveriesParticles.ROCKET_FLAME, x, y, z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+								((ServerLevel) world).sendParticles(AstromineDiscoveriesParticles.ROCKET_FLAME, x, y, z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
 							}
 						}
 					}
 				}
 
-				if (BlockPos.Mutable.method_29715(getBoundingBox()).anyMatch(pos -> world.getBlockState(pos).isFullCube(world, pos))) {
+				if (BlockPos.MutableBlockPos.betweenClosedStream(getBoundingBox()).anyMatch(pos -> world.getBlockState(pos).isFullCube(world, pos))) {
 					if (world.isClient) {
 						this.world.getPlayers().forEach(player -> player.sendMessage(new TranslatableText("text.astromine.rocket.disassemble_collision").formatted(Formatting.RED), false));
 					}
@@ -125,7 +121,7 @@ public abstract class RocketEntity extends ComponentFluidInventoryEntity {
 				this.tryDisassemble();
 			}
 		} else {
-			setVelocity(Vec3d.ZERO);
+			setVelocity(Vec3.ZERO);
 			this.velocityDirty = true;
 		}
 
@@ -178,18 +174,18 @@ public abstract class RocketEntity extends ComponentFluidInventoryEntity {
 
 	public void tryDisassemble() {
 		this.tryExplode();
-		this.explosionRemains.forEach(stack -> ItemScatterer.spawn(world, getX(), getY(), getZ(), stack.copy()));
+		this.explosionRemains.forEach(stack -> Containers.dropItemStack(world, getX(), getY(), getZ(), stack.copy()));
 		this.remove();
 	}
 
 	private void tryExplode() {
-		world.createExplosion(this, getX(), getY(), getZ(), getTank().getAmount().floatValue() + 3f, Explosion.DestructionType.BREAK);
+		world.createExplosion(this, getX(), getY(), getZ(), getTank().getAmount().floatValue() + 3f, Explosion.BlockInteraction.BREAK);
 	}
 
-	public Vec3d updatePassengerForDismount(LivingEntity passenger) {
-		Vec3d vec3d = getPassengerDismountOffset(this.getWidth(), passenger.getWidth(), this.yaw + (passenger.getMainArm() == Arm.RIGHT ? 90.0F : -90.0F));
-		return new Vec3d(vec3d.getX() + this.getX(), vec3d.getY() + this.getY(), vec3d.getZ() + this.getZ());
+	public Vec3 updatePassengerForDismount(LivingEntity passenger) {
+		Vec3 vec3d = getPassengerDismountOffset(this.getWidth(), passenger.getBbWidth(), this.yaw + (passenger.getMainArm() == HumanoidArm.RIGHT ? 90.0F : -90.0F));
+		return new Vec3(vec3d.x() + this.getX(), vec3d.y() + this.getY(), vec3d.z() + this.getZ());
 	}
 
-	public abstract void openInventory(PlayerEntity player);
+	public abstract void openInventory(Player player);
 }

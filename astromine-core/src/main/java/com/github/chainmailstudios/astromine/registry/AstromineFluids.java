@@ -24,10 +24,9 @@
 
 package com.github.chainmailstudios.astromine.registry;
 
-import net.minecraft.fluid.Fluid;
-import net.minecraft.util.registry.Registry;
-
 import com.github.chainmailstudios.astromine.AstromineCommon;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.material.Fluid;
 
 public class AstromineFluids {
 	public static void initialize() {

@@ -29,10 +29,10 @@ import com.github.chainmailstudios.astromine.technologies.common.recipe.FluidMix
 import com.github.chainmailstudios.astromine.technologies.common.recipe.LiquidGeneratingRecipe;
 import com.github.chainmailstudios.astromine.technologies.common.recipe.PressingRecipe;
 import com.github.chainmailstudios.astromine.technologies.common.recipe.TrituratingRecipe;
+import net.minecraft.core.Registry;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import com.github.chainmailstudios.astromine.registry.AstromineRecipeSerializers;
 import com.github.chainmailstudios.astromine.technologies.common.recipe.AlloySmeltingRecipe;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.util.registry.Registry;
 
 public class AstromineTechnologiesRecipeSerializers extends AstromineRecipeSerializers {
 	public static final RecipeSerializer<TrituratingRecipe> TRITURATING = Registry.register(Registry.RECIPE_SERIALIZER, TrituratingRecipe.Serializer.ID, TrituratingRecipe.Serializer.INSTANCE);

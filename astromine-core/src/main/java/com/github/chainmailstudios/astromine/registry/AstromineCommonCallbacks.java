@@ -43,13 +43,12 @@ import nerdhub.cardinal.components.api.event.ItemComponentCallbackV2;
 import nerdhub.cardinal.components.api.event.WorldComponentCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.Item;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.chunk.WorldChunk;
-
+import net.minecraft.core.Registry;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.material.Fluids;
 import java.util.function.Consumer;
 
 public class AstromineCommonCallbacks {
@@ -66,9 +65,9 @@ public class AstromineCommonCallbacks {
 		});
 
 		ServerTickEvents.START_SERVER_TICK.register((server) -> {
-			for (PlayerEntity playerEntity : server.getPlayerManager().getPlayerList()) {
-				if (playerEntity.currentScreenHandler instanceof ComponentBlockEntityScreenHandler) {
-					ComponentBlockEntityScreenHandler screenHandler = (ComponentBlockEntityScreenHandler) playerEntity.currentScreenHandler;
+			for (Player playerEntity : server.getPlayerList().getPlayers()) {
+				if (playerEntity.containerMenu instanceof ComponentBlockEntityScreenHandler) {
+					ComponentBlockEntityScreenHandler screenHandler = (ComponentBlockEntityScreenHandler) playerEntity.containerMenu;
 
 					if (screenHandler.syncBlockEntity != null) {
 						screenHandler.syncBlockEntity.sync();
@@ -88,15 +87,15 @@ public class AstromineCommonCallbacks {
 		}));
 
 		ChunkComponentCallback.EVENT.register((chunk, components) -> {
-			if (chunk instanceof WorldChunk) {
-				components.put(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT, new ChunkAtmosphereComponent(((WorldChunk) chunk).getWorld(), chunk));
+			if (chunk instanceof LevelChunk) {
+				components.put(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT, new ChunkAtmosphereComponent(((LevelChunk) chunk).getLevel(), chunk));
 			}
 		});
 
 		ServerChunkTickCallback.EVENT.register((world, chunk) -> {
 			ChunkAtmosphereComponent component = ComponentProvider.fromChunk(chunk).getComponent(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT);
 			if (component != null) {
-				if (atmosphereTickCounter == AstromineConfig.get().gasTickRate && component.getWorld().isChunkLoaded(chunk.getPos().x, chunk.getPos().z) && world == component.getWorld()) {
+				if (atmosphereTickCounter == AstromineConfig.get().gasTickRate && component.getWorld().hasChunk(chunk.getPos().x, chunk.getPos().z) && world == component.getWorld()) {
 					component.tick();
 				}
 			}

@@ -25,12 +25,10 @@
 package com.github.chainmailstudios.astromine.registry;
 
 import net.fabricmc.fabric.api.tag.TagRegistry;
-
-import net.minecraft.entity.EntityType;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.tag.Tag;
-
+import net.minecraft.tags.Tag;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.material.Fluid;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 
 public class AstromineTags {

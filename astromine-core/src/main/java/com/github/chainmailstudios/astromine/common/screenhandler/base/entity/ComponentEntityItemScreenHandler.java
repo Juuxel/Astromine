@@ -24,17 +24,16 @@
 
 package com.github.chainmailstudios.astromine.common.screenhandler.base.entity;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.screen.ScreenHandlerType;
-
 import com.github.chainmailstudios.astromine.common.entity.base.ComponentItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
 
 public abstract class ComponentEntityItemScreenHandler extends ComponentEntityScreenHandler {
 	public ComponentItemEntity entity;
 
-	public ComponentEntityItemScreenHandler(ScreenHandlerType<?> type, int syncId, PlayerEntity player, int entityId) {
+	public ComponentEntityItemScreenHandler(MenuType<?> type, int syncId, Player player, int entityId) {
 		super(type, syncId, player, entityId);
 
-		entity = (ComponentItemEntity) player.world.getEntityById(entityId);
+		entity = (ComponentItemEntity) player.level.getEntity(entityId);
 	}
 }

@@ -24,35 +24,34 @@
 
 package com.github.chainmailstudios.astromine.discoveries.common.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ItemScatterer;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-
 import com.github.chainmailstudios.astromine.common.block.base.WrenchableBlockWithEntity;
 import com.github.chainmailstudios.astromine.discoveries.common.block.entity.AltarBlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class AltarBlock extends WrenchableBlockWithEntity {
-	protected static final VoxelShape SHAPE_TOP = Block.createCuboidShape(0.0D, 14.0D, 0.0D, 16.0D, 16.0D, 16.0D);
-	protected static final VoxelShape SHAPE_BOTTOM = Block.createCuboidShape(1.0D, 0.0D, 1.0D, 15.0D, 14.0D, 15.0D);
+	protected static final VoxelShape SHAPE_TOP = Block.box(0.0D, 14.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+	protected static final VoxelShape SHAPE_BOTTOM = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 14.0D, 15.0D);
 
 	public AltarBlock(Settings settings) {
 		super(settings);
@@ -69,48 +68,48 @@ public class AltarBlock extends WrenchableBlockWithEntity {
 	}
 
 	@Override
-	public ScreenHandler createScreenHandler(BlockState state, World world, BlockPos pos, int syncId, PlayerInventory playerInventory, PlayerEntity player) {
+	public AbstractContainerMenu createScreenHandler(BlockState state, Level world, BlockPos pos, int syncId, Inventory playerInventory, Player player) {
 		return null;
 	}
 
 	@Override
-	public void populateScreenHandlerBuffer(BlockState state, World world, BlockPos pos, ServerPlayerEntity player, PacketByteBuf buffer) {
+	public void populateScreenHandlerBuffer(BlockState state, Level world, BlockPos pos, ServerPlayer player, FriendlyByteBuf buffer) {
 
 	}
 
 	@Override
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return VoxelShapes.union(SHAPE_TOP, SHAPE_BOTTOM);
+	public VoxelShape getOutlineShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+		return Shapes.or(SHAPE_TOP, SHAPE_BOTTOM);
 	}
 
 	@Override
-	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		if (!world.isClient) {
+	public InteractionResult onUse(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+		if (!world.isClientSide) {
 			AltarBlockEntity blockEntity = (AltarBlockEntity) world.getBlockEntity(pos);
-			ItemStack stackInHand = player.getStackInHand(hand);
+			ItemStack stackInHand = player.getItemInHand(hand);
 
 			if (blockEntity.getStack(0).isEmpty()) {
 				if (blockEntity.initializeCrafting()) {
-					return ActionResult.SUCCESS;
+					return InteractionResult.SUCCESS;
 				} else {
-					return ActionResult.CONSUME;
+					return InteractionResult.CONSUME;
 				}
 			} else if (AltarPedestalBlock.canMergeItems(stackInHand, blockEntity.getStack(0))) {
 				ItemStack copy = stackInHand.copy();
-				copy.increment(1);
-				player.setStackInHand(hand, copy);
+				copy.grow(1);
+				player.setItemInHand(hand, copy);
 				blockEntity.setStack(0, ItemStack.EMPTY);
-				player.playSound(SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.BLOCKS, .6F, 1);
+				player.playNotifySound(SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, .6F, 1);
 				blockEntity.sync();
-				return ActionResult.SUCCESS;
+				return InteractionResult.SUCCESS;
 			} else if (stackInHand.isEmpty()) {
-				player.setStackInHand(hand, blockEntity.getStack(0).copy());
+				player.setItemInHand(hand, blockEntity.getStack(0).copy());
 				blockEntity.setStack(0, ItemStack.EMPTY);
-				player.playSound(SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.BLOCKS, .6F, 1);
+				player.playNotifySound(SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, .6F, 1);
 				blockEntity.sync();
-				return ActionResult.SUCCESS;
+				return InteractionResult.SUCCESS;
 			} else {
-				return ActionResult.CONSUME;
+				return InteractionResult.CONSUME;
 			}
 		}
 
@@ -118,9 +117,9 @@ public class AltarBlock extends WrenchableBlockWithEntity {
 	}
 
 	@Override
-	public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
-		boolean power = world.isReceivingRedstonePower(pos);
-		if (!world.isClient) {
+	public void neighborUpdate(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos, boolean notify) {
+		boolean power = world.hasNeighborSignal(pos);
+		if (!world.isClientSide) {
 			AltarBlockEntity blockEntity = (AltarBlockEntity) world.getBlockEntity(pos);
 
 			if (blockEntity.getStack(0).isEmpty()) {
@@ -136,12 +135,12 @@ public class AltarBlock extends WrenchableBlockWithEntity {
 	}
 
 	@Override
-	public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-		if (!state.isOf(newState.getBlock())) {
+	public void onStateReplaced(BlockState state, Level world, BlockPos pos, BlockState newState, boolean moved) {
+		if (!state.is(newState.getBlock())) {
 			BlockEntity blockEntity = world.getBlockEntity(pos);
-			if (blockEntity instanceof Inventory) {
-				ItemScatterer.spawn(world, pos.add(0, 1, 0), (Inventory) blockEntity);
-				world.updateComparators(pos, this);
+			if (blockEntity instanceof Container) {
+				Containers.dropContents(world, pos.offset(0, 1, 0), (Container) blockEntity);
+				world.updateNeighbourForOutputSignal(pos, this);
 			}
 
 			super.onStateReplaced(state, world, pos, newState, moved);
@@ -149,7 +148,7 @@ public class AltarBlock extends WrenchableBlockWithEntity {
 	}
 
 	@Override
-	public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+	public void onBreak(Level world, BlockPos pos, BlockState state, Player player) {
 		BlockEntity blockEntity = world.getBlockEntity(pos);
 		if (blockEntity instanceof AltarBlockEntity) {
 			((AltarBlockEntity) blockEntity).onRemove();

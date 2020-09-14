@@ -27,27 +27,33 @@ package com.github.chainmailstudios.astromine.transportations.common.block;
 import com.github.chainmailstudios.astromine.transportations.common.block.property.ConveyorProperties;
 import com.github.chainmailstudios.astromine.transportations.common.block.entity.VerticalConveyorBlockEntity;
 import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ItemScatterer;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import com.github.chainmailstudios.astromine.transportations.common.block.entity.ConveyorBlockEntity;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.Conveyable;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.Conveyor;
@@ -57,14 +63,14 @@ import com.github.chainmailstudios.astromine.common.utilities.RotationUtilities;
 
 import javax.annotation.Nullable;
 
-public class VerticalConveyorBlock extends HorizontalFacingBlock implements BlockEntityProvider, Conveyor, FacingBlockWrenchable, Waterloggable {
+public class VerticalConveyorBlock extends HorizontalDirectionalBlock implements EntityBlock, Conveyor, FacingBlockWrenchable, SimpleWaterloggedBlock {
 	private int speed;
 
-	public VerticalConveyorBlock(Settings settings, int speed) {
+	public VerticalConveyorBlock(Properties settings, int speed) {
 		super(settings);
 
 		this.speed = speed;
-		setDefaultState(getDefaultState().with(ConveyorProperties.FRONT, false).with(ConveyorProperties.CONVEYOR, false).with(Properties.WATERLOGGED, false));
+		registerDefaultState(defaultBlockState().setValue(ConveyorProperties.FRONT, false).setValue(ConveyorProperties.CONVEYOR, false).setValue(BlockStateProperties.WATERLOGGED, false));
 	}
 
 	@Override
@@ -78,88 +84,88 @@ public class VerticalConveyorBlock extends HorizontalFacingBlock implements Bloc
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView blockView) {
+	public BlockEntity newBlockEntity(BlockGetter blockView) {
 		return new VerticalConveyorBlockEntity();
 	}
 
 	@Override
 	public FluidState getFluidState(BlockState state) {
-		return (state.contains(Properties.WATERLOGGED) && state.get(Properties.WATERLOGGED)) ? Fluids.WATER.getDefaultState() : super.getFluidState(state);
+		return (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED)) ? Fluids.WATER.defaultFluidState() : super.getFluidState(state);
 	}
 
 	@Override
-	public ActionResult onUse(BlockState blockState, World world, BlockPos blockPos, PlayerEntity playerEntity, Hand hand, BlockHitResult blockHitResult) {
+	public InteractionResult use(BlockState blockState, Level world, BlockPos blockPos, Player playerEntity, InteractionHand hand, BlockHitResult blockHitResult) {
 		ConveyorBlockEntity blockEntity = (ConveyorBlockEntity) world.getBlockEntity(blockPos);
 
-		if (!playerEntity.getStackInHand(hand).isEmpty() && Block.getBlockFromItem(playerEntity.getStackInHand(hand).getItem()) instanceof Conveyor) {
-			return ActionResult.PASS;
-		} else if (!playerEntity.getStackInHand(hand).isEmpty() && blockEntity.isEmpty()) {
-			blockEntity.setStack(playerEntity.getStackInHand(hand));
-			playerEntity.setStackInHand(hand, ItemStack.EMPTY);
+		if (!playerEntity.getItemInHand(hand).isEmpty() && Block.byItem(playerEntity.getItemInHand(hand).getItem()) instanceof Conveyor) {
+			return InteractionResult.PASS;
+		} else if (!playerEntity.getItemInHand(hand).isEmpty() && blockEntity.isEmpty()) {
+			blockEntity.setStack(playerEntity.getItemInHand(hand));
+			playerEntity.setItemInHand(hand, ItemStack.EMPTY);
 
-			return ActionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		} else if (!blockEntity.isEmpty()) {
-			playerEntity.inventory.offerOrDrop(world, blockEntity.getStack());
+			playerEntity.inventory.placeItemBackInInventory(world, blockEntity.getStack());
 			blockEntity.removeStack();
 
-			return ActionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
 
-		return ActionResult.PASS;
+		return InteractionResult.PASS;
 	}
 
 	@Override
-	public void onBlockAdded(BlockState blockState, World world, BlockPos blockPos, BlockState blockState2, boolean boolean_1) {
-		Direction direction = blockState.get(FACING);
+	public void onPlace(BlockState blockState, Level world, BlockPos blockPos, BlockState blockState2, boolean boolean_1) {
+		Direction direction = blockState.getValue(FACING);
 
-		world.updateNeighbor(blockPos.offset(direction).up(), this, blockPos);
+		world.neighborChanged(blockPos.relative(direction).above(), this, blockPos);
 	}
 
 	@Override
-	public void onStateReplaced(BlockState blockState, World world, BlockPos blockPos, BlockState blockState2, boolean boolean_1) {
-		Direction direction = blockState.get(FACING);
+	public void onRemove(BlockState blockState, Level world, BlockPos blockPos, BlockState blockState2, boolean boolean_1) {
+		Direction direction = blockState.getValue(FACING);
 		if (blockState.getBlock() != blockState2.getBlock()) {
 			BlockEntity blockEntity_1 = world.getBlockEntity(blockPos);
 			if (blockEntity_1 instanceof VerticalConveyorBlockEntity) {
 				((VerticalConveyorBlockEntity) blockEntity_1).setRemoved(true);
-				ItemScatterer.spawn(world, blockPos.getX(), blockPos.getY(), blockPos.getZ(), ((VerticalConveyorBlockEntity) blockEntity_1).getStack());
-				world.updateComparators(blockPos, this);
+				Containers.dropItemStack(world, blockPos.getX(), blockPos.getY(), blockPos.getZ(), ((VerticalConveyorBlockEntity) blockEntity_1).getStack());
+				world.updateNeighbourForOutputSignal(blockPos, this);
 			}
 
-			world.updateNeighbor(blockPos.offset(direction).up(), this, blockPos);
-			super.onStateReplaced(blockState, world, blockPos, blockState2, boolean_1);
+			world.neighborChanged(blockPos.relative(direction).above(), this, blockPos);
+			super.onRemove(blockState, world, blockPos, blockState2, boolean_1);
 		}
 	}
 
 	@Override
-	public BlockState getStateForNeighborUpdate(BlockState blockState, Direction fromDirection, BlockState fromState, WorldAccess world, BlockPos blockPos, BlockPos fromPos) {
+	public BlockState updateShape(BlockState blockState, Direction fromDirection, BlockState fromState, LevelAccessor world, BlockPos blockPos, BlockPos fromPos) {
 		BlockState newState = blockState;
-		Direction direction = newState.get(FACING);
+		Direction direction = newState.getValue(FACING);
 
-		BlockPos frontPos = blockPos.offset(direction.getOpposite());
-		BlockPos upPos = blockPos.up();
-		BlockPos conveyorPos = blockPos.offset(direction).up();
+		BlockPos frontPos = blockPos.relative(direction.getOpposite());
+		BlockPos upPos = blockPos.above();
+		BlockPos conveyorPos = blockPos.relative(direction).above();
 
 		BlockEntity frontBlockEntity = world.getBlockEntity(frontPos);
 		if (frontBlockEntity instanceof Conveyable && ((Conveyable) frontBlockEntity).isOutputSide(direction, getType())) {
-			newState = newState.with(ConveyorProperties.FRONT, true);
-		} else newState = newState.with(ConveyorProperties.FRONT, false);
+			newState = newState.setValue(ConveyorProperties.FRONT, true);
+		} else newState = newState.setValue(ConveyorProperties.FRONT, false);
 
 		BlockEntity conveyorBlockEntity = world.getBlockEntity(conveyorPos);
-		if (world.isAir(upPos) && conveyorBlockEntity instanceof Conveyable && !((Conveyable) conveyorBlockEntity).hasBeenRemoved() && ((Conveyable) conveyorBlockEntity).validInputSide(direction.getOpposite()))
-			newState = newState.with(ConveyorProperties.CONVEYOR, true);
-		else newState = newState.with(ConveyorProperties.CONVEYOR, false);
+		if (world.isEmptyBlock(upPos) && conveyorBlockEntity instanceof Conveyable && !((Conveyable) conveyorBlockEntity).hasBeenRemoved() && ((Conveyable) conveyorBlockEntity).validInputSide(direction.getOpposite()))
+			newState = newState.setValue(ConveyorProperties.CONVEYOR, true);
+		else newState = newState.setValue(ConveyorProperties.CONVEYOR, false);
 
 		return newState;
 	}
 
 	@Override
-	public void neighborUpdate(BlockState blockState, World world, BlockPos blockPos, Block block, BlockPos blockPos2, boolean boolean_1) {
-		Direction direction = blockState.get(FACING);
+	public void neighborChanged(BlockState blockState, Level world, BlockPos blockPos, Block block, BlockPos blockPos2, boolean boolean_1) {
+		Direction direction = blockState.getValue(FACING);
 		ConveyorBlockEntity blockEntity = (ConveyorBlockEntity) world.getBlockEntity(blockPos);
 
-		BlockPos upPos = blockPos.up();
-		BlockPos conveyorPos = blockPos.offset(direction).up();
+		BlockPos upPos = blockPos.above();
+		BlockPos conveyorPos = blockPos.relative(direction).above();
 
 		BlockEntity upBlockEntity = world.getBlockEntity(upPos);
 		if (upBlockEntity instanceof Conveyable && ((Conveyable) upBlockEntity).validInputSide(Direction.DOWN))
@@ -172,56 +178,56 @@ public class VerticalConveyorBlock extends HorizontalFacingBlock implements Bloc
 		}
 	}
 
-	public void checkForConveyor(World world, BlockState blockState, BlockEntity conveyorBlockEntity, Direction direction, BlockPos pos, BlockPos upPos) {
+	public void checkForConveyor(Level world, BlockState blockState, BlockEntity conveyorBlockEntity, Direction direction, BlockPos pos, BlockPos upPos) {
 		BlockState newState = blockState;
 
-		if (world.isAir(upPos) && conveyorBlockEntity instanceof Conveyable && !((Conveyable) conveyorBlockEntity).hasBeenRemoved() && ((Conveyable) conveyorBlockEntity).validInputSide(direction.getOpposite())) {
-			newState = newState.with(ConveyorProperties.CONVEYOR, true);
+		if (world.isEmptyBlock(upPos) && conveyorBlockEntity instanceof Conveyable && !((Conveyable) conveyorBlockEntity).hasBeenRemoved() && ((Conveyable) conveyorBlockEntity).validInputSide(direction.getOpposite())) {
+			newState = newState.setValue(ConveyorProperties.CONVEYOR, true);
 		} else {
-			newState = newState.with(ConveyorProperties.CONVEYOR, false);
+			newState = newState.setValue(ConveyorProperties.CONVEYOR, false);
 		}
 
-		world.setBlockState(pos, newState, 8);
+		world.setBlock(pos, newState, 8);
 	}
 
 	@Override
-	public boolean hasComparatorOutput(BlockState blockState) {
+	public boolean hasAnalogOutputSignal(BlockState blockState) {
 		return true;
 	}
 
 	@Override
-	public int getComparatorOutput(BlockState blockState, World world, BlockPos blockPos) {
+	public int getAnalogOutputSignal(BlockState blockState, Level world, BlockPos blockPos) {
 		return ((ConveyorBlockEntity) world.getBlockEntity(blockPos)).isEmpty() ? 0 : 15;
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> stateManagerBuilder) {
-		stateManagerBuilder.add(FACING, ConveyorProperties.FRONT, ConveyorProperties.CONVEYOR, Properties.WATERLOGGED);
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> stateManagerBuilder) {
+		stateManagerBuilder.add(FACING, ConveyorProperties.FRONT, ConveyorProperties.CONVEYOR, BlockStateProperties.WATERLOGGED);
 	}
 
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext context) {
-		World world = context.getWorld();
-		BlockPos blockPos = context.getBlockPos();
-		BlockState newState = this.getDefaultState().with(FACING, context.getPlayerFacing());
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		Level world = context.getLevel();
+		BlockPos blockPos = context.getClickedPos();
+		BlockState newState = this.defaultBlockState().setValue(FACING, context.getHorizontalDirection());
 
-		newState = newState.getStateForNeighborUpdate(null, newState, world, blockPos, blockPos);
+		newState = newState.updateShape(null, newState, world, blockPos, blockPos);
 
-		return newState.with(Properties.WATERLOGGED, context.getWorld().getBlockState(context.getBlockPos()).getBlock() == Blocks.WATER);
+		return newState.setValue(BlockStateProperties.WATERLOGGED, context.getLevel().getBlockState(context.getClickedPos()).getBlock() == Blocks.WATER);
 	}
 
 	@Override
-	public boolean isTranslucent(BlockState blockState_1, BlockView blockView_1, BlockPos blockPos_1) {
+	public boolean propagatesSkylightDown(BlockState blockState_1, BlockGetter blockView_1, BlockPos blockPos_1) {
 		return true;
 	}
 
 	@Override
-	public VoxelShape getOutlineShape(BlockState blockState, BlockView blockView, BlockPos blockPos, ShapeContext entityContext) {
-		VoxelShape box1 = RotationUtilities.getRotatedShape(new Box(0, 0, 0, 1, 1, (4F / 16F)), blockState.get(FACING));
-		VoxelShape box2 = RotationUtilities.getRotatedShape(new Box(0, 0, 0, 1, (4F / 16F), 1), blockState.get(FACING));
+	public VoxelShape getShape(BlockState blockState, BlockGetter blockView, BlockPos blockPos, CollisionContext entityContext) {
+		VoxelShape box1 = RotationUtilities.getRotatedShape(new AABB(0, 0, 0, 1, 1, (4F / 16F)), blockState.getValue(FACING));
+		VoxelShape box2 = RotationUtilities.getRotatedShape(new AABB(0, 0, 0, 1, (4F / 16F), 1), blockState.getValue(FACING));
 
-		if (blockState.get(ConveyorProperties.FRONT)) {
-			return VoxelShapes.union(box1, box2);
+		if (blockState.getValue(ConveyorProperties.FRONT)) {
+			return Shapes.or(box1, box2);
 		} else {
 			return box1;
 		}

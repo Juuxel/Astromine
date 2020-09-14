@@ -24,9 +24,8 @@
 
 package com.github.chainmailstudios.astromine.common.block.transfer;
 
-import net.minecraft.util.Identifier;
-
 import com.github.chainmailstudios.astromine.AstromineCommon;
+import net.minecraft.resources.ResourceLocation;
 
 public enum TransferType {
 	NONE(AstromineCommon.identifier("textures/widget/none.png")),
@@ -35,9 +34,9 @@ public enum TransferType {
 	INPUT_OUTPUT(AstromineCommon.identifier("textures/widget/input_output.png")),
 	DISABLED(AstromineCommon.identifier("textures/widget/disabled.png"));
 
-	private final Identifier texture;
+	private final ResourceLocation texture;
 
-	TransferType(Identifier texture) {
+	TransferType(ResourceLocation texture) {
 		this.texture = texture;
 	}
 
@@ -47,7 +46,7 @@ public enum TransferType {
 		return values()[ordinal() + 1];
 	}
 
-	public Identifier texture() {
+	public ResourceLocation texture() {
 		return texture;
 	}
 

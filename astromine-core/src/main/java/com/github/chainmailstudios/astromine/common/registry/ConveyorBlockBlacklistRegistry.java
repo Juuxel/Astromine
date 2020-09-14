@@ -24,12 +24,11 @@
 
 package com.github.chainmailstudios.astromine.common.registry;
 
-import net.minecraft.item.Item;
-import net.minecraft.util.Pair;
-
 import com.github.chainmailstudios.astromine.common.registry.base.UniRegistry;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.item.Item;
 
-public class ConveyorBlockBlacklistRegistry extends UniRegistry<Item, Pair<Float, Boolean>> {
+public class ConveyorBlockBlacklistRegistry extends UniRegistry<Item, Tuple<Float, Boolean>> {
 	public static final ConveyorBlockBlacklistRegistry INSTANCE = new ConveyorBlockBlacklistRegistry();
 
 	private ConveyorBlockBlacklistRegistry() {}

@@ -25,22 +25,18 @@
 package com.github.chainmailstudios.astromine.discoveries.common.block.entity;
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Tickable;
-import net.minecraft.util.math.BlockPos;
-
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.TickableBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.compatibility.ItemInventoryFromInventoryComponent;
 import com.github.chainmailstudios.astromine.discoveries.registry.AstromineDiscoveriesBlockEntityTypes;
 
-public class AltarPedestalBlockEntity extends BlockEntity implements ItemInventoryFromInventoryComponent, Tickable, BlockEntityClientSerializable {
+public class AltarPedestalBlockEntity extends BlockEntity implements ItemInventoryFromInventoryComponent, TickableBlockEntity, BlockEntityClientSerializable {
 	public BlockPos parent;
 	private int spinAge;
 	private int lastSpinAddition;
@@ -67,8 +63,8 @@ public class AltarPedestalBlockEntity extends BlockEntity implements ItemInvento
 	}
 
 	@Override
-	public void markDirty() {
-		super.markDirty();
+	public void setChanged() {
+		super.setChanged();
 		sync();
 	}
 
@@ -79,14 +75,14 @@ public class AltarPedestalBlockEntity extends BlockEntity implements ItemInvento
 		yAge++;
 
 		if (parent != null) {
-			AltarBlockEntity blockEntity = (AltarBlockEntity) world.getBlockEntity(parent);
+			AltarBlockEntity blockEntity = (AltarBlockEntity) level.getBlockEntity(parent);
 			spinAge += blockEntity.craftingTicks / 5;
 			lastSpinAddition += blockEntity.craftingTicks / 5;
 
-			int velX = pos.getX() - parent.getX();
-			int velY = pos.getY() - parent.getY();
-			int velZ = pos.getZ() - parent.getZ();
-			world.addParticle(ParticleTypes.ENCHANT, parent.getX() + 0.5, parent.getY() + 1.8, parent.getZ() + 0.5, velX, velY - 1.3, velZ);
+			int velX = worldPosition.getX() - parent.getX();
+			int velY = worldPosition.getY() - parent.getY();
+			int velZ = worldPosition.getZ() - parent.getZ();
+			level.addParticle(ParticleTypes.ENCHANT, parent.getX() + 0.5, parent.getY() + 1.8, parent.getZ() + 0.5, velX, velY - 1.3, velZ);
 		}
 	}
 
@@ -104,34 +100,34 @@ public class AltarPedestalBlockEntity extends BlockEntity implements ItemInvento
 
 	@Override
 	public void fromClientTag(CompoundTag compoundTag) {
-		fromTag(null, compoundTag);
+		load(null, compoundTag);
 	}
 
 	@Override
 	public CompoundTag toClientTag(CompoundTag compoundTag) {
-		return toTag(compoundTag);
+		return save(compoundTag);
 	}
 
 	@Override
-	public void fromTag(BlockState state, CompoundTag tag) {
-		super.fromTag(state, tag);
+	public void load(BlockState state, CompoundTag tag) {
+		super.load(state, tag);
 		inventory.fromTag(tag);
 		if (tag.contains("parent"))
-			parent = BlockPos.fromLong(tag.getLong("parent"));
+			parent = BlockPos.of(tag.getLong("parent"));
 		else parent = null;
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
+	public CompoundTag save(CompoundTag tag) {
 		inventory.toTag(tag);
 		if (parent != null)
 			tag.putLong("parent", parent.asLong());
-		return super.toTag(tag);
+		return super.save(tag);
 	}
 
 	public void onRemove() {
 		if (parent != null) {
-			AltarBlockEntity blockEntity = (AltarBlockEntity) world.getBlockEntity(parent);
+			AltarBlockEntity blockEntity = (AltarBlockEntity) level.getBlockEntity(parent);
 			blockEntity.onRemove();
 		}
 	}

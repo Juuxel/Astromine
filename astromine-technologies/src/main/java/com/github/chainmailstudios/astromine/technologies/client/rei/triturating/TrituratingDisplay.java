@@ -28,9 +28,7 @@ import com.github.chainmailstudios.astromine.technologies.client.rei.AstromineTe
 import com.github.chainmailstudios.astromine.technologies.common.recipe.TrituratingRecipe;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import net.minecraft.util.Identifier;
-
+import net.minecraft.resources.ResourceLocation;
 import me.shedaniel.rei.api.EntryStack;
 import me.shedaniel.rei.api.RecipeDisplay;
 
@@ -44,13 +42,13 @@ public class TrituratingDisplay implements RecipeDisplay {
 	private final List<EntryStack> outputs;
 	private final int timeRequired;
 	private final double energyRequired;
-	private final Identifier recipeId;
+	private final ResourceLocation recipeId;
 
 	public TrituratingDisplay(TrituratingRecipe recipe) {
 		this(EntryStack.ofIngredients(recipe.getPreviewInputs()), Collections.singletonList(EntryStack.create(recipe.getOutput())), recipe.getTime(), recipe.getEnergyConsumed(), recipe.getId());
 	}
 
-	public TrituratingDisplay(List<List<EntryStack>> inputs, List<EntryStack> outputs, int timeRequired, double energyRequired, Identifier recipeId) {
+	public TrituratingDisplay(List<List<EntryStack>> inputs, List<EntryStack> outputs, int timeRequired, double energyRequired, ResourceLocation recipeId) {
 		this.inputs = inputs;
 		this.outputs = outputs;
 		this.timeRequired = timeRequired;
@@ -82,12 +80,12 @@ public class TrituratingDisplay implements RecipeDisplay {
 	}
 
 	@Override
-	public Identifier getRecipeCategory() {
+	public ResourceLocation getRecipeCategory() {
 		return AstromineTechnologiesRoughlyEnoughItemsPlugin.TRITURATING;
 	}
 
 	@Override
-	public Optional<Identifier> getRecipeLocation() {
+	public Optional<ResourceLocation> getRecipeLocation() {
 		return Optional.ofNullable(this.recipeId);
 	}
 }

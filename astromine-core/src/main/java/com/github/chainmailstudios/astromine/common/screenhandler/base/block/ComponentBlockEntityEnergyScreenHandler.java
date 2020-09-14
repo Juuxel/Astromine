@@ -28,20 +28,19 @@ import com.github.chainmailstudios.astromine.common.block.entity.base.ComponentE
 import com.github.chainmailstudios.astromine.common.widget.blade.EnergyVerticalBarWidget;
 import com.github.vini2003.blade.common.miscellaneous.Position;
 import com.github.vini2003.blade.common.miscellaneous.Size;
-
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
 
 public class ComponentBlockEntityEnergyScreenHandler extends ComponentBlockEntityScreenHandler {
 	public ComponentEnergyBlockEntity blockEntity;
 
 	public EnergyVerticalBarWidget energyBar;
 
-	public ComponentBlockEntityEnergyScreenHandler(ScreenHandlerType<?> type, int syncId, PlayerEntity player, BlockPos position) {
+	public ComponentBlockEntityEnergyScreenHandler(MenuType<?> type, int syncId, Player player, BlockPos position) {
 		super(type, syncId, player, position);
 
-		blockEntity = (ComponentEnergyBlockEntity) player.world.getBlockEntity(position);
+		blockEntity = (ComponentEnergyBlockEntity) player.level.getBlockEntity(position);
 	}
 
 	@Override

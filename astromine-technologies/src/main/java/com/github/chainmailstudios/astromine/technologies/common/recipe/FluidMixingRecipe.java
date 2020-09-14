@@ -27,20 +27,6 @@ package com.github.chainmailstudios.astromine.technologies.common.recipe;
 import com.github.chainmailstudios.astromine.common.recipe.AstromineRecipeType;
 import com.github.chainmailstudios.astromine.common.volume.handler.FluidHandler;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.RecipeType;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Lazy;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
 import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
@@ -50,37 +36,49 @@ import com.github.chainmailstudios.astromine.common.utilities.FractionUtilities;
 import com.github.chainmailstudios.astromine.common.utilities.PacketUtilities;
 import com.github.chainmailstudios.astromine.common.utilities.ParsingUtilities;
 import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
-import net.minecraft.world.World;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.Registry;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.LazyLoadedValue;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
 
-public class FluidMixingRecipe implements Recipe<Inventory>, EnergyConsumingRecipe<Inventory> {
-	final Identifier identifier;
-	final RegistryKey<Fluid> firstInputFluidKey;
-	final Lazy<Fluid> firstInputFluid;
+public class FluidMixingRecipe implements Recipe<Container>, EnergyConsumingRecipe<Container> {
+	final ResourceLocation identifier;
+	final ResourceKey<Fluid> firstInputFluidKey;
+	final LazyLoadedValue<Fluid> firstInputFluid;
 	final Fraction firstInputAmount;
-	final RegistryKey<Fluid> secondInputFluidKey;
-	final Lazy<Fluid> secondInputFluid;
+	final ResourceKey<Fluid> secondInputFluidKey;
+	final LazyLoadedValue<Fluid> secondInputFluid;
 	final Fraction secondInputAmount;
-	final RegistryKey<Fluid> outputFluidKey;
-	final Lazy<Fluid> outputFluid;
+	final ResourceKey<Fluid> outputFluidKey;
+	final LazyLoadedValue<Fluid> outputFluid;
 	final Fraction outputAmount;
 	final double energyConsumed;
 	final int time;
 
-	public FluidMixingRecipe(Identifier identifier, RegistryKey<Fluid> firstInputFluidKey, Fraction firstInputAmount, RegistryKey<Fluid> secondInputFluidKey, Fraction secondInputAmount, RegistryKey<Fluid> outputFluidKey, Fraction outputAmount, double energyConsumed, int time) {
+	public FluidMixingRecipe(ResourceLocation identifier, ResourceKey<Fluid> firstInputFluidKey, Fraction firstInputAmount, ResourceKey<Fluid> secondInputFluidKey, Fraction secondInputAmount, ResourceKey<Fluid> outputFluidKey, Fraction outputAmount, double energyConsumed, int time) {
 		this.identifier = identifier;
 		this.firstInputFluidKey = firstInputFluidKey;
-		this.firstInputFluid = new Lazy<>(() -> Registry.FLUID.get(this.firstInputFluidKey));
+		this.firstInputFluid = new LazyLoadedValue<>(() -> Registry.FLUID.get(this.firstInputFluidKey));
 		this.firstInputAmount = firstInputAmount;
 		this.secondInputFluidKey = secondInputFluidKey;
-		this.secondInputFluid = new Lazy<>(() -> Registry.FLUID.get(this.secondInputFluidKey));
+		this.secondInputFluid = new LazyLoadedValue<>(() -> Registry.FLUID.get(this.secondInputFluidKey));
 		this.secondInputAmount = secondInputAmount;
 		this.outputFluidKey = outputFluidKey;
-		this.outputFluid = new Lazy<>(() -> Registry.FLUID.get(this.outputFluidKey));
+		this.outputFluid = new LazyLoadedValue<>(() -> Registry.FLUID.get(this.outputFluidKey));
 		this.outputAmount = outputAmount;
 		this.energyConsumed = energyConsumed;
 		this.time = time;
@@ -117,7 +115,7 @@ public class FluidMixingRecipe implements Recipe<Inventory>, EnergyConsumingReci
 	}
 
 	@Override
-	public Identifier getId() {
+	public ResourceLocation getId() {
 		return identifier;
 	}
 
@@ -132,36 +130,36 @@ public class FluidMixingRecipe implements Recipe<Inventory>, EnergyConsumingReci
 	}
 
 	@Override
-	public boolean matches(Inventory inventory, World world) {
+	public boolean matches(Container inventory, Level world) {
 		return false;
 	}
 
 	@Override
-	public ItemStack craft(Inventory inventory) {
+	public ItemStack assemble(Container inventory) {
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public boolean fits(int width, int height) {
+	public boolean canCraftInDimensions(int width, int height) {
 		return false;
 	}
 
 	@Override
-	public ItemStack getOutput() {
+	public ItemStack getResultItem() {
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public DefaultedList<Ingredient> getPreviewInputs() {
-		return DefaultedList.of(); // we are not dealing with items
+	public NonNullList<Ingredient> getIngredients() {
+		return NonNullList.create(); // we are not dealing with items
 	}
 
 	@Override
-	public ItemStack getRecipeKindIcon() {
+	public ItemStack getToastSymbol() {
 		return new ItemStack(AstromineTechnologiesBlocks.ADVANCED_FLUID_MIXER);
 	}
 
-	public Identifier getIdentifier() {
+	public ResourceLocation getIdentifier() {
 		return identifier;
 	}
 
@@ -198,7 +196,7 @@ public class FluidMixingRecipe implements Recipe<Inventory>, EnergyConsumingReci
 	}
 
 	public static final class Serializer implements RecipeSerializer<FluidMixingRecipe> {
-		public static final Identifier ID = AstromineCommon.identifier("fluid_mixing");
+		public static final ResourceLocation ID = AstromineCommon.identifier("fluid_mixing");
 
 		public static final Serializer INSTANCE = new Serializer();
 
@@ -207,26 +205,26 @@ public class FluidMixingRecipe implements Recipe<Inventory>, EnergyConsumingReci
 		}
 
 		@Override
-		public FluidMixingRecipe read(Identifier identifier, JsonObject object) {
+		public FluidMixingRecipe fromJson(ResourceLocation identifier, JsonObject object) {
 			FluidMixingRecipe.Format format = new Gson().fromJson(object, FluidMixingRecipe.Format.class);
 
-			return new FluidMixingRecipe(identifier, RegistryKey.of(Registry.FLUID_KEY, new Identifier(format.firstInput)), FractionUtilities.fromJson(format.firstInputAmount), RegistryKey.of(Registry.FLUID_KEY, new Identifier(format.secondInput)), FractionUtilities.fromJson(
-				format.secondInputAmount), RegistryKey.of(Registry.FLUID_KEY, new Identifier(format.output)), FractionUtilities.fromJson(format.outputAmount), EnergyUtilities.fromJson(format.energyGenerated), ParsingUtilities.fromJson(format.time, Integer.class));
+			return new FluidMixingRecipe(identifier, ResourceKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.firstInput)), FractionUtilities.fromJson(format.firstInputAmount), ResourceKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.secondInput)), FractionUtilities.fromJson(
+				format.secondInputAmount), ResourceKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.output)), FractionUtilities.fromJson(format.outputAmount), EnergyUtilities.fromJson(format.energyGenerated), ParsingUtilities.fromJson(format.time, Integer.class));
 		}
 
 		@Override
-		public FluidMixingRecipe read(Identifier identifier, PacketByteBuf buffer) {
-			return new FluidMixingRecipe(identifier, RegistryKey.of(Registry.FLUID_KEY, buffer.readIdentifier()), FractionUtilities.fromPacket(buffer), RegistryKey.of(Registry.FLUID_KEY, buffer.readIdentifier()), FractionUtilities.fromPacket(buffer), RegistryKey.of(
-				Registry.FLUID_KEY, buffer.readIdentifier()), FractionUtilities.fromPacket(buffer), EnergyUtilities.fromPacket(buffer), PacketUtilities.fromPacket(buffer, Integer.class));
+		public FluidMixingRecipe fromNetwork(ResourceLocation identifier, FriendlyByteBuf buffer) {
+			return new FluidMixingRecipe(identifier, ResourceKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), ResourceKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), ResourceKey.create(
+				Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), EnergyUtilities.fromPacket(buffer), PacketUtilities.fromPacket(buffer, Integer.class));
 		}
 
 		@Override
-		public void write(PacketByteBuf buffer, FluidMixingRecipe recipe) {
-			buffer.writeIdentifier(recipe.firstInputFluidKey.getValue());
+		public void write(FriendlyByteBuf buffer, FluidMixingRecipe recipe) {
+			buffer.writeResourceLocation(recipe.firstInputFluidKey.location());
 			FractionUtilities.toPacket(buffer, recipe.firstInputAmount);
-			buffer.writeIdentifier(recipe.secondInputFluidKey.getValue());
+			buffer.writeResourceLocation(recipe.secondInputFluidKey.location());
 			FractionUtilities.toPacket(buffer, recipe.secondInputAmount);
-			buffer.writeIdentifier(recipe.outputFluidKey.getValue());
+			buffer.writeResourceLocation(recipe.outputFluidKey.location());
 			FractionUtilities.toPacket(buffer, recipe.outputAmount);
 			EnergyUtilities.toPacket(buffer, recipe.energyConsumed);
 			buffer.writeInt(recipe.getTime());

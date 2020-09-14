@@ -25,15 +25,14 @@
 package com.github.chainmailstudios.astromine.common.utilities.capability.inventory;
 
 import nerdhub.cardinal.components.api.component.ComponentProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.InventoryProvider;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.inventory.SidedInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.WorldAccess;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.WorldlyContainerHolder;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import com.github.chainmailstudios.astromine.common.component.SidedComponentProvider;
 import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.compatibility.ItemInventoryFromInventoryComponent;
@@ -44,9 +43,9 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 
 import java.util.stream.IntStream;
 
-public interface ExtendedComponentSidedInventoryProvider extends SidedComponentProvider, InventoryProvider, SidedInventory, ItemInventoryFromInventoryComponent {
+public interface ExtendedComponentSidedInventoryProvider extends SidedComponentProvider, WorldlyContainerHolder, WorldlyContainer, ItemInventoryFromInventoryComponent {
 	@Override
-	default SidedInventory getInventory(BlockState state, WorldAccess world, BlockPos pos) {
+	default WorldlyContainer getContainer(BlockState state, LevelAccessor world, BlockPos pos) {
 		return this;
 	}
 
@@ -56,26 +55,26 @@ public interface ExtendedComponentSidedInventoryProvider extends SidedComponentP
 	}
 
 	default IntSet getItemInputSlots() {
-		return new IntArraySet(IntStream.range(0, size()).toArray());
+		return new IntArraySet(IntStream.range(0, getContainerSize()).toArray());
 	}
 
 	default IntSet getItemOutputSlots() {
-		return new IntArraySet(IntStream.range(0, size()).toArray());
+		return new IntArraySet(IntStream.range(0, getContainerSize()).toArray());
 	}
 
 	@Override
-	default boolean canInsert(int slot, ItemStack stack, Direction dir) {
+	default boolean canPlaceItemThroughFace(int slot, ItemStack stack, Direction dir) {
 		return isSideOpenForItems(slot, dir, true);
 	}
 
 	@Override
-	default boolean canExtract(int slot, ItemStack stack, Direction dir) {
+	default boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction dir) {
 		return isSideOpenForItems(slot, dir, false);
 	}
 
 	@Override
-	default int[] getAvailableSlots(Direction side) {
-		return IntStream.range(0, size()).filter(slot -> isSideOpenForItems(slot, side, true) || isSideOpenForItems(slot, side, false)).toArray();
+	default int[] getSlotsForFace(Direction side) {
+		return IntStream.range(0, getContainerSize()).filter(slot -> isSideOpenForItems(slot, side, true) || isSideOpenForItems(slot, side, false)).toArray();
 	}
 
 	@Override

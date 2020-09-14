@@ -27,15 +27,13 @@ package com.github.chainmailstudios.astromine.registry.client;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.model.json.JsonUnbakedModel;
-import net.minecraft.client.render.model.json.ModelTransformation;
-import net.minecraft.client.util.ModelIdentifier;
-import net.minecraft.resource.Resource;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Lazy;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.LazyLoadedValue;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 
 import java.io.BufferedReader;
@@ -44,11 +42,11 @@ import java.io.InputStreamReader;
 
 @Environment(EnvType.CLIENT)
 public class AstromineClientModels {
-	public static final Lazy<ModelTransformation> ITEM_HANDHELD = new Lazy<>(() -> {
+	public static final LazyLoadedValue<ItemTransforms> ITEM_HANDHELD = new LazyLoadedValue<>(() -> {
 		try {
-			Resource resource = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("minecraft:models/item/handheld.json"));
+			Resource resource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation("minecraft:models/item/handheld.json"));
 			InputStream stream = resource.getInputStream();
-			ModelTransformation model = JsonUnbakedModel.deserialize(new BufferedReader(new InputStreamReader(stream))).getTransformations();
+			ItemTransforms model = BlockModel.fromStream(new BufferedReader(new InputStreamReader(stream))).getTransforms();
 			stream.close();
 			return model;
 		} catch (Throwable throwable) {
@@ -58,7 +56,7 @@ public class AstromineClientModels {
 
 	public static void initialize() {
 		ModelLoadingRegistry.INSTANCE.registerAppender((resourceManager, consumer) -> {
-			consumer.accept(new ModelIdentifier(new Identifier(AstromineCommon.MOD_ID, "conveyor_supports"), ""));
+			consumer.accept(new ModelResourceLocation(new ResourceLocation(AstromineCommon.MOD_ID, "conveyor_supports"), ""));
 		});
 	}
 }

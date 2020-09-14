@@ -27,12 +27,7 @@ package com.github.chainmailstudios.astromine.discoveries.registry.client;
 import com.github.chainmailstudios.astromine.discoveries.common.entity.PrimitiveRocketEntity;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
-
+import net.minecraft.client.Minecraft;
 import com.github.chainmailstudios.astromine.common.callback.SkyPropertiesCallback;
 import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
 import com.github.chainmailstudios.astromine.discoveries.client.render.sky.MarsSkyProperties;
@@ -73,18 +68,18 @@ public class AstromineDiscoveriesClientCallbacks extends AstromineClientCallback
 			double x = buffer.readDouble();
 			double y = buffer.readDouble();
 			double z = buffer.readDouble();
-			UUID uuid = buffer.readUuid();
+			UUID uuid = buffer.readUUID();
 			int id = buffer.readInt();
 
 			context.getTaskQueue().execute(() -> {
-				PrimitiveRocketEntity rocketEntity = AstromineDiscoveriesEntityTypes.PRIMITIVE_ROCKET.create(MinecraftClient.getInstance().world);
+				PrimitiveRocketEntity rocketEntity = AstromineDiscoveriesEntityTypes.PRIMITIVE_ROCKET.create(Minecraft.getInstance().level);
 
 				rocketEntity.setUuid(uuid);
 				rocketEntity.setEntityId(id);
 				rocketEntity.updatePosition(x, y, z);
 				rocketEntity.updateTrackedPosition(x, y, z);
 
-				MinecraftClient.getInstance().world.addEntity(id, rocketEntity);
+				Minecraft.getInstance().level.putNonPlayerEntity(id, rocketEntity);
 			});
 		});
 	}

@@ -24,10 +24,6 @@
 
 package com.github.chainmailstudios.astromine.common.component.inventory.compatibility;
 
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Direction;
-
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleItemInventoryComponent;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,41 +31,44 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.core.Direction;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * An InventoryComponentFromInventory is a wrapper over an Inventory that provides the functions and utilities of an
  * InventoryComponent.
  */
 public class ItemInventoryComponentFromItemInventory extends SimpleItemInventoryComponent {
-	Inventory inventory;
+	Container inventory;
 	List<Runnable> listeners = new ArrayList<>();
 
-	private ItemInventoryComponentFromItemInventory(Inventory inventory) {
-		super(inventory.size());
+	private ItemInventoryComponentFromItemInventory(Container inventory) {
+		super(inventory.getContainerSize());
 		this.inventory = inventory;
 	}
 
-	public static ItemInventoryComponentFromItemInventory of(Inventory inventory) {
+	public static ItemInventoryComponentFromItemInventory of(Container inventory) {
 		return new ItemInventoryComponentFromItemInventory(inventory);
 	}
 
 	@Override
 	public Map<Integer, ItemStack> getContents() {
 		HashMap<Integer, ItemStack> contents = new HashMap<>();
-		for (int i = 0; i < this.inventory.size(); ++i) {
-			contents.put(i, this.inventory.getStack(i));
+		for (int i = 0; i < this.inventory.getContainerSize(); ++i) {
+			contents.put(i, this.inventory.getItem(i));
 		}
 		return contents;
 	}
 
 	@Override
 	public void setStack(int slot, ItemStack stack) {
-		this.inventory.setStack(slot, stack);
+		this.inventory.setItem(slot, stack);
 	}
 
 	@Override
 	public int getItemSize() {
-		return this.inventory.size();
+		return this.inventory.getContainerSize();
 	}
 
 	@Override
@@ -79,11 +78,11 @@ public class ItemInventoryComponentFromItemInventory extends SimpleItemInventory
 
 	@Override
 	public ItemStack getStack(int slot) {
-		return this.inventory.getStack(slot);
+		return this.inventory.getItem(slot);
 	}
 
 	@Override
 	public boolean canInsert(@Nullable Direction direction, ItemStack stack, int slot) {
-		return this.inventory.isValid(slot, stack);
+		return this.inventory.canPlaceItem(slot, stack);
 	}
 }

@@ -24,10 +24,9 @@
 
 package com.github.chainmailstudios.astromine.common.network;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-
 import com.google.common.base.Objects;
 
 public class NetworkMemberNode {
@@ -76,7 +75,7 @@ public class NetworkMemberNode {
 	}
 
 	public BlockPos getBlockPos() {
-		return BlockPos.fromLong(this.pos);
+		return BlockPos.of(this.pos);
 	}
 
 	public void setBlockPos(BlockPos blockPos) {
@@ -88,7 +87,7 @@ public class NetworkMemberNode {
 	}
 
 	public void setDirection(Direction direction) {
-		this.dir = direction.getId();
+		this.dir = direction.get3DDataValue();
 	}
 
 	public long getPos() {

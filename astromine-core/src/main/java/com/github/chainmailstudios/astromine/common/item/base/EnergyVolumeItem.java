@@ -26,10 +26,10 @@ package com.github.chainmailstudios.astromine.common.item.base;
 
 import com.github.chainmailstudios.astromine.common.volume.energy.EnergyVolume;
 import me.shedaniel.cloth.api.durability.bar.DurabilityBarItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import team.reborn.energy.Energy;
 import team.reborn.energy.EnergyHolder;
 import team.reborn.energy.EnergyTier;
@@ -37,7 +37,7 @@ import team.reborn.energy.EnergyTier;
 public class EnergyVolumeItem extends BaseVolumeItem<EnergyVolume> implements EnergyHolder, DurabilityBarItem {
 	private final double size;
 
-	public EnergyVolumeItem(Item.Settings settings, double size) {
+	public EnergyVolumeItem(Item.Properties settings, double size) {
 		super(settings);
 
 		this.size = size;
@@ -47,11 +47,11 @@ public class EnergyVolumeItem extends BaseVolumeItem<EnergyVolume> implements En
 		return size;
 	}
 
-	public static EnergyVolumeItem ofCreative(Item.Settings settings) {
+	public static EnergyVolumeItem ofCreative(Item.Properties settings) {
 		return new EnergyVolumeItem(settings, Double.MAX_VALUE);
 	}
 
-	public static EnergyVolumeItem of(Settings settings, double size) {
+	public static EnergyVolumeItem of(Properties settings, double size) {
 		return new EnergyVolumeItem(settings, size);
 	}
 
@@ -83,9 +83,9 @@ public class EnergyVolumeItem extends BaseVolumeItem<EnergyVolume> implements En
 	}
 
 	@Override
-	public void appendStacks(ItemGroup group, DefaultedList<ItemStack> stacks) {
-		super.appendStacks(group, stacks);
-		if (this.isIn(group)) {
+	public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> stacks) {
+		super.fillItemCategory(group, stacks);
+		if (this.allowdedIn(group)) {
 			ItemStack stack = new ItemStack(this);
 			Energy.of(stack).set(getMaxStoredPower());
 			stacks.add(stack);

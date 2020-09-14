@@ -24,26 +24,24 @@
 
 package com.github.chainmailstudios.astromine.discoveries.client.render.block;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.json.ModelTransformation;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-
 import com.github.chainmailstudios.astromine.discoveries.common.block.entity.AltarBlockEntity;
-
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import java.util.Random;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 public class AltarBlockEntityRenderer extends BlockEntityRenderer<AltarBlockEntity> {
-	private final ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
+	private final ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 	private final Random random = new Random();
 
 	public AltarBlockEntityRenderer(BlockEntityRenderDispatcher dispatcher) {
@@ -51,34 +49,34 @@ public class AltarBlockEntityRenderer extends BlockEntityRenderer<AltarBlockEnti
 	}
 
 	@Override
-	public void render(AltarBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
+	public void render(AltarBlockEntity entity, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, int overlay) {
 		if (entity.craftingTicks > 0)
 			entity.craftingTicksDelta = entity.craftingTicks + tickDelta;
-		matrices.push();
+		matrices.pushPose();
 		ItemStack stack = entity.getItemComponent().getStack(0);
-		int j = stack.isEmpty() ? 187 : Item.getRawId(stack.getItem()) + stack.getDamage();
+		int j = stack.isEmpty() ? 187 : Item.getId(stack.getItem()) + stack.getDamageValue();
 		this.random.setSeed(j);
-		BakedModel bakedModel = this.itemRenderer.getHeldItemModel(stack, entity.getWorld(), null);
-		boolean bl = bakedModel.hasDepth();
+		BakedModel bakedModel = this.itemRenderer.getModel(stack, entity.getLevel(), null);
+		boolean bl = bakedModel.isGui3d();
 		int k = 1;
 		float h = 0.25F;
 		float l = AltarBlockEntity.HOVER_HEIGHT + 0.1F;
-		float m = bakedModel.getTransformation().getTransformation(ModelTransformation.Mode.GROUND).scale.getY();
+		float m = bakedModel.getTransforms().getTransform(ItemTransforms.TransformType.GROUND).scale.y();
 		matrices.translate(0.5D, l + 1.0D + 0.25D * m, 0.5D);
 		double progress;
 		float n = getHeight(entity, tickDelta);
 		if (entity.craftingTicks > 0) {
 			progress = entity.getYProgress(entity.craftingTicksDelta);
-			BlockPos pos = entity.getPos();
-			BlockPos parentPos = entity.getPos();
+			BlockPos pos = entity.getBlockPos();
+			BlockPos parentPos = entity.getBlockPos();
 			matrices.translate(0, AltarBlockEntity.HEIGHT_OFFSET * progress, 0);
 
 			n = (entity.spinAge + tickDelta * entity.lastAgeAddition) / 20.0F + AltarBlockEntity.HOVER_HEIGHT;
 		}
-		matrices.multiply(Vector3f.POSITIVE_Y.getRadialQuaternion(n));
-		float o = bakedModel.getTransformation().ground.scale.getX();
-		float p = bakedModel.getTransformation().ground.scale.getY();
-		float q = bakedModel.getTransformation().ground.scale.getZ();
+		matrices.mulPose(Vector3f.YP.rotation(n));
+		float o = bakedModel.getTransforms().ground.scale.x();
+		float p = bakedModel.getTransforms().ground.scale.y();
+		float q = bakedModel.getTransforms().ground.scale.z();
 		float v;
 		float w;
 		if (!bl) {
@@ -89,7 +87,7 @@ public class AltarBlockEntityRenderer extends BlockEntityRenderer<AltarBlockEnti
 		}
 
 		for (int u = 0; u < k; ++u) {
-			matrices.push();
+			matrices.pushPose();
 			if (u > 0) {
 				if (bl) {
 					v = (this.random.nextFloat() * 2.0F - 1.0F) * 0.15F;
@@ -103,14 +101,14 @@ public class AltarBlockEntityRenderer extends BlockEntityRenderer<AltarBlockEnti
 				}
 			}
 
-			this.itemRenderer.renderItem(stack, ModelTransformation.Mode.GROUND, false, matrices, vertexConsumers, light, OverlayTexture.DEFAULT_UV, bakedModel);
-			matrices.pop();
+			this.itemRenderer.render(stack, ItemTransforms.TransformType.GROUND, false, matrices, vertexConsumers, light, OverlayTexture.NO_OVERLAY, bakedModel);
+			matrices.popPose();
 			if (!bl) {
 				matrices.translate(0.0F * o, 0.0F * p, 0.09375F * q);
 			}
 		}
 
-		matrices.pop();
+		matrices.popPose();
 	}
 
 	public float getHeight(AltarBlockEntity entity, float tickDelta) {

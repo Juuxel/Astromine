@@ -24,11 +24,10 @@
 
 package com.github.chainmailstudios.astromine.common.component;
 
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.math.Direction;
-
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.Component;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

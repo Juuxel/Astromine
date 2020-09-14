@@ -24,11 +24,10 @@
 
 package com.github.chainmailstudios.astromine.common.registry;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.tag.Tag;
-
 import com.github.chainmailstudios.astromine.common.registry.base.MultiRegistry;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.material.Fluid;
 
 public class BreathableRegistry extends MultiRegistry<EntityType<?>, Tag<Fluid>> {
 	public static final BreathableRegistry INSTANCE = new BreathableRegistry();

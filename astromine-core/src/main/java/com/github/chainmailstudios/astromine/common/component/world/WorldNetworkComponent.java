@@ -25,16 +25,14 @@
 package com.github.chainmailstudios.astromine.common.component.world;
 
 import net.fabricmc.fabric.api.util.NbtType;
-
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.LongTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Tickable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import com.github.chainmailstudios.astromine.common.network.NetworkInstance;
 import com.github.chainmailstudios.astromine.common.network.NetworkMemberNode;
 import com.github.chainmailstudios.astromine.common.network.NetworkNode;
@@ -46,12 +44,12 @@ import org.jetbrains.annotations.NotNull;
 import com.google.common.collect.Sets;
 import java.util.Set;
 
-public class WorldNetworkComponent implements Component, Tickable {
+public class WorldNetworkComponent implements Component, TickableBlockEntity {
 	private final Set<NetworkInstance> instances = Sets.newConcurrentHashSet();
 
-	private final World world;
+	private final Level world;
 
-	public WorldNetworkComponent(World world) {
+	public WorldNetworkComponent(Level world) {
 		this.world = world;
 	}
 
@@ -72,7 +70,7 @@ public class WorldNetworkComponent implements Component, Tickable {
 		return getInstance(type, position) != NetworkInstance.EMPTY;
 	}
 
-	public World getWorld() {
+	public Level getWorld() {
 		return world;
 	}
 
@@ -84,7 +82,7 @@ public class WorldNetworkComponent implements Component, Tickable {
 		for (NetworkInstance instance : instances) {
 			ListTag nodeList = new ListTag();
 			for (NetworkNode node : instance.nodes) {
-				nodeList.add(LongTag.of(node.getPos()));
+				nodeList.add(LongTag.valueOf(node.getPos()));
 			}
 
 			ListTag memberList = new ListTag();
@@ -115,11 +113,11 @@ public class WorldNetworkComponent implements Component, Tickable {
 			ListTag nodeList = dataTag.getList("nodes", NbtType.LONG);
 			ListTag memberList = dataTag.getList("members", NbtType.COMPOUND);
 
-			NetworkType type = NetworkTypeRegistry.INSTANCE.get(new Identifier(dataTag.getString("type")));
+			NetworkType type = NetworkTypeRegistry.INSTANCE.get(new ResourceLocation(dataTag.getString("type")));
 			NetworkInstance instance = new NetworkInstance(world, type);
 
 			for (Tag nodeKey : nodeList) {
-				instance.addNode(NetworkNode.of(((LongTag) nodeKey).getLong()));
+				instance.addNode(NetworkNode.of(((LongTag) nodeKey).getAsLong()));
 			}
 
 			for (Tag memberTag : memberList) {

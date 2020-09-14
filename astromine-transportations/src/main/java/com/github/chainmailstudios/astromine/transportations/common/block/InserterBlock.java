@@ -26,37 +26,43 @@ package com.github.chainmailstudios.astromine.transportations.common.block;
 
 import com.github.chainmailstudios.astromine.common.utilities.capability.block.FacingBlockWrenchable;
 import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.ItemScatterer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Containers;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import com.github.chainmailstudios.astromine.transportations.common.block.entity.InserterBlockEntity;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.ConveyableBlock;
 
 import javax.annotation.Nullable;
 import java.util.Random;
 
-public class InserterBlock extends HorizontalFacingBlock implements BlockEntityProvider, ConveyableBlock, FacingBlockWrenchable, Waterloggable {
+public class InserterBlock extends HorizontalDirectionalBlock implements EntityBlock, ConveyableBlock, FacingBlockWrenchable, SimpleWaterloggedBlock {
 	private String type;
 	private int speed;
 
-	public InserterBlock(String type, int speed, Settings settings) {
+	public InserterBlock(String type, int speed, Properties settings) {
 		super(settings);
 
 		this.type = type;
 		this.speed = speed;
 
-		setDefaultState(getDefaultState().with(Properties.WATERLOGGED, false));
+		registerDefaultState(defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, false));
 	}
 
 	public String getType() {
@@ -68,68 +74,68 @@ public class InserterBlock extends HorizontalFacingBlock implements BlockEntityP
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView blockView) {
+	public BlockEntity newBlockEntity(BlockGetter blockView) {
 		return new InserterBlockEntity();
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> stateManagerBuilder) {
-		stateManagerBuilder.add(FACING, Properties.POWERED, Properties.WATERLOGGED);
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> stateManagerBuilder) {
+		stateManagerBuilder.add(FACING, BlockStateProperties.POWERED, BlockStateProperties.WATERLOGGED);
 	}
 
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext context) {
-		return this.getDefaultState().with(Properties.POWERED, false).with(FACING, context.getPlayer().isSneaking() ? context.getPlayerFacing().getOpposite() : context.getPlayerFacing()).with(Properties.WATERLOGGED, context.getWorld().getBlockState(context.getBlockPos()).getBlock() == Blocks.WATER);
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		return this.defaultBlockState().setValue(BlockStateProperties.POWERED, false).setValue(FACING, context.getPlayer().isShiftKeyDown() ? context.getHorizontalDirection().getOpposite() : context.getHorizontalDirection()).setValue(BlockStateProperties.WATERLOGGED, context.getLevel().getBlockState(context.getClickedPos()).getBlock() == Blocks.WATER);
 	}
 
 
 	@Override
 	public FluidState getFluidState(BlockState state) {
-		return (state.contains(Properties.WATERLOGGED) && state.get(Properties.WATERLOGGED)) ? Fluids.WATER.getDefaultState() : super.getFluidState(state);
+		return (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED)) ? Fluids.WATER.defaultFluidState() : super.getFluidState(state);
 	}
 
 	@Override
-	public void neighborUpdate(BlockState state, World world, BlockPos pos, Block block, BlockPos neighborPos, boolean moved) {
-		if (!world.isClient) {
-			boolean bl = state.get(Properties.POWERED);
-			if (bl != world.isReceivingRedstonePower(pos)) {
+	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos neighborPos, boolean moved) {
+		if (!world.isClientSide) {
+			boolean bl = state.getValue(BlockStateProperties.POWERED);
+			if (bl != world.hasNeighborSignal(pos)) {
 				if (bl) {
-					world.getBlockTickScheduler().schedule(pos, this, 4);
+					world.getBlockTicks().scheduleTick(pos, this, 4);
 				} else {
-					world.setBlockState(pos, state.cycle(Properties.POWERED), 2);
+					world.setBlock(pos, state.cycle(BlockStateProperties.POWERED), 2);
 				}
 			}
 		}
 	}
 
 	@Override
-	public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-		if (state.get(Properties.POWERED) && !world.isReceivingRedstonePower(pos)) {
-			world.setBlockState(pos, state.cycle(Properties.POWERED), 2);
+	public void tick(BlockState state, ServerLevel world, BlockPos pos, Random random) {
+		if (state.getValue(BlockStateProperties.POWERED) && !world.hasNeighborSignal(pos)) {
+			world.setBlock(pos, state.cycle(BlockStateProperties.POWERED), 2);
 		}
 	}
 
 	@Override
-	public void onBlockAdded(BlockState blockState, World world, BlockPos blockPos, BlockState blockState2, boolean boolean_1) {
+	public void onPlace(BlockState blockState, Level world, BlockPos blockPos, BlockState blockState2, boolean boolean_1) {
 		updateDiagonals(world, this, blockPos);
 	}
 
 	@Override
-	public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean notify) {
+	public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean notify) {
 		if (state.getBlock() != newState.getBlock()) {
 			BlockEntity blockEntity = world.getBlockEntity(pos);
 			if (blockEntity instanceof InserterBlockEntity) {
-				ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), ((InserterBlockEntity) blockEntity).getStack());
+				Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), ((InserterBlockEntity) blockEntity).getStack());
 			}
 
-			super.onStateReplaced(state, world, pos, newState, notify);
+			super.onRemove(state, world, pos, newState, notify);
 		}
 
 		updateDiagonals(world, this, pos);
 	}
 
 	@Override
-	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return VoxelShapes.cuboid(0, 0, 0, 1, 0.5, 1);
+	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+		return Shapes.box(0, 0, 0, 1, 0.5, 1);
 	}
 }

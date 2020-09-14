@@ -25,10 +25,9 @@
 package com.github.chainmailstudios.astromine.common.component.inventory;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import net.minecraft.item.ItemStack;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.math.Direction;
-
+import net.minecraft.world.item.ItemStack;
 import com.github.chainmailstudios.astromine.common.utilities.data.predicate.TriPredicate;
 import org.jetbrains.annotations.Nullable;
 

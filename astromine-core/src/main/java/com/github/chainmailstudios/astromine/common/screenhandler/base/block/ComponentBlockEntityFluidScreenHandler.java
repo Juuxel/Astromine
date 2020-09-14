@@ -24,25 +24,24 @@
 
 package com.github.chainmailstudios.astromine.common.screenhandler.base.block;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.util.math.BlockPos;
-
 import com.github.chainmailstudios.astromine.common.block.entity.base.ComponentFluidBlockEntity;
 import com.github.chainmailstudios.astromine.common.widget.blade.FluidVerticalBarWidget;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import com.github.vini2003.blade.common.miscellaneous.Position;
 import com.github.vini2003.blade.common.miscellaneous.Size;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
 
 public class ComponentBlockEntityFluidScreenHandler extends ComponentBlockEntityScreenHandler {
 	public ComponentFluidBlockEntity blockEntity;
 
 	public FluidVerticalBarWidget fluidBar;
 
-	public ComponentBlockEntityFluidScreenHandler(ScreenHandlerType<?> type, int syncId, PlayerEntity player, BlockPos position) {
+	public ComponentBlockEntityFluidScreenHandler(MenuType<?> type, int syncId, Player player, BlockPos position) {
 		super(type, syncId, player, position);
 
-		blockEntity = (ComponentFluidBlockEntity) player.world.getBlockEntity(position);
+		blockEntity = (ComponentFluidBlockEntity) player.level.getBlockEntity(position);
 	}
 
 	@Override

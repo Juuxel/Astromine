@@ -8,11 +8,11 @@ import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
 import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -147,7 +147,7 @@ public class FluidHandler {
 
 						FluidInventoryComponent bucketComponent = new SimpleFluidInventoryComponent(1);
 
-						Optional<FluidVolume> bucketVolume = Optional.of(FluidVolume.of(Fraction.bucket(), bucket.fluid));
+						Optional<FluidVolume> bucketVolume = Optional.of(FluidVolume.of(Fraction.bucket(), bucket.content));
 
 						if (bucketVolume.isPresent()) {
 							bucketComponent.setVolume(0, bucketVolume.get());

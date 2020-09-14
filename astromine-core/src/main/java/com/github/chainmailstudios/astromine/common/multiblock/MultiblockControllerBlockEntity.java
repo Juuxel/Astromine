@@ -25,13 +25,11 @@
 package com.github.chainmailstudios.astromine.common.multiblock;
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.math.BlockPos;
-
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.Component;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
@@ -56,12 +54,12 @@ public abstract class MultiblockControllerBlockEntity extends BlockEntity implem
 	}
 
 	public boolean canBuild() {
-		return multiblockType.getBlocks().entrySet().stream().allMatch((entry) -> world.getBlockState(entry.getKey()).getBlock() == entry.getValue());
+		return multiblockType.getBlocks().entrySet().stream().allMatch((entry) -> level.getBlockState(entry.getKey()).getBlock() == entry.getValue());
 	}
 
 	public void assemble() {
 		multiblockType.getBlocks().forEach((key, value) -> {
-			MultiblockMemberBlockEntity blockEntity = (MultiblockMemberBlockEntity) world.getBlockEntity(key);
+			MultiblockMemberBlockEntity blockEntity = (MultiblockMemberBlockEntity) level.getBlockEntity(key);
 
 			blockEntity.setController(this);
 
@@ -71,7 +69,7 @@ public abstract class MultiblockControllerBlockEntity extends BlockEntity implem
 
 	public void destroy() {
 		multiblockType.getBlocks().forEach((key, value) -> {
-			MultiblockMemberBlockEntity blockEntity = (MultiblockMemberBlockEntity) world.getBlockEntity(key);
+			MultiblockMemberBlockEntity blockEntity = (MultiblockMemberBlockEntity) level.getBlockEntity(key);
 
 			blockEntity.setController(null);
 
@@ -107,31 +105,31 @@ public abstract class MultiblockControllerBlockEntity extends BlockEntity implem
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
+	public CompoundTag save(CompoundTag tag) {
 		components.forEach((key, value) -> {
 			tag.put(key.getId().toString(), value.toTag(new CompoundTag()));
 		});
 
-		return super.toTag(tag);
+		return super.save(tag);
 	}
 
 	@Override
-	public void fromTag(BlockState state, CompoundTag tag) {
+	public void load(BlockState state, CompoundTag tag) {
 		components.forEach((key, value) -> {
 			value.fromTag(tag.getCompound(key.getId().toString()));
 		});
 
-		super.fromTag(state, tag);
+		super.load(state, tag);
 	}
 
 	@Override
 	public CompoundTag toClientTag(CompoundTag tag) {
-		toTag(tag);
+		save(tag);
 		return tag;
 	}
 
 	@Override
 	public void fromClientTag(CompoundTag tag) {
-		fromTag(null, tag);
+		load(null, tag);
 	}
 }

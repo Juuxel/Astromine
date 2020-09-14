@@ -25,16 +25,13 @@
 package com.github.chainmailstudios.astromine.common.item.base;
 
 import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.Item;
-
 import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.item.Item;
 
 public class FluidVolumeItem extends BaseVolumeItem<FluidVolume> {
 	private final Fraction size;
 
-	private FluidVolumeItem(Item.Settings settings, Fraction size) {
+	private FluidVolumeItem(Item.Properties settings, Fraction size) {
 		super(settings);
 
 		this.size = size;
@@ -44,7 +41,7 @@ public class FluidVolumeItem extends BaseVolumeItem<FluidVolume> {
 		return size;
 	}
 
-	public static FluidVolumeItem of(Item.Settings settings, Fraction size) {
+	public static FluidVolumeItem of(Item.Properties settings, Fraction size) {
 		return new FluidVolumeItem(settings, size);
 	}
 }

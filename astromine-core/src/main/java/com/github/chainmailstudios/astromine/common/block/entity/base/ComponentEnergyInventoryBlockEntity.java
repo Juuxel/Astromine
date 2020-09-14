@@ -25,11 +25,10 @@
 package com.github.chainmailstudios.astromine.common.block.entity.base;
 
 import com.github.chainmailstudios.astromine.common.utilities.capability.inventory.ExtendedComponentSidedInventoryProvider;
-import net.minecraft.block.Block;
-import net.minecraft.block.entity.BlockEntityType;
-
 import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public abstract class ComponentEnergyInventoryBlockEntity extends ComponentEnergyBlockEntity implements ExtendedComponentSidedInventoryProvider {
 	protected final ItemInventoryComponent itemComponent = createItemComponent();

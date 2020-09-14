@@ -36,7 +36,6 @@ import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.Reference2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Reference2DoubleOpenHashMap;
-import net.minecraft.block.entity.BlockEntity;
 import team.reborn.energy.Energy;
 import team.reborn.energy.EnergyHandler;
 
@@ -44,6 +43,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class EnergyNetworkType extends NetworkType {
 	@Override

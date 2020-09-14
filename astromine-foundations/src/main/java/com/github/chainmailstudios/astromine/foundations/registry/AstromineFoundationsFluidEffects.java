@@ -24,10 +24,9 @@
 
 package com.github.chainmailstudios.astromine.foundations.registry;
 
-import net.minecraft.fluid.Fluids;
-
 import com.github.chainmailstudios.astromine.common.registry.FluidEffectRegistry;
 import com.github.chainmailstudios.astromine.registry.AstromineFluidEffects;
+import net.minecraft.world.level.material.Fluids;
 
 public class AstromineFoundationsFluidEffects extends AstromineFluidEffects {
 	public static void initialize() {

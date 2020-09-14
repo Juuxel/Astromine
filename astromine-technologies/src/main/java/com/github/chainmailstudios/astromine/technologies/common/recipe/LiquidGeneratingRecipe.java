@@ -27,20 +27,6 @@ package com.github.chainmailstudios.astromine.technologies.common.recipe;
 import com.github.chainmailstudios.astromine.common.recipe.AstromineRecipeType;
 import com.github.chainmailstudios.astromine.common.volume.handler.FluidHandler;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.RecipeType;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Lazy;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
-
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
 import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
@@ -50,25 +36,37 @@ import com.github.chainmailstudios.astromine.common.utilities.FractionUtilities;
 import com.github.chainmailstudios.astromine.common.utilities.PacketUtilities;
 import com.github.chainmailstudios.astromine.common.utilities.ParsingUtilities;
 import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
-import net.minecraft.world.World;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.Registry;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.LazyLoadedValue;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
 
-public class LiquidGeneratingRecipe implements Recipe<Inventory>, EnergyGeneratingRecipe<Inventory> {
-	final Identifier identifier;
-	final RegistryKey<Fluid> fluidKey;
-	final Lazy<Fluid> fluid;
+public class LiquidGeneratingRecipe implements Recipe<Container>, EnergyGeneratingRecipe<Container> {
+	final ResourceLocation identifier;
+	final ResourceKey<Fluid> fluidKey;
+	final LazyLoadedValue<Fluid> fluid;
 	final Fraction amount;
 	final double energyGenerated;
 	final int time;
 
-	public LiquidGeneratingRecipe(Identifier identifier, RegistryKey<Fluid> fluidKey, Fraction amount, double energyGenerated, int time) {
+	public LiquidGeneratingRecipe(ResourceLocation identifier, ResourceKey<Fluid> fluidKey, Fraction amount, double energyGenerated, int time) {
 		this.identifier = identifier;
 		this.fluidKey = fluidKey;
-		this.fluid = new Lazy<>(() -> Registry.FLUID.get(this.fluidKey));
+		this.fluid = new LazyLoadedValue<>(() -> Registry.FLUID.get(this.fluidKey));
 		this.amount = amount;
 		this.energyGenerated = energyGenerated;
 		this.time = time;
@@ -87,27 +85,27 @@ public class LiquidGeneratingRecipe implements Recipe<Inventory>, EnergyGenerati
 	}
 
 	@Override
-	public boolean matches(Inventory inventory, World world) {
+	public boolean matches(Container inventory, Level world) {
 		return false;
 	}
 
 	@Override
-	public ItemStack craft(Inventory inventory) {
+	public ItemStack assemble(Container inventory) {
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public boolean fits(int width, int height) {
+	public boolean canCraftInDimensions(int width, int height) {
 		return false;
 	}
 
 	@Override
-	public ItemStack getOutput() {
+	public ItemStack getResultItem() {
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public Identifier getId() {
+	public ResourceLocation getId() {
 		return identifier;
 	}
 
@@ -122,12 +120,12 @@ public class LiquidGeneratingRecipe implements Recipe<Inventory>, EnergyGenerati
 	}
 
 	@Override
-	public DefaultedList<Ingredient> getPreviewInputs() {
-		return DefaultedList.of(); // we are not dealing with items
+	public NonNullList<Ingredient> getIngredients() {
+		return NonNullList.create(); // we are not dealing with items
 	}
 
 	@Override
-	public ItemStack getRecipeKindIcon() {
+	public ItemStack getToastSymbol() {
 		return new ItemStack(AstromineTechnologiesBlocks.ADVANCED_LIQUID_GENERATOR);
 	}
 
@@ -148,7 +146,7 @@ public class LiquidGeneratingRecipe implements Recipe<Inventory>, EnergyGenerati
 	}
 
 	public static final class Serializer implements RecipeSerializer<LiquidGeneratingRecipe> {
-		public static final Identifier ID = AstromineCommon.identifier("liquid_generating");
+		public static final ResourceLocation ID = AstromineCommon.identifier("liquid_generating");
 
 		public static final Serializer INSTANCE = new Serializer();
 
@@ -157,20 +155,20 @@ public class LiquidGeneratingRecipe implements Recipe<Inventory>, EnergyGenerati
 		}
 
 		@Override
-		public LiquidGeneratingRecipe read(Identifier identifier, JsonObject object) {
+		public LiquidGeneratingRecipe fromJson(ResourceLocation identifier, JsonObject object) {
 			LiquidGeneratingRecipe.Format format = new Gson().fromJson(object, LiquidGeneratingRecipe.Format.class);
 
-			return new LiquidGeneratingRecipe(identifier, RegistryKey.of(Registry.FLUID_KEY, new Identifier(format.input)), FractionUtilities.fromJson(format.amount), EnergyUtilities.fromJson(format.energyGenerated), ParsingUtilities.fromJson(format.time, Integer.class));
+			return new LiquidGeneratingRecipe(identifier, ResourceKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.input)), FractionUtilities.fromJson(format.amount), EnergyUtilities.fromJson(format.energyGenerated), ParsingUtilities.fromJson(format.time, Integer.class));
 		}
 
 		@Override
-		public LiquidGeneratingRecipe read(Identifier identifier, PacketByteBuf buffer) {
-			return new LiquidGeneratingRecipe(identifier, RegistryKey.of(Registry.FLUID_KEY, buffer.readIdentifier()), FractionUtilities.fromPacket(buffer), EnergyUtilities.fromPacket(buffer), PacketUtilities.fromPacket(buffer, Integer.class));
+		public LiquidGeneratingRecipe fromNetwork(ResourceLocation identifier, FriendlyByteBuf buffer) {
+			return new LiquidGeneratingRecipe(identifier, ResourceKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), EnergyUtilities.fromPacket(buffer), PacketUtilities.fromPacket(buffer, Integer.class));
 		}
 
 		@Override
-		public void write(PacketByteBuf buffer, LiquidGeneratingRecipe recipe) {
-			buffer.writeIdentifier(recipe.fluidKey.getValue());
+		public void write(FriendlyByteBuf buffer, LiquidGeneratingRecipe recipe) {
+			buffer.writeResourceLocation(recipe.fluidKey.location());
 			FractionUtilities.toPacket(buffer, recipe.amount);
 			EnergyUtilities.toPacket(buffer, recipe.energyGenerated);
 			buffer.writeInt(recipe.time);

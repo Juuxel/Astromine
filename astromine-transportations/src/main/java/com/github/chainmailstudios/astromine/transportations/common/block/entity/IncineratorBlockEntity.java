@@ -24,18 +24,17 @@
 
 package com.github.chainmailstudios.astromine.transportations.common.block.entity;
 
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.math.Direction;
-
 import com.github.chainmailstudios.astromine.registry.AstromineSoundEvents;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.Conveyable;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.ConveyorTypes;
 import com.github.chainmailstudios.astromine.transportations.registry.AstromineTransportationsBlockEntityTypes;
 import com.github.chainmailstudios.astromine.transportations.registry.AstromineTransportationsSoundEvents;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class IncineratorBlockEntity extends BlockEntity implements Conveyable {
 	public boolean hasBeenRemoved = false;
@@ -65,7 +64,7 @@ public class IncineratorBlockEntity extends BlockEntity implements Conveyable {
 
 	@Override
 	public boolean validInputSide(Direction direction) {
-		return direction == getCachedState().get(HorizontalFacingBlock.FACING).getOpposite();
+		return direction == getBlockState().getValue(HorizontalDirectionalBlock.FACING).getOpposite();
 	}
 
 	@Override
@@ -79,6 +78,6 @@ public class IncineratorBlockEntity extends BlockEntity implements Conveyable {
 		float max = 0.4F;
 		float random = min + ((float) Math.random()) * (max - min);
 		random = random - (random / 2);
-		world.playSound(null, getPos().getX(), getPos().getY(), getPos().getZ(), AstromineTransportationsSoundEvents.INCINERATE, SoundCategory.BLOCKS, 0.25F, 1.0F + random);
+		level.playSound(null, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), AstromineTransportationsSoundEvents.INCINERATE, SoundSource.BLOCKS, 0.25F, 1.0F + random);
 	}
 }

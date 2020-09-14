@@ -28,21 +28,19 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.mob.PiglinEntity;
-import net.minecraft.item.ItemStack;
-
 import com.github.chainmailstudios.astromine.registry.AstromineTags;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.monster.piglin.Piglin;
+import net.minecraft.world.item.ItemStack;
 
-@Mixin(PiglinEntity.class)
+@Mixin(Piglin.class)
 public class PiglinEntityMixin {
 	@Inject(method = "equipToOffHand(Lnet/minecraft/item/ItemStack;)V", at = @At("HEAD"), cancellable = true)
 	public void equipToOffHandInject(ItemStack stack, CallbackInfo ci) {
-		if (stack.getItem().isIn(AstromineTags.PIGLIN_BARTERING_ITEMS)) {
-			((MobEntity) (Object) this).equipStack(EquipmentSlot.OFFHAND, stack);
-			((MobEntity) (Object) this).updateDropChances(EquipmentSlot.OFFHAND);
+		if (stack.getItem().is(AstromineTags.PIGLIN_BARTERING_ITEMS)) {
+			((Mob) (Object) this).setItemSlot(EquipmentSlot.OFFHAND, stack);
+			((Mob) (Object) this).setGuaranteedDrop(EquipmentSlot.OFFHAND);
 			ci.cancel();
 		}
 	}

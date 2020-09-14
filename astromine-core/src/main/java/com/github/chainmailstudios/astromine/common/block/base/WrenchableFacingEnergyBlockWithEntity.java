@@ -25,7 +25,7 @@
 package com.github.chainmailstudios.astromine.common.block.base;
 
 public abstract class WrenchableFacingEnergyBlockWithEntity extends WrenchableFacingBlockWithEntity {
-	public WrenchableFacingEnergyBlockWithEntity(Settings settings) {
+	public WrenchableFacingEnergyBlockWithEntity(Properties settings) {
 		super(settings);
 	}
 }

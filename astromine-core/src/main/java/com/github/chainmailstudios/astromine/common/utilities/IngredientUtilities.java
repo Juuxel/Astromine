@@ -24,12 +24,11 @@
 
 package com.github.chainmailstudios.astromine.common.utilities;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.recipe.Ingredient;
-
 import com.github.chainmailstudios.astromine.common.recipe.ingredient.ArrayIngredient;
 
 import com.google.gson.JsonElement;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.item.crafting.Ingredient;
 
 public class IngredientUtilities {
 	public static Ingredient fromJson(JsonElement jsonElement) {
@@ -40,19 +39,19 @@ public class IngredientUtilities {
 		return ArrayIngredient.fromJson(jsonElement);
 	}
 
-	public static Ingredient fromPacket(PacketByteBuf buffer) {
-		return Ingredient.fromPacket(buffer);
+	public static Ingredient fromPacket(FriendlyByteBuf buffer) {
+		return Ingredient.fromNetwork(buffer);
 	}
 
-	public static void toPacket(PacketByteBuf buffer, Ingredient ingredient) {
-		ingredient.write(buffer);
+	public static void toPacket(FriendlyByteBuf buffer, Ingredient ingredient) {
+		ingredient.toNetwork(buffer);
 	}
 
-	public static ArrayIngredient fromBetterPacket(PacketByteBuf buffer) {
+	public static ArrayIngredient fromBetterPacket(FriendlyByteBuf buffer) {
 		return ArrayIngredient.fromPacket(buffer);
 	}
 
-	public static void toBetterPacket(PacketByteBuf buffer, ArrayIngredient ingredient) {
+	public static void toBetterPacket(FriendlyByteBuf buffer, ArrayIngredient ingredient) {
 		ingredient.write(buffer);
 	}
 }

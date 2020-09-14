@@ -24,13 +24,6 @@
 
 package com.github.chainmailstudios.astromine.common.network.type;
 
-import net.minecraft.block.FacingBlock;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.Pair;
-import net.minecraft.util.math.Direction;
-
 import com.github.chainmailstudios.astromine.common.block.transfer.TransferType;
 import com.github.chainmailstudios.astromine.common.component.SidedComponentProvider;
 import com.github.chainmailstudios.astromine.common.component.block.entity.BlockEntityTransferComponent;
@@ -46,12 +39,18 @@ import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 
 import com.google.common.collect.Lists;
 import java.util.List;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.level.block.DirectionalBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.properties.Property;
 
 public class FluidNetworkType extends NetworkType {
 	@Override
 	public void tick(NetworkInstance instance) {
 		List<FluidVolume> inputs = Lists.newArrayList();
-		List<Pair<FluidInventoryComponent, Direction>> outputs = Lists.newArrayList();
+		List<Tuple<FluidInventoryComponent, Direction>> outputs = Lists.newArrayList();
 
 		for (NetworkMemberNode memberNode : instance.members) {
 			BlockEntity blockEntity = instance.getWorld().getBlockEntity(memberNode.getBlockPos());
@@ -66,9 +65,9 @@ public class FluidNetworkType extends NetworkType {
 
 				before:
 				if (fluidComponent != null && transferComponent != null) {
-					Property<Direction> property = blockEntity.getCachedState().contains(HorizontalFacingBlock.FACING) ? HorizontalFacingBlock.FACING : blockEntity.getCachedState().contains(FacingBlock.FACING) ? FacingBlock.FACING : null;
+					Property<Direction> property = blockEntity.getBlockState().hasProperty(HorizontalDirectionalBlock.FACING) ? HorizontalDirectionalBlock.FACING : blockEntity.getBlockState().hasProperty(DirectionalBlock.FACING) ? DirectionalBlock.FACING : null;
 
-					if (!blockEntity.getCachedState().contains(property))
+					if (!blockEntity.getBlockState().hasProperty(property))
 						break before;
 
 					TransferType type = transferComponent.get(AstromineComponentTypes.FLUID_INVENTORY_COMPONENT).get(memberNode.getDirection());
@@ -79,7 +78,7 @@ public class FluidNetworkType extends NetworkType {
 						}
 
 						if (type.canInsert() || networkMember.isRequester(this)) {
-							outputs.add(new Pair<>(fluidComponent, memberNode.getDirection()));
+							outputs.add(new Tuple<>(fluidComponent, memberNode.getDirection()));
 						}
 					}
 				}
@@ -87,9 +86,9 @@ public class FluidNetworkType extends NetworkType {
 		}
 
 		for (FluidVolume input : inputs) {
-			for (Pair<FluidInventoryComponent, Direction> outputPair : outputs) {
-				FluidInventoryComponent component = outputPair.getLeft();
-				Direction direction = outputPair.getRight();
+			for (Tuple<FluidInventoryComponent, Direction> outputPair : outputs) {
+				FluidInventoryComponent component = outputPair.getA();
+				Direction direction = outputPair.getB();
 
 				component.getContents().forEach((slot, output) -> {
 					if (!input.isEmpty() && !output.isFull() && (output.canAccept(input.getFluid()))) {
