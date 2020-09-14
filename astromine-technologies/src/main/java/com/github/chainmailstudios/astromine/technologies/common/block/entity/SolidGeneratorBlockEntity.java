@@ -41,8 +41,11 @@ import com.github.chainmailstudios.astromine.technologies.registry.AstromineTech
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.item.BucketItem;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraftforge.common.ForgeHooks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -72,16 +75,16 @@ public abstract class SolidGeneratorBlockEntity extends ComponentEnergyInventory
 	public void tick() {
 		super.tick();
 
-		if (world == null) return;
-		if (world.isClient) return;
+		if (level == null) return;
+		if (level.isClientSide) return;
 
 		ItemHandler.ofOptional(this).ifPresent(items -> {
 			EnergyVolume energyVolume = getEnergyComponent().getVolume();
 			ItemStack burnStack = items.getFirst();
 
-			Integer value = FuelRegistry.INSTANCE.get(burnStack.getItem());
+			int value = ForgeHooks.getBurnTime(burnStack);
 
-			if (value != null) {
+			if (value > 0) {
 				boolean isFuel = !(burnStack.getItem() instanceof BucketItem) && value > 0;
 
 				if (isFuel) {
@@ -99,7 +102,7 @@ public abstract class SolidGeneratorBlockEntity extends ComponentEnergyInventory
 							energyVolume.add(produced * getMachineSpeed());
 						}
 					} else {
-						burnStack.decrement(1);
+						burnStack.shrink(1);
 
 						progress = 0;
 						limit = 100;
@@ -119,17 +122,17 @@ public abstract class SolidGeneratorBlockEntity extends ComponentEnergyInventory
 	}
 
 	@Override
-	public CompoundNBT toTag(CompoundNBT tag) {
+	public CompoundNBT save(CompoundNBT tag) {
 		tag.putDouble("progress", progress);
 		tag.putInt("limit", limit);
-		return super.toTag(tag);
+		return super.save(tag);
 	}
 
 	@Override
-	public void fromTag(BlockState state, @NotNull CompoundNBT tag) {
+	public void load(BlockState state, @NotNull CompoundNBT tag) {
 		progress = tag.getDouble("progress");
 		limit = tag.getInt("limit");
-		super.fromTag(state, tag);
+		super.load(state, tag);
 	}
 
 	public static class Primitive extends SolidGeneratorBlockEntity {

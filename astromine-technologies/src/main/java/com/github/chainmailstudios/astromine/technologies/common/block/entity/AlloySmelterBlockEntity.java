@@ -43,6 +43,7 @@ import com.github.chainmailstudios.astromine.technologies.registry.AstromineTech
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -95,21 +96,21 @@ public abstract class AlloySmelterBlockEntity extends ComponentEnergyInventoryBl
 	public void tick() {
 		super.tick();
 
-		if (world == null) return;
-		if (world.isClient) return;
+		if (level == null) return;
+		if (level.isClientSide) return;
 
 		ItemHandler.ofOptional(this).ifPresent(items -> {
 			EnergyVolume volume = getEnergyComponent().getVolume();
 			BaseInventory inputInventory = BaseInventory.of(items.getFirst(), items.getSecond());
 
 			if (!optionalRecipe.isPresent() && shouldTry) {
-				optionalRecipe = world.getRecipeManager().getFirstMatch(AlloySmeltingRecipe.Type.INSTANCE, inputInventory, world);
+				optionalRecipe = level.getRecipeManager().getRecipeFor(AlloySmeltingRecipe.Type.INSTANCE, inputInventory, level);
 			}
 
 			if (optionalRecipe.isPresent()) {
 				AlloySmeltingRecipe recipe = optionalRecipe.get();
 
-				if (recipe.matches(inputInventory, world)) {
+				if (recipe.matches(inputInventory, level)) {
 					limit = recipe.getTime();
 
 					double speed = Math.min(getMachineSpeed(), limit - progress);
@@ -118,9 +119,9 @@ public abstract class AlloySmelterBlockEntity extends ComponentEnergyInventoryBl
 					ItemStack output = recipe.getOutput().copy();
 
 					boolean isEmpty = items.getThird().isEmpty();
-					boolean isEqual = ItemStack.areItemsEqual(items.getThird(), output) && ItemStack.areTagsEqual(items.getThird(), output);
+					boolean isEqual = ItemStack.isSame(items.getThird(), output) && ItemStack.tagMatches(items.getThird(), output);
 
-					if (volume.hasStored(consumed) && (isEmpty || isEqual) && items.getThird().getCount() + output.getCount() <= items.getThird().getMaxCount()) {
+					if (volume.hasStored(consumed) && (isEmpty || isEqual) && items.getThird().getCount() + output.getCount() <= items.getThird().getMaxStackSize()) {
 						volume.minus(consumed);
 
 						if (progress + speed >= limit) {
@@ -130,17 +131,17 @@ public abstract class AlloySmelterBlockEntity extends ComponentEnergyInventoryBl
 							ItemStack second = items.getSecond();
 
 							if (recipe.getFirstInput().test(first) && recipe.getSecondInput().test(second)) {
-								first.decrement(recipe.getFirstInput().testMatching(first).getCount());
-								second.decrement(recipe.getSecondInput().testMatching(second).getCount());
+								first.shrink(recipe.getFirstInput().testMatching(first).getCount());
+								second.shrink(recipe.getSecondInput().testMatching(second).getCount());
 							} else if (recipe.getFirstInput().test(second) && recipe.getSecondInput().test(first)) {
-								second.decrement(recipe.getFirstInput().testMatching(second).getCount());
-								first.decrement(recipe.getSecondInput().testMatching(first).getCount());
+								second.shrink(recipe.getFirstInput().testMatching(second).getCount());
+								first.shrink(recipe.getSecondInput().testMatching(first).getCount());
 							}
 
 							if (isEmpty) {
 								items.setThird(output);
 							} else {
-								items.getThird().increment(output.getCount());
+								items.getThird().grow(output.getCount());
 								shouldTry = true;
 							}
 
@@ -163,17 +164,17 @@ public abstract class AlloySmelterBlockEntity extends ComponentEnergyInventoryBl
 	}
 
 	@Override
-	public CompoundNBT toTag(CompoundNBT tag) {
+	public CompoundNBT save(CompoundNBT tag) {
 		tag.putDouble("progress", progress);
 		tag.putInt("limit", limit);
-		return super.toTag(tag);
+		return super.save(tag);
 	}
 
 	@Override
-	public void fromTag(BlockState state, @NotNull CompoundNBT tag) {
+	public void load(BlockState state, @NotNull CompoundNBT tag) {
 		progress = tag.getDouble("progress");
 		limit = tag.getInt("limit");
-		super.fromTag(state, tag);
+		super.load(state, tag);
 	}
 
 	public static class Primitive extends AlloySmelterBlockEntity {

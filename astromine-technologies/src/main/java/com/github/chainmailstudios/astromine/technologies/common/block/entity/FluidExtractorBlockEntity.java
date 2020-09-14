@@ -39,6 +39,13 @@ import com.github.chainmailstudios.astromine.technologies.common.block.entity.ma
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.SpeedProvider;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlockEntityTypes;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.HorizontalBlock;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.util.Direction;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
+import net.minecraft.util.math.BlockPos;
 
 public class FluidExtractorBlockEntity extends ComponentEnergyFluidBlockEntity implements EnergySizeProvider, SpeedProvider, EnergyConsumedProvider {
 	private Fraction cooldown = Fraction.empty();
@@ -78,8 +85,8 @@ public class FluidExtractorBlockEntity extends ComponentEnergyFluidBlockEntity i
 	public void tick() {
 		super.tick();
 
-		if (world == null) return;
-		if (world.isClient) return;
+		if (level == null) return;
+		if (level.isClientSide) return;
 
 		FluidHandler.ofOptional(this).ifPresent(fluids -> {
 			EnergyVolume energyVolume = getEnergyComponent().getVolume();
@@ -97,22 +104,22 @@ public class FluidExtractorBlockEntity extends ComponentEnergyFluidBlockEntity i
 
 					FluidVolume fluidVolume = fluids.getFirst();
 
-					Direction direction = getCachedState().get(HorizontalFacingBlock.FACING);
+					Direction direction = getBlockState().getValue(HorizontalBlock.FACING);
 
-					BlockPos targetPos = pos.offset(direction);
+					BlockPos targetPos = worldPosition.relative(direction);
 
-					FluidState targetFluidState = world.getFluidState(targetPos);
+					FluidState targetFluidState = level.getFluidState(targetPos);
 
-					if (targetFluidState.isStill()) {
-						FluidVolume toInsert = FluidVolume.of(Fraction.bucket(), targetFluidState.getFluid());
+					if (targetFluidState.isSource()) {
+						FluidVolume toInsert = FluidVolume.of(Fraction.bucket(), targetFluidState.getType());
 
 						if ((fluidVolume.canAccept(toInsert.getFluid())) && fluidVolume.hasAvailable(toInsert.getAmount())) {
 							fluidVolume.moveFrom(toInsert, toInsert.getAmount());
 
 							energyVolume.minus(getEnergyConsumed());
 
-							world.setBlockState(targetPos, Blocks.AIR.getDefaultState());
-							world.playSound(null, pos, SoundEvents.ITEM_BUCKET_FILL, SoundCategory.BLOCKS, 1, 1);
+							level.setBlockAndUpdate(targetPos, Blocks.AIR.defaultBlockState());
+							level.playSound(null, worldPosition, SoundEvents.BUCKET_FILL, SoundCategory.BLOCKS, 1, 1);
 						}
 					}
 				});

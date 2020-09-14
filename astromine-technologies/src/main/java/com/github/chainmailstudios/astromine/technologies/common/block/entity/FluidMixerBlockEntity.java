@@ -29,7 +29,6 @@ import com.github.chainmailstudios.astromine.common.component.inventory.EnergyIn
 import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleEnergyInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleFluidInventoryComponent;
-import com.github.chainmailstudios.astromine.common.inventory.BaseInventory;
 import com.github.chainmailstudios.astromine.common.utilities.tier.MachineTier;
 import com.github.chainmailstudios.astromine.common.volume.energy.EnergyVolume;
 import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
@@ -41,17 +40,15 @@ import com.github.chainmailstudios.astromine.technologies.common.block.entity.ma
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.SpeedProvider;
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.TierProvider;
 import com.github.chainmailstudios.astromine.technologies.common.recipe.FluidMixingRecipe;
-import com.github.chainmailstudios.astromine.technologies.common.recipe.LiquidGeneratingRecipe;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlockEntityTypes;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
-import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesRecipeSerializers;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 public abstract class FluidMixerBlockEntity extends ComponentEnergyFluidBlockEntity implements EnergySizeProvider, TierProvider, SpeedProvider, FluidSizeProvider {
 	public double progress = 0;
@@ -84,8 +81,8 @@ public abstract class FluidMixerBlockEntity extends ComponentEnergyFluidBlockEnt
 					inventory.setVolume(1, FluidHandler.of(this).getSecond());
 					inventory.setVolume(2, FluidHandler.of(this).getThird());
 
-					if (world != null) {
-						optionalRecipe = (Optional) world.getRecipeManager().getAllOfType(FluidMixingRecipe.Type.INSTANCE).values().stream().filter(recipe -> recipe instanceof FluidMixingRecipe).filter(recipe -> ((FluidMixingRecipe) recipe).matches(inventory)).findFirst();
+					if (level != null) {
+						optionalRecipe = level.getRecipeManager().getAllRecipesFor(FluidMixingRecipe.Type.INSTANCE).stream().filter(recipe -> recipe.matches(inventory)).findFirst();
 						return optionalRecipe.isPresent();
 					}
 
@@ -110,13 +107,13 @@ public abstract class FluidMixerBlockEntity extends ComponentEnergyFluidBlockEnt
 	public void tick() {
 		super.tick();
 
-		if (world == null) return;
-		if (world.isClient) return;
+		if (level == null) return;
+		if (level.isClientSide) return;
 
 		FluidHandler.ofOptional(this).ifPresent(fluids -> {
 			EnergyVolume energyVolume = getEnergyComponent().getVolume();
 			if (!optionalRecipe.isPresent() && shouldTry) {
-				optionalRecipe = (Optional) world.getRecipeManager().getAllOfType(FluidMixingRecipe.Type.INSTANCE).values().stream().filter(recipe -> recipe instanceof FluidMixingRecipe).filter(recipe -> ((FluidMixingRecipe) recipe).matches(fluidComponent)).findFirst();
+				optionalRecipe = level.getRecipeManager().getAllRecipesFor(FluidMixingRecipe.Type.INSTANCE).stream().filter(recipe -> recipe.matches(fluidComponent)).findFirst();
 				shouldTry = false;
 			}
 
@@ -164,17 +161,17 @@ public abstract class FluidMixerBlockEntity extends ComponentEnergyFluidBlockEnt
 	}
 
 	@Override
-	public CompoundNBT toTag(CompoundNBT tag) {
+	public CompoundNBT save(CompoundNBT tag) {
 		tag.putDouble("progress", progress);
 		tag.putInt("limit", limit);
-		return super.toTag(tag);
+		return super.save(tag);
 	}
 
 	@Override
-	public void fromTag(BlockState state, @NotNull CompoundNBT tag) {
+	public void load(BlockState state, @NotNull CompoundNBT tag) {
 		progress = tag.getDouble("progress");
 		limit = tag.getInt("limit");
-		super.fromTag(state, tag);
+		super.load(state, tag);
 	}
 
 	public static class Primitive extends FluidMixerBlockEntity {

@@ -41,14 +41,16 @@ import com.github.chainmailstudios.astromine.technologies.registry.AstromineTech
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.FurnaceRecipe;
+import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntityType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.crafting.FurnaceRecipe;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
 
 public abstract class ElectricSmelterBlockEntity extends ComponentEnergyInventoryBlockEntity implements EnergySizeProvider, TierProvider, SpeedProvider {
 	public double progress = 0;
@@ -70,8 +72,8 @@ public abstract class ElectricSmelterBlockEntity extends ComponentEnergyInventor
 
 			BaseInventory inputInventory = BaseInventory.of(stack);
 
-			if (world != null) {
-				Optional<SmeltingRecipe> recipe = (Optional<SmeltingRecipe>) world.getRecipeManager().getFirstMatch((RecipeType) RecipeType.SMELTING, inputInventory, world);
+			if (level != null) {
+				Optional<FurnaceRecipe> recipe = level.getRecipeManager().getRecipeFor(IRecipeType.SMELTING, inputInventory, level);
 				return recipe.isPresent();
 			}
 
@@ -105,41 +107,41 @@ public abstract class ElectricSmelterBlockEntity extends ComponentEnergyInventor
 	public void tick() {
 		super.tick();
 
-		if (world == null) return;
-		if (world.isClient) return;
+		if (level == null) return;
+		if (level.isClientSide) return;
 
 		ItemHandler.ofOptional(this).ifPresent(items -> {
 			EnergyVolume energyVolume = getEnergyComponent().getVolume();
 			BaseInventory inputInventory = BaseInventory.of(items.getSecond());
 
 			if (!optionalRecipe.isPresent() && shouldTry) {
-				optionalRecipe = (Optional<SmeltingRecipe>) world.getRecipeManager().getFirstMatch((RecipeType) RecipeType.SMELTING, inputInventory, world);
+				optionalRecipe = level.getRecipeManager().getRecipeFor(IRecipeType.SMELTING, inputInventory, level);
 				shouldTry = false;
 			}
 
 			if (optionalRecipe.isPresent()) {
-				SmeltingRecipe recipe = optionalRecipe.get();
+				FurnaceRecipe recipe = optionalRecipe.get();
 
-				if (recipe.matches(inputInventory, world)) {
-					limit = recipe.getCookTime();
+				if (recipe.matches(inputInventory, level)) {
+					limit = recipe.getCookingTime();
 
 					double speed = Math.min(getMachineSpeed() * 2, limit - progress);
 
-					ItemStack output = recipe.getOutput().copy();
+					ItemStack output = recipe.getResultItem().copy();
 
 					boolean isEmpty = items.getFirst().isEmpty();
-					boolean isEqual = ItemStack.areItemsEqual(items.getFirst(), output) && ItemStack.areTagsEqual(items.getFirst(), output);
+					boolean isEqual = ItemStack.isSame(items.getFirst(), output) && ItemStack.tagMatches(items.getFirst(), output);
 
-					if ((isEmpty || isEqual) && items.getFirst().getCount() + output.getCount() <= items.getFirst().getMaxCount() && energyVolume.use(500.0D / limit * speed)) {
+					if ((isEmpty || isEqual) && items.getFirst().getCount() + output.getCount() <= items.getFirst().getMaxStackSize() && energyVolume.use(500.0D / limit * speed)) {
 						if (progress + speed >= limit) {
 							optionalRecipe = Optional.empty();
 
-							items.getSecond().decrement(1);
+							items.getSecond().shrink(1);
 
 							if (isEmpty) {
 								items.setFirst(output);
 							} else {
-								items.getFirst().increment(output.getCount());
+								items.getFirst().grow(output.getCount());
 
 								shouldTry = true; // Vanilla is garbage; if we don't do it here, it only triggers the listener on #setStack.
 							}
@@ -163,18 +165,18 @@ public abstract class ElectricSmelterBlockEntity extends ComponentEnergyInventor
 	}
 
 	@Override
-	public void fromTag(BlockState state, @NotNull CompoundNBT tag) {
-		super.fromTag(state, tag);
+	public void load(BlockState state, @NotNull CompoundNBT tag) {
+		super.load(state, tag);
 		progress = tag.getDouble("progress");
 		limit = tag.getInt("limit");
 		shouldTry = true;
 	}
 
 	@Override
-	public CompoundNBT toTag(CompoundNBT tag) {
+	public CompoundNBT save(CompoundNBT tag) {
 		tag.putDouble("progress", progress);
 		tag.putInt("limit", limit);
-		return super.toTag(tag);
+		return super.save(tag);
 	}
 
 	public static class Primitive extends ElectricSmelterBlockEntity {

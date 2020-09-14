@@ -32,7 +32,9 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.DirectionalBlock;
 import net.minecraft.block.HorizontalBlock;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
@@ -55,6 +57,7 @@ import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import nerdhub.cardinal.components.api.ComponentRegistry;
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.Component;
+import net.minecraftforge.fml.network.NetworkEvent;
 import org.jetbrains.annotations.NotNull;
 import team.reborn.energy.Energy;
 import team.reborn.energy.EnergyHandler;
@@ -69,12 +72,12 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-public abstract class ComponentBlockEntity extends net.minecraft.tileentity.TileEntity implements SidedComponentProvider, PacketConsumer, BlockEntityClientSerializable, ITickableTileEntity {
+public abstract class ComponentBlockEntity extends net.minecraft.tileentity.TileEntity implements SidedComponentProvider, PacketConsumer, ITickableTileEntity {
 	protected final BlockEntityTransferComponent transferComponent = new BlockEntityTransferComponent();
 
 	protected final Map<ComponentType<?>, Component> allComponents = Maps.newHashMap();
 
-	protected final Map<ResourceLocation, BiConsumer<PacketBuffer, PacketContext>> allHandlers = Maps.newHashMap();
+	protected final Map<ResourceLocation, BiConsumer<PacketBuffer, NetworkEvent.Context>> allHandlers = Maps.newHashMap();
 
 	protected boolean skipInventory = true;
 
@@ -112,7 +115,7 @@ public abstract class ComponentBlockEntity extends net.minecraft.tileentity.Tile
 	}
 
 	@Override
-	public void consumePacket(ResourceLocation identifier, PacketBuffer buffer, PacketContext context) {
+	public void consumePacket(ResourceLocation identifier, PacketBuffer buffer, NetworkEvent.Context context) {
 		allHandlers.get(identifier).accept(buffer, context);
 	}
 
@@ -182,8 +185,14 @@ public abstract class ComponentBlockEntity extends net.minecraft.tileentity.Tile
 	}
 
 	@Override
-	public void fromClientTag(CompoundNBT compoundTag) {
-		load(null, compoundTag);
+	public CompoundNBT getUpdateTag() {
+		CompoundNBT compoundTag = save(new CompoundNBT());
+		if (skipInventory) {
+			compoundTag.remove(AstromineComponentTypes.ITEM_INVENTORY_COMPONENT.getId().toString());
+		} else {
+			skipInventory = true;
+		}
+		return compoundTag;
 	}
 
 	@Override

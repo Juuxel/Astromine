@@ -81,8 +81,8 @@ public abstract class ElectrolyzerBlockEntity extends ComponentEnergyFluidBlockE
 					inventory.setVolume(1, FluidHandler.of(this).getSecond());
 					inventory.setVolume(2, FluidHandler.of(this).getThird());
 
-					if (world != null) {
-						optionalRecipe = (Optional) world.getRecipeManager().getAllOfType(ElectrolyzingRecipe.Type.INSTANCE).values().stream().filter(recipe -> recipe instanceof ElectrolyzingRecipe).filter(recipe -> ((ElectrolyzingRecipe) recipe).matches(inventory)).findFirst();
+					if (level != null) {
+						optionalRecipe = level.getRecipeManager().getAllRecipesFor(ElectrolyzingRecipe.Type.INSTANCE).stream().filter(recipe -> recipe.matches(inventory)).findFirst();
 						return optionalRecipe.isPresent();
 					}
 
@@ -107,13 +107,13 @@ public abstract class ElectrolyzerBlockEntity extends ComponentEnergyFluidBlockE
 	public void tick() {
 		super.tick();
 
-		if (world == null) return;
-		if (world.isClient) return;
+		if (level == null) return;
+		if (level.isClientSide) return;
 
 		FluidHandler.ofOptional(this).ifPresent(fluids -> {
 			EnergyVolume volume = getEnergyComponent().getVolume();
 			if (!optionalRecipe.isPresent() && shouldTry) {
-				optionalRecipe = (Optional) world.getRecipeManager().getAllOfType(ElectrolyzingRecipe.Type.INSTANCE).values().stream().filter(recipe -> recipe instanceof ElectrolyzingRecipe).filter(recipe -> ((ElectrolyzingRecipe) recipe).matches(fluidComponent)).findFirst();
+				optionalRecipe = level.getRecipeManager().getAllRecipesFor(ElectrolyzingRecipe.Type.INSTANCE).stream().filter(recipe -> recipe.matches(fluidComponent)).findFirst();
 			}
 
 			if (optionalRecipe.isPresent()) {
@@ -160,17 +160,17 @@ public abstract class ElectrolyzerBlockEntity extends ComponentEnergyFluidBlockE
 	}
 
 	@Override
-	public CompoundNBT toTag(CompoundNBT tag) {
+	public CompoundNBT save(CompoundNBT tag) {
 		tag.putDouble("progress", progress);
 		tag.putInt("limit", limit);
-		return super.toTag(tag);
+		return super.save(tag);
 	}
 
 	@Override
-	public void fromTag(BlockState state, @NotNull CompoundNBT tag) {
+	public void load(BlockState state, @NotNull CompoundNBT tag) {
 		progress = tag.getDouble("progress");
 		limit = tag.getInt("limit");
-		super.fromTag(state, tag);
+		super.load(state, tag);
 	}
 
 	public static class Primitive extends ElectrolyzerBlockEntity {

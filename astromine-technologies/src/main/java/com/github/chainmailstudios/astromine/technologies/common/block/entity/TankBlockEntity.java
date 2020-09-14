@@ -38,6 +38,9 @@ import com.github.chainmailstudios.astromine.technologies.common.block.entity.ma
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.SpeedProvider;
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.TierProvider;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlockEntityTypes;
+import net.minecraft.item.BucketItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.tileentity.TileEntityType;
 import com.github.chainmailstudios.astromine.registry.AstromineConfig;
 
@@ -62,8 +65,8 @@ public abstract class TankBlockEntity extends ComponentFluidInventoryBlockEntity
 	public void tick() {
 		super.tick();
 
-		if (world == null) return;
-		if (world.isClient) return;
+		if (level == null) return;
+		if (level.isClientSide) return;
 
 		FluidHandler.ofOptional(this).ifPresent(fluids -> {
 			ItemHandler.ofOptional(this).ifPresent(items -> {
@@ -96,7 +99,7 @@ public abstract class TankBlockEntity extends ComponentFluidInventoryBlockEntity
 								if (ourVolume.hasStored(Fraction.bucket())) {
 									ourVolume.add(stackVolume, Fraction.bucket());
 
-									items.setSecond(new ItemStack(stackVolume.getFluid().getBucketItem()));
+									items.setSecond(new ItemStack(stackVolume.getFluid().getBucket()));
 								}
 							}
 						} else {

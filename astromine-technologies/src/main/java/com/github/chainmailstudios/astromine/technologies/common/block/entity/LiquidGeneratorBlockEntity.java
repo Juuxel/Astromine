@@ -78,8 +78,8 @@ public abstract class LiquidGeneratorBlockEntity extends ComponentEnergyFluidBlo
 
 					inventory.setVolume(0, volume);
 
-					if (world != null) {
-						optionalRecipe = (Optional) world.getRecipeManager().getAllOfType(LiquidGeneratingRecipe.Type.INSTANCE).values().stream().filter(recipe -> recipe instanceof LiquidGeneratingRecipe).filter(recipe -> ((LiquidGeneratingRecipe) recipe).matches(inventory)).findFirst();
+					if (level != null) {
+						optionalRecipe = level.getRecipeManager().getAllRecipesFor(LiquidGeneratingRecipe.Type.INSTANCE).stream().filter(recipe -> recipe.matches(inventory)).findFirst();
 						return optionalRecipe.isPresent();
 					}
 
@@ -102,13 +102,13 @@ public abstract class LiquidGeneratorBlockEntity extends ComponentEnergyFluidBlo
 	public void tick() {
 		super.tick();
 
-		if (world == null) return;
-		if (world.isClient) return;
+		if (level == null) return;
+		if (level.isClientSide) return;
 
 		FluidHandler.ofOptional(this).ifPresent(fluids -> {
 			EnergyVolume energyVolume = getEnergyComponent().getVolume();
 			if (!optionalRecipe.isPresent() && shouldTry) {
-				optionalRecipe = (Optional) world.getRecipeManager().getAllOfType(LiquidGeneratingRecipe.Type.INSTANCE).values().stream().filter(recipe -> recipe instanceof LiquidGeneratingRecipe).filter(recipe -> ((LiquidGeneratingRecipe) recipe).matches(fluidComponent)).findFirst();
+				optionalRecipe = level.getRecipeManager().getAllRecipesFor(LiquidGeneratingRecipe.Type.INSTANCE).stream().filter(recipe -> recipe.matches(fluidComponent)).findFirst();
 				shouldTry = false;
 			}
 
@@ -150,17 +150,17 @@ public abstract class LiquidGeneratorBlockEntity extends ComponentEnergyFluidBlo
 	}
 
 	@Override
-	public CompoundNBT toTag(CompoundNBT tag) {
+	public CompoundNBT save(CompoundNBT tag) {
 		tag.putDouble("progress", progress);
 		tag.putInt("limit", limit);
-		return super.toTag(tag);
+		return super.save(tag);
 	}
 
 	@Override
-	public void fromTag(BlockState state, @NotNull CompoundNBT tag) {
+	public void load(BlockState state, @NotNull CompoundNBT tag) {
 		progress = tag.getDouble("progress");
 		limit = tag.getInt("limit");
-		super.fromTag(state, tag);
+		super.load(state, tag);
 	}
 
 	public static class Primitive extends LiquidGeneratorBlockEntity {

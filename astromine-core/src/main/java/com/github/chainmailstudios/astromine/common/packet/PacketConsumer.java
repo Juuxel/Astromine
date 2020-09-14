@@ -24,10 +24,10 @@
 
 package com.github.chainmailstudios.astromine.common.packet;
 
-import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 public interface PacketConsumer {
-	void consumePacket(ResourceLocation identifier, PacketBuffer buffer, PacketContext context);
+	void consumePacket(ResourceLocation identifier, PacketBuffer buffer, NetworkEvent.Context context);
 }

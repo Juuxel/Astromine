@@ -97,7 +97,7 @@ public abstract class BufferBlockEntity extends ComponentInventoryBlockEntity {
 		public void tick() {
 			ItemHandler.ofOptional(this).ifPresent(items -> {
 				items.forEach(stack -> {
-					stack.setCount(stack.getMaxCount());
+					stack.setCount(stack.getMaxStackSize());
 				});
 			});
 		}

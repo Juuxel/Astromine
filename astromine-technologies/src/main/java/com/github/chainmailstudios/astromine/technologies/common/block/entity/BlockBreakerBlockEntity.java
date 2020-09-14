@@ -39,6 +39,16 @@ import com.github.chainmailstudios.astromine.technologies.common.block.entity.ma
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.SpeedProvider;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlockEntityTypes;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.block.Block;
+import net.minecraft.block.HorizontalBlock;
+import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Tuple;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.server.ServerWorld;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -82,8 +92,8 @@ public class BlockBreakerBlockEntity extends ComponentEnergyInventoryBlockEntity
 	public void tick() {
 		super.tick();
 
-		if (world == null) return;
-		if (world.isClient) return;
+		if (level == null) return;
+		if (level.isClientSide) return;
 
 		ItemHandler.ofOptional(this).ifPresent(items -> {
 			EnergyVolume energyVolume = getEnergyComponent().getVolume();
@@ -101,37 +111,37 @@ public class BlockBreakerBlockEntity extends ComponentEnergyInventoryBlockEntity
 
 					ItemStack stored = items.getFirst();
 
-					Direction direction = getCachedState().get(HorizontalFacingBlock.FACING);
+					Direction direction = getBlockState().getValue(HorizontalBlock.FACING);
 
-					BlockPos targetPos = getPos().offset(direction);
+					BlockPos targetPos = getBlockPos().relative(direction);
 
-					BlockState targetState = world.getBlockState(targetPos);
+					BlockState targetState = level.getBlockState(targetPos);
 
 					if (targetState.isAir()) {
 						tickInactive();
 					} else {
-						BlockEntity targetEntity = world.getBlockEntity(targetPos);
+						TileEntity targetEntity = level.getBlockEntity(targetPos);
 
-						List<ItemStack> drops = Block.getDroppedStacks(targetState, (ServerWorld) world, targetPos, targetEntity);
+						List<ItemStack> drops = Block.getDrops(targetState, (ServerWorld) level, targetPos, targetEntity);
 
 						ItemStack storedCopy = stored.copy();
 
 						Optional<ItemStack> matching = drops.stream().filter(stack -> storedCopy.isEmpty() || StackUtilities.equalItemAndTag(stack, storedCopy)).findFirst();
 
 						matching.ifPresent(match -> {
-							Pair<ItemStack, ItemStack> pair = StackUtilities.merge(match, stored, match.getMaxCount(), stored.getMaxCount());
-							items.setFirst(pair.getRight());
+							Tuple<ItemStack, ItemStack> pair = StackUtilities.merge(match, stored, match.getMaxStackSize(), stored.getMaxStackSize());
+							items.setFirst(pair.getB());
 							drops.remove(match);
-							drops.add(pair.getLeft());
+							drops.add(pair.getA());
 						});
 
 						drops.forEach(stack -> {
 							if (!stack.isEmpty()) {
-								ItemScatterer.spawn(world, targetPos.getX(), targetPos.getY(), targetPos.getZ(), stack);
+								InventoryHelper.dropItemStack(level, targetPos.getX(), targetPos.getY(), targetPos.getZ(), stack);
 							}
 						});
 
-						world.breakBlock(targetPos, false);
+						level.destroyBlock(targetPos, false);
 
 						energyVolume.minus(getEnergyConsumed());
 					}
@@ -141,14 +151,14 @@ public class BlockBreakerBlockEntity extends ComponentEnergyInventoryBlockEntity
 	}
 
 	@Override
-	public CompoundNBT toTag(CompoundNBT tag) {
+	public CompoundNBT save(CompoundNBT tag) {
 		tag.put("cooldown", cooldown.toTag());
-		return super.toTag(tag);
+		return super.save(tag);
 	}
 
 	@Override
-	public void fromTag(BlockState state, @NotNull CompoundNBT tag) {
+	public void load(BlockState state, @NotNull CompoundNBT tag) {
 		cooldown = Fraction.fromTag(tag.getCompound("cooldown"));
-		super.fromTag(state, tag);
+		super.load(state, tag);
 	}
 }

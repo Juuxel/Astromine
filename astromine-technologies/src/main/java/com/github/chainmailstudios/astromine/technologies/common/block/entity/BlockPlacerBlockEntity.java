@@ -39,7 +39,12 @@ import com.github.chainmailstudios.astromine.technologies.common.block.entity.ma
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlockEntityTypes;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.HorizontalBlock;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
 public class BlockPlacerBlockEntity extends ComponentEnergyInventoryBlockEntity implements EnergySizeProvider, SpeedProvider, EnergyConsumedProvider {
@@ -78,8 +83,8 @@ public class BlockPlacerBlockEntity extends ComponentEnergyInventoryBlockEntity 
 	public void tick() {
 		super.tick();
 
-		if (world == null) return;
-		if (world.isClient) return;
+		if (level == null) return;
+		if (level.isClientSide) return;
 
 		ItemHandler.ofOptional(this).ifPresent(items -> {
 			EnergyVolume energyVolume = getEnergyComponent().getVolume();
@@ -97,18 +102,18 @@ public class BlockPlacerBlockEntity extends ComponentEnergyInventoryBlockEntity 
 
 					ItemStack stored = items.getFirst();
 
-					Direction direction = getCachedState().get(HorizontalFacingBlock.FACING);
+					Direction direction = getBlockState().getValue(HorizontalBlock.FACING);
 
-					BlockPos targetPos = pos.offset(direction);
+					BlockPos targetPos = worldPosition.relative(direction);
 
-					BlockState targetState = world.getBlockState(targetPos);
+					BlockState targetState = level.getBlockState(targetPos);
 
 					if (stored.getItem() instanceof BlockItem && targetState.isAir()) {
-						BlockState newState = ((BlockItem) stored.getItem()).getBlock().getDefaultState();
+						BlockState newState = ((BlockItem) stored.getItem()).getBlock().defaultBlockState();
 
-						world.setBlockState(targetPos, newState);
+						level.setBlockAndUpdate(targetPos, newState);
 
-						stored.decrement(1);
+						stored.shrink(1);
 
 						energyVolume.minus(getEnergyConsumed());
 					}
@@ -118,14 +123,14 @@ public class BlockPlacerBlockEntity extends ComponentEnergyInventoryBlockEntity 
 	}
 
 	@Override
-	public CompoundNBT toTag(CompoundNBT tag) {
+	public CompoundNBT save(CompoundNBT tag) {
 		tag.put("cooldown", cooldown.toTag());
-		return super.toTag(tag);
+		return super.save(tag);
 	}
 
 	@Override
-	public void fromTag(BlockState state, @NotNull CompoundNBT tag) {
+	public void load(BlockState state, @NotNull CompoundNBT tag) {
 		cooldown = Fraction.fromTag(tag.getCompound("cooldown"));
-		super.fromTag(state, tag);
+		super.load(state, tag);
 	}
 }

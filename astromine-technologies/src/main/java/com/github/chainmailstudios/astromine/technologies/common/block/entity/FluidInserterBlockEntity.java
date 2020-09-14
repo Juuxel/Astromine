@@ -39,6 +39,12 @@ import com.github.chainmailstudios.astromine.technologies.common.block.entity.ma
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.SpeedProvider;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlockEntityTypes;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.HorizontalBlock;
+import net.minecraft.util.Direction;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
+import net.minecraft.util.math.BlockPos;
 
 public class FluidInserterBlockEntity extends ComponentEnergyFluidBlockEntity implements EnergySizeProvider, SpeedProvider, EnergyConsumedProvider {
 	private Fraction cooldown = Fraction.empty();
@@ -78,8 +84,8 @@ public class FluidInserterBlockEntity extends ComponentEnergyFluidBlockEntity im
 	public void tick() {
 		super.tick();
 
-		if (world == null) return;
-		if (world.isClient) return;
+		if (level == null) return;
+		if (level.isClientSide) return;
 
 		FluidHandler.ofOptional(this).ifPresent(fluids -> {
 			EnergyVolume energyVolume = getEnergyComponent().getVolume();
@@ -97,11 +103,11 @@ public class FluidInserterBlockEntity extends ComponentEnergyFluidBlockEntity im
 
 					FluidVolume fluidVolume = fluids.getFirst();
 
-					Direction direction = getCachedState().get(HorizontalFacingBlock.FACING);
+					Direction direction = getBlockState().getValue(HorizontalBlock.FACING);
 
-					BlockPos targetPos = pos.offset(direction);
+					BlockPos targetPos = worldPosition.relative(direction);
 
-					BlockState targetState = world.getBlockState(targetPos);
+					BlockState targetState = level.getBlockState(targetPos);
 
 					if (targetState.isAir()) {
 						if (fluidVolume.hasStored(Fraction.bucket())) {
@@ -111,8 +117,8 @@ public class FluidInserterBlockEntity extends ComponentEnergyFluidBlockEntity im
 
 							energyVolume.minus(getEnergyConsumed());
 
-							world.setBlockState(targetPos, toInsert.getFluid().getDefaultState().getBlockState());
-							world.playSound(null, pos, SoundEvents.ITEM_BUCKET_EMPTY, SoundCategory.BLOCKS, 1, 1);
+							level.setBlockAndUpdate(targetPos, toInsert.getFluid().defaultFluidState().createLegacyBlock());
+							level.playSound(null, worldPosition, SoundEvents.BUCKET_FILL, SoundCategory.BLOCKS, 1, 1);
 						}
 					}
 				});

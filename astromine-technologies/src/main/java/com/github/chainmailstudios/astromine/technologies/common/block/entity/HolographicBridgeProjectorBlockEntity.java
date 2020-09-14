@@ -47,7 +47,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-public class HolographicBridgeProjectorBlockEntity extends TileEntity implements ITickableTileEntity, BlockEntityClientSerializable {
+public class HolographicBridgeProjectorBlockEntity extends TileEntity implements ITickableTileEntity {
 	public ArrayList<Vector3f> segments = null;
 
 	public Color color = Color.of("0x7e80cad4");
@@ -209,7 +209,7 @@ public class HolographicBridgeProjectorBlockEntity extends TileEntity implements
 	}
 
 	@Override
-	public void fromClientTag(CompoundNBT tag) {
+	public void handleUpdateTag(BlockState state, CompoundNBT tag) {
 		this.load(null, tag);
 
 		this.destroyBridge();
@@ -219,10 +219,5 @@ public class HolographicBridgeProjectorBlockEntity extends TileEntity implements
 		}
 
 		this.buildBridge();
-	}
-
-	@Override
-	public CompoundNBT toClientTag(CompoundNBT compoundTag) {
-		return this.save(compoundTag);
 	}
 }

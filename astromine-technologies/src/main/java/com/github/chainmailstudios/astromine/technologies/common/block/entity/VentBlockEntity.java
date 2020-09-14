@@ -43,6 +43,10 @@ import com.github.chainmailstudios.astromine.technologies.common.block.entity.ma
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlockEntityTypes;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
+import net.minecraft.block.DirectionalBlock;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 
 public class VentBlockEntity extends ComponentEnergyFluidBlockEntity implements FluidSizeProvider, EnergySizeProvider, SpeedProvider, EnergyConsumedProvider {
 	public VentBlockEntity() {
@@ -87,26 +91,26 @@ public class VentBlockEntity extends ComponentEnergyFluidBlockEntity implements 
 	public void tick() {
 		super.tick();
 
-		if (world == null) return;
-		if (world.isClient) return;
+		if (level == null) return;
+		if (level.isClientSide) return;
 
 		FluidHandler.ofOptional(this).ifPresent(fluids -> {
 			EnergyVolume energyVolume = getEnergyComponent().getVolume();
 			if (energyVolume.hasStored(Fraction.of(1, 8))) {
-				BlockPos position = getPos();
+				BlockPos position = getBlockPos();
 
-				Direction direction = world.getBlockState(position).get(FacingBlock.FACING);
+				Direction direction = level.getBlockState(position).getValue(DirectionalBlock.FACING);
 
-				BlockPos output = position.offset(direction);
+				BlockPos output = position.relative(direction);
 
-				if (energyVolume.hasStored(getEnergyConsumed()) && (world.getBlockState(output).isAir() || world.getBlockState(output).isSideSolidFullSquare(world, pos, direction.getOpposite()))) {
-					ComponentProvider componentProvider = ComponentProvider.fromChunk(world.getChunk(getPos()));
+				if (energyVolume.hasStored(getEnergyConsumed()) && (level.getBlockState(output).isAir() || level.getBlockState(output).isFaceSturdy(level, worldPosition, direction.getOpposite()))) {
+					ComponentProvider componentProvider = ComponentProvider.fromChunk(level.getChunk(getBlockPos()));
 
 					ChunkAtmosphereComponent atmosphereComponent = componentProvider.getComponent(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT);
 
 					FluidVolume centerVolume = fluids.getFirst();
 
-					if (ChunkAtmosphereComponent.isInChunk(world.getChunk(output).getPos(), pos)) {
+					if (ChunkAtmosphereComponent.isInChunk(level.getChunk(output).getPos(), worldPosition)) {
 						FluidVolume sideVolume = atmosphereComponent.get(output);
 
 						if ((sideVolume.canAccept(centerVolume.getFluid())) && sideVolume.smallerThan(centerVolume.getAmount())) {
@@ -121,8 +125,8 @@ public class VentBlockEntity extends ComponentEnergyFluidBlockEntity implements 
 							tickInactive();
 						}
 					} else {
-						ChunkPos neighborPos = ChunkAtmosphereComponent.getNeighborFromPos(world.getChunk(output).getPos(), output);
-						ComponentProvider provider = ComponentProvider.fromChunk(world.getChunk(neighborPos.x, neighborPos.z));
+						ChunkPos neighborPos = ChunkAtmosphereComponent.getNeighborFromPos(level.getChunk(output).getPos(), output);
+						ComponentProvider provider = ComponentProvider.fromChunk(level.getChunk(neighborPos.x, neighborPos.z));
 						ChunkAtmosphereComponent neighborAtmosphereComponent = provider.getComponent(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT);
 
 						FluidVolume sideVolume = neighborAtmosphereComponent.get(output);

@@ -43,13 +43,14 @@ import com.github.chainmailstudios.astromine.technologies.registry.AstromineTech
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntityType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
 
 public abstract class PresserBlockEntity extends ComponentEnergyInventoryBlockEntity implements EnergySizeProvider, TierProvider, SpeedProvider {
 	public double progress = 0;
@@ -72,8 +73,8 @@ public abstract class PresserBlockEntity extends ComponentEnergyInventoryBlockEn
 			SimpleItemInventoryComponent component = new SimpleItemInventoryComponent(1);
 			ItemHandler.of(component).setFirst(stack);
 
-			if (world != null) {
-				Optional<PressingRecipe> recipe = (Optional<PressingRecipe>) world.getRecipeManager().getFirstMatch((RecipeType) PressingRecipe.Type.INSTANCE, ItemInventoryFromInventoryComponent.of(component), world);
+			if (level != null) {
+				Optional<PressingRecipe> recipe = level.getRecipeManager().getRecipeFor(PressingRecipe.Type.INSTANCE, ItemInventoryFromInventoryComponent.of(component), level);
 				return recipe.isPresent();
 			}
 
@@ -107,21 +108,21 @@ public abstract class PresserBlockEntity extends ComponentEnergyInventoryBlockEn
 	public void tick() {
 		super.tick();
 
-		if (world == null) return;
-		if (world.isClient) return;
+		if (level == null) return;
+		if (level.isClientSide) return;
 
 		ItemHandler.ofOptional(this).ifPresent(items -> {
 			EnergyVolume volume = getEnergyComponent().getVolume();
 			BaseInventory inputInventory = BaseInventory.of(items.getFirst(), items.getSecond());
 
 			if (!optionalRecipe.isPresent() && shouldTry) {
-				optionalRecipe = (Optional<PressingRecipe>) world.getRecipeManager().getFirstMatch((RecipeType) PressingRecipe.Type.INSTANCE, ItemInventoryFromInventoryComponent.of(itemComponent), world);
+				optionalRecipe = level.getRecipeManager().getRecipeFor( PressingRecipe.Type.INSTANCE, ItemInventoryFromInventoryComponent.of(itemComponent), level);
 			}
 
 			if (optionalRecipe.isPresent()) {
 				PressingRecipe recipe = optionalRecipe.get();
 
-				if (recipe.matches(inputInventory, world)) {
+				if (recipe.matches(inputInventory, level)) {
 					limit = recipe.getTime();
 
 					double speed = Math.min(getMachineSpeed(), limit - progress);
@@ -130,21 +131,21 @@ public abstract class PresserBlockEntity extends ComponentEnergyInventoryBlockEn
 					ItemStack output = recipe.getOutput().copy();
 
 					boolean isEmpty = items.getFirst().isEmpty();
-					boolean isEqual = ItemStack.areItemsEqual(items.getFirst(), output) && ItemStack.areTagsEqual(items.getFirst(), output);
+					boolean isEqual = ItemStack.isSame(items.getFirst(), output) && ItemStack.tagMatches(items.getFirst(), output);
 
 					if (volume.hasStored(consumed)) {
-						if ((isEmpty || isEqual) && items.getFirst().getCount() + output.getCount() <= items.getFirst().getMaxCount()) {
+						if ((isEmpty || isEqual) && items.getFirst().getCount() + output.getCount() <= items.getFirst().getMaxStackSize()) {
 							volume.minus(consumed);
 
 							if (progress + speed >= limit) {
 								optionalRecipe = Optional.empty();
 
-								items.getSecond().decrement(1);
+								items.getSecond().shrink(1);
 
 								if (isEmpty) {
 									items.setFirst(output);
 								} else {
-									items.getFirst().increment(output.getCount());
+									items.getFirst().grow(output.getCount());
 									shouldTry = true;
 								}
 
@@ -168,17 +169,17 @@ public abstract class PresserBlockEntity extends ComponentEnergyInventoryBlockEn
 	}
 
 	@Override
-	public CompoundNBT toTag(CompoundNBT tag) {
+	public CompoundNBT save(CompoundNBT tag) {
 		tag.putDouble("progress", progress);
 		tag.putInt("limit", limit);
-		return super.toTag(tag);
+		return super.save(tag);
 	}
 
 	@Override
-	public void fromTag(BlockState state, @NotNull CompoundNBT tag) {
+	public void load(BlockState state, @NotNull CompoundNBT tag) {
 		progress = tag.getDouble("progress");
 		limit = tag.getInt("limit");
-		super.fromTag(state, tag);
+		super.load(state, tag);
 	}
 
 	public static class Primitive extends PresserBlockEntity {
