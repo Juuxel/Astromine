@@ -26,14 +26,19 @@ package com.github.chainmailstudios.astromine.registry;
 
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import net.minecraft.util.SoundEvent;
-import net.minecraft.util.registry.Registry;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class AstromineSoundEvents {
-	public static SoundEvent register(String id) {
-		return Registry.register(Registry.SOUND_EVENT, AstromineCommon.identifier(id), new SoundEvent(AstromineCommon.identifier(id)));
+	private static final DeferredRegister<SoundEvent> SOUND_EVENT_DEFERRED_REGISTER = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, AstromineCommon.MOD_ID);
+
+	public static RegistryObject<SoundEvent> register(String id) {
+		return SOUND_EVENT_DEFERRED_REGISTER.register(id, () -> new SoundEvent(AstromineCommon.identifier(id)));
 	}
 
-	public static void initialize() {
-
+	public static void initialize(IEventBus modBus) {
+		SOUND_EVENT_DEFERRED_REGISTER.register(modBus);
 	}
 }
