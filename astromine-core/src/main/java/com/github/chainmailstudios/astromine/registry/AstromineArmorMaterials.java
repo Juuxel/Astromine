@@ -34,7 +34,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.function.Supplier;
 
 public class AstromineArmorMaterials {
-	public static IArmorMaterial register(String name, int durabilityMultiplier, int[] protectionAmounts, int enchantability, SoundEvent equipSound, float toughness, float knockbackResistance, Supplier<Ingredient> supplier) {
+	public static IArmorMaterial register(String name, int durabilityMultiplier, int[] protectionAmounts, int enchantability, Supplier<SoundEvent> equipSound, float toughness, float knockbackResistance, Supplier<Ingredient> supplier) {
 		return new AstromineArmorMaterial(name, durabilityMultiplier, protectionAmounts, enchantability, equipSound, toughness, knockbackResistance, supplier);
 	}
 
@@ -44,12 +44,12 @@ public class AstromineArmorMaterials {
 		private final int durabilityMultiplier;
 		private final int[] protectionAmounts;
 		private final int enchantability;
-		private final SoundEvent equipSound;
+		private final Supplier<SoundEvent> equipSound;
 		private final float toughness;
 		private final float knockbackResistance;
 		private final Supplier<Ingredient> repairIngredientSupplier;
 
-		private AstromineArmorMaterial(String name, int durabilityMultiplier, int[] protectionAmounts, int enchantability, SoundEvent equipSound, float toughness, float knockbackResistance, Supplier<Ingredient> supplier) {
+		private AstromineArmorMaterial(String name, int durabilityMultiplier, int[] protectionAmounts, int enchantability, Supplier<SoundEvent> equipSound, float toughness, float knockbackResistance, Supplier<Ingredient> supplier) {
 			this.name = name;
 			this.durabilityMultiplier = durabilityMultiplier;
 			this.protectionAmounts = protectionAmounts;
@@ -77,7 +77,7 @@ public class AstromineArmorMaterials {
 
 		@Override
 		public SoundEvent getEquipSound() {
-			return this.equipSound;
+			return this.equipSound.get();
 		}
 
 		@Override

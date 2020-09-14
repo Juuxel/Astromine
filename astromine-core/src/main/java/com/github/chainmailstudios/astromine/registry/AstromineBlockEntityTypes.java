@@ -30,11 +30,16 @@ import java.util.function.Supplier;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.registry.Registry;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class AstromineBlockEntityTypes {
-	public static void initialize() {
+	private static final DeferredRegister<TileEntityType<?>> BLOCK_ENTITY_TYPE_DEFERRED_REGISTER = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, AstromineCommon.MOD_ID);
 
+	public static void initialize(IEventBus modBus) {
+		BLOCK_ENTITY_TYPE_DEFERRED_REGISTER.register(modBus);
 	}
 
 	/**
@@ -47,7 +52,9 @@ public class AstromineBlockEntityTypes {
 	 *
 	 * @return Registered BlockEntityType
 	 */
-	public static <B extends TileEntity> TileEntityType<B> register(String name, Supplier<B> supplier, Block... supportedBlocks) {
-		return Registry.register(Registry.BLOCK_ENTITY_TYPE, AstromineCommon.identifier(name), TileEntityType.Builder.of(supplier, supportedBlocks).build(null));
+	public static <B extends TileEntity> RegistryObject<TileEntityType<B>> register(String name, Supplier<B> supplier, Block... supportedBlocks) {
+		// Something something datafixers
+		//noinspection ConstantConditions
+		return BLOCK_ENTITY_TYPE_DEFERRED_REGISTER.register(name, () -> TileEntityType.Builder.of(supplier, supportedBlocks).build(null));
 	}
 }
