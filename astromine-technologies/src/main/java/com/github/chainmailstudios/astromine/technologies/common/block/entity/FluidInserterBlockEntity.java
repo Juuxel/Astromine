@@ -66,7 +66,7 @@ public class FluidInserterBlockEntity extends ComponentEnergyFluidBlockEntity im
 	}
 
 	@Override
-	public double getEnergyConsumed() {
+	public int getEnergyConsumed() {
 		return AstromineConfig.get().fluidInserterEnergyConsumed;
 	}
 

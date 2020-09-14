@@ -70,7 +70,7 @@ public class BlockPlacerBlockEntity extends ComponentEnergyInventoryBlockEntity 
 	}
 
 	@Override
-	public double getEnergyConsumed() {
+	public int getEnergyConsumed() {
 		return AstromineConfig.get().blockPlacerEnergyConsumed;
 	}
 

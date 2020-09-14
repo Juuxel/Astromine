@@ -24,14 +24,12 @@
 
 package com.github.chainmailstudios.astromine.common.block.entity.base;
 
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-import net.minecraft.block.Block;
-import net.minecraft.tileentity.TileEntityType;
-import com.github.chainmailstudios.astromine.common.component.SidedComponentProvider;
 import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
+import net.minecraft.block.Block;
+import net.minecraft.tileentity.TileEntityType;
 
-public abstract class ComponentEnergyFluidBlockEntity extends ComponentEnergyBlockEntity implements SidedComponentProvider, BlockEntityClientSerializable {
+public abstract class ComponentEnergyFluidBlockEntity extends ComponentEnergyBlockEntity {
 	protected final FluidInventoryComponent fluidComponent = createFluidComponent();
 
 	protected abstract FluidInventoryComponent createFluidComponent();

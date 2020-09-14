@@ -362,19 +362,19 @@ public class AstromineConfig implements ConfigData {
 	public double eliteCapacitorEnergy = 131071D;
 
 	@Comment("Energy for the Block Placer actions.")
-	public double blockPlacerEnergyConsumed = 1024D;
+	public int blockPlacerEnergyConsumed = 1024;
 
 	@Comment("Energy for the Block Breaker actions.")
-	public double blockBreakerEnergyConsumed = 1024D;
+	public int blockBreakerEnergyConsumed = 1024;
 
 	@Comment("Energy for the Fluid Inserter actions.")
-	public double fluidInserterEnergyConsumed = 1024D;
+	public int fluidInserterEnergyConsumed = 1024;
 
 	@Comment("Energy for the Fluid Extractor actions.")
-	public double fluidExtractorEnergyConsumed = 1024D;
+	public int fluidExtractorEnergyConsumed = 1024;
 
 	@Comment("Energy for the Vent actions.")
-	public double ventEnergyConsumed = 1024D;
+	public int ventEnergyConsumed = 1024;
 
 	@Comment("Delay for the Block Placer actions (smaller is faster).")
 	public long blockPlacerSpeed = 40L;

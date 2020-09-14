@@ -39,7 +39,6 @@ import com.github.chainmailstudios.astromine.technologies.common.block.entity.ma
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.SpeedProvider;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlockEntityTypes;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.block.HorizontalBlock;
 import net.minecraft.inventory.InventoryHelper;
@@ -79,7 +78,7 @@ public class BlockBreakerBlockEntity extends ComponentEnergyInventoryBlockEntity
 	}
 
 	@Override
-	public double getEnergyConsumed() {
+	public int getEnergyConsumed() {
 		return AstromineConfig.get().blockBreakerEnergyConsumed;
 	}
 

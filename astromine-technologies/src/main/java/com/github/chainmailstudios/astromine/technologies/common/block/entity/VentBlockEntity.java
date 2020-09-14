@@ -83,7 +83,7 @@ public class VentBlockEntity extends ComponentEnergyFluidBlockEntity implements 
 	}
 
 	@Override
-	public double getEnergyConsumed() {
+	public int getEnergyConsumed() {
 		return AstromineConfig.get().ventEnergyConsumed;
 	}
 
