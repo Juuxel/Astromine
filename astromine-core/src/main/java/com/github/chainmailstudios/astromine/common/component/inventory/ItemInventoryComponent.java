@@ -26,9 +26,7 @@ package com.github.chainmailstudios.astromine.common.component.inventory;
 
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.utilities.data.Range;
-import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import com.github.chainmailstudios.astromine.registry.AstromineItems;
-import nerdhub.cardinal.components.api.ComponentType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -37,23 +35,20 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.items.IItemHandler;
 import org.apache.logging.log4j.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public interface ItemInventoryComponent extends NameableComponent {
+public interface ItemInventoryComponent extends NameableComponent, IItemHandler {
 	default Item getSymbol() {
-		return AstromineItems.ITEM;
+		return AstromineItems.ITEM.get();
 	}
 
 	default TranslationTextComponent getName() {
@@ -63,9 +58,7 @@ public interface ItemInventoryComponent extends NameableComponent {
 	/**
 	 * Retrieves contents of this inventory that match a specific predicate as a collection as ItemStack copies.
 	 *
-	 * @param predicate
-	 *        the specified predicate.
-	 *
+	 * @param predicate the specified predicate.
 	 * @return the retrieved collection.
 	 */
 	default List<ItemStack> getContentsMatching(Predicate<ItemStack> predicate) {
@@ -83,12 +76,49 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 */
 	Map<Integer, ItemStack> getContents();
 
+	@Override
+	default int getSlots() {
+		return getItemSize();
+	}
+
+	@NotNull
+	@Override
+	default ItemStack getStackInSlot(int slot) {
+		return getStack(slot);
+	}
+
+	@NotNull
+	@Override
+	default ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+		ActionResult<ItemStack> result = insert(null, stack, simulate);
+		if (result.getResult().consumesAction())
+			return result.getObject();
+		return stack;
+	}
+
+	@NotNull
+	@Override
+	default ItemStack extractItem(int slot, int amount, boolean simulate) {
+		ActionResult<ItemStack> result = extract(null, amount, simulate);
+		if (result.getResult().consumesAction())
+			return result.getObject();
+		return ItemStack.EMPTY;
+	}
+
+	@Override
+	default int getSlotLimit(int slot) {
+		return 64;
+	}
+
+	@Override
+	default boolean isItemValid(int slot, @NotNull ItemStack stack) {
+		return canInsert(null, stack, slot);
+	}
+
 	/**
 	 * Retrieves contents of this inventory that match a specific predicate as a collection as ItemStack copies.
 	 *
-	 * @param predicate
-	 *        the specified predicate.
-	 *
+	 * @param predicate the specified predicate.
 	 * @return the retrieved collection.
 	 */
 	default Collection<ItemStack> getContentsMatchingSimulated(Predicate<ItemStack> predicate) {
@@ -123,14 +153,12 @@ public interface ItemInventoryComponent extends NameableComponent {
 	/**
 	 * Inserts a specific ItemStack into this inventory if possible, from a generic, non-existent position.
 	 *
-	 * @param stack
-	 *        the specified stack.
-	 *
+	 * @param stack the specified stack.
 	 * @return SUCCESS w. empty if inserted; FAIL w. stack if not.
 	 */
-	default ActionResult<ItemStack> insert(Direction direction, ItemStack stack) {
+	default ActionResult<ItemStack> insert(Direction direction, ItemStack stack, boolean simulate) {
 		if (this.canInsert()) {
-			return this.insert(direction, stack, stack.getCount());
+			return this.insert(direction, stack, stack.getCount(), simulate);
 		} else {
 			return new ActionResult<>(ActionResultType.FAIL, stack);
 		}
@@ -140,20 +168,17 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 * Inserts a specific ItemStack into this inventory if possible, from a generic, non-existent position, the count
 	 * inserted depending on the specified count.
 	 *
-	 * @param stack
-	 *        the specified stack.
-	 * @param count
-	 *        the specified count.
-	 *
+	 * @param stack the specified stack.
+	 * @param count the specified count.
 	 * @return SUCCESS w. modified stack if inserted; FAIL w. unmodified stack if not.
 	 */
-	default ActionResult<ItemStack> insert(Direction direction, ItemStack stack, int count) {
+	default ActionResult<ItemStack> insert(Direction direction, ItemStack stack, int count, boolean simulate) {
 		ItemStack finalStack = stack;
 		Optional<Map.Entry<Integer, ItemStack>> matchingStackOptional = this.getContents().entrySet().stream().filter(entry -> {
 			ItemStack storedStack = entry.getValue();
 
 			return (this.canInsert(direction, finalStack, entry.getKey())) && (storedStack.getItem() == finalStack.getItem() && storedStack.getMaxStackSize() - storedStack.getCount() >= count && (!storedStack.hasTag() && !finalStack.hasTag()) || (storedStack.hasTag() && finalStack
-				.hasTag() && storedStack.getTag().equals(finalStack.getTag()) || storedStack.isEmpty()));
+					.hasTag() && storedStack.getTag().equals(finalStack.getTag()) || storedStack.isEmpty()));
 		}).findFirst();
 
 		if (matchingStackOptional.isPresent()) {
@@ -161,9 +186,12 @@ public interface ItemInventoryComponent extends NameableComponent {
 			if (matchingStack.isEmpty()) {
 				matchingStack = stack.copy();
 				stack = ItemStack.EMPTY;
-				this.setStack(matchingStackOptional.get().getKey(), matchingStack);
+				if (!simulate)
+					this.setStack(matchingStackOptional.get().getKey(), matchingStack);
 			} else {
-				matchingStack.grow(stack.getCount());
+				stack = stack.copy();
+				if (!simulate)
+					matchingStack.grow(stack.getCount());
 				stack.shrink(stack.getCount());
 			}
 			return new ActionResult<>(ActionResultType.SUCCESS, stack);
@@ -205,16 +233,14 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 * Extracts the contents of this inventory that match a given predicate as a collection, from a generic non-existent
 	 * position.
 	 *
-	 * @param predicate
-	 *        the specified predicate.
-	 *
+	 * @param predicate the specified predicate.
 	 * @return SUCCESS w. the retrieved collection if extracted anything; FAIL w. empty if not.
 	 */
 	default ActionResult<Collection<ItemStack>> extractMatching(Direction direction, Predicate<ItemStack> predicate) {
 		HashSet<ItemStack> extractedStacks = new HashSet<>();
 		this.getContents().forEach((slot, stack) -> {
 			if (predicate.test(stack)) {
-				ActionResult<ItemStack> extractionResult = this.extract(direction, slot);
+				ActionResult<ItemStack> extractionResult = this.extract(direction, slot, false);
 
 				if (extractionResult.getResult().consumesAction()) {
 					extractedStacks.add(extractionResult.getObject());
@@ -232,9 +258,7 @@ public interface ItemInventoryComponent extends NameableComponent {
 	/**
 	 * Extracts the first stack in the inventory that matches a given predicate.
 	 *
-	 * @param predicate
-	 *        the specified predicate.
-	 *
+	 * @param predicate the specified predicate.
 	 * @return SUCCESS w. the retrieved collection if extracted anything; FAIL w. empty if not.
 	 */
 	default ActionResult<ItemStack> extractFirstMatching(Direction direction, Predicate<ItemStack> predicate) {
@@ -243,7 +267,7 @@ public interface ItemInventoryComponent extends NameableComponent {
 		for (int slot = 0; slot < this.getContents().size(); slot++) {
 			ItemStack stack = this.getContents().get(slot);
 			if (predicate.test(stack)) {
-				ActionResult<ItemStack> extractionResult = this.extract(direction, slot);
+				ActionResult<ItemStack> extractionResult = this.extract(direction, slot, false);
 
 				if (extractionResult.getResult().consumesAction()) {
 					extractedStack.set(extractionResult.getObject());
@@ -262,16 +286,14 @@ public interface ItemInventoryComponent extends NameableComponent {
 	/**
 	 * Extracts a specific ItemStack from this inventory if possible, from a generic, non-existent position.
 	 *
-	 * @param slot
-	 *        the slot of the specified stack.
-	 *
+	 * @param slot the slot of the specified stack.
 	 * @return SUCCESS w. stack if extracted; FAIL w. empty if not.
 	 */
-	default ActionResult<ItemStack> extract(Direction direction, int slot) {
+	default ActionResult<ItemStack> extract(Direction direction, int slot, boolean simulate) {
 		ItemStack matchingStack = this.getStack(slot);
 
 		if (this.canExtract(direction, matchingStack, slot)) {
-			return this.extract(slot, matchingStack.getCount());
+			return this.extract(slot, matchingStack.getCount(), simulate);
 		} else {
 			return new ActionResult<>(ActionResultType.FAIL, ItemStack.EMPTY);
 		}
@@ -288,14 +310,11 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 * Extracts a specific ItemStack from this inventory if possible, from a generic non-existent position, the count
 	 * extracted depending on the specified count.
 	 *
-	 * @param slot
-	 *        the slot of the specified stack.
-	 * @param count
-	 *        the specified count.
-	 *
+	 * @param slot  the slot of the specified stack.
+	 * @param count the specified count.
 	 * @return SUCCESS w. stack if extracted; FAIL w. empty if not.
 	 */
-	default ActionResult<ItemStack> extract(int slot, int count) {
+	default ActionResult<ItemStack> extract(int slot, int count, boolean simulate) {
 		Optional<ItemStack> matchingStackOptional = Optional.ofNullable(this.getStack(slot));
 
 		if (matchingStackOptional.isPresent()) {
@@ -304,7 +323,8 @@ public interface ItemInventoryComponent extends NameableComponent {
 				ItemStack remainingStack = matchingStack.copy();
 				remainingStack.shrink(count);
 				matchingStack.setCount(count);
-				this.setStack(slot, remainingStack);
+				if (!simulate)
+					this.setStack(slot, remainingStack);
 				return new ActionResult<>(ActionResultType.SUCCESS, matchingStack);
 			} else {
 				return new ActionResult<>(ActionResultType.FAIL, ItemStack.EMPTY);
@@ -319,12 +339,9 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 * is passed, only contents in slots within the range are serialized. If a subtag is passed, the inventory is
 	 * written to the subtag.
 	 *
-	 * @param source
-	 *        the specified source.
-	 * @param subtag
-	 *        the optional subtag.
-	 * @param range
-	 *        the optional range.
+	 * @param source the specified source.
+	 * @param subtag the optional subtag.
+	 * @param range  the optional range.
 	 */
 	default CompoundNBT write(ItemInventoryComponent source, Optional<String> subtag, Optional<Range<Integer>> range) {
 		CompoundNBT tag = new CompoundNBT();
@@ -337,12 +354,9 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 * range is passed, only contents in slots within the range are serialized. If a subtag is specified, the inventory
 	 * is written to the subtag.
 	 *
-	 * @param tag
-	 *        the specified tag.
-	 * @param subtag
-	 *        the optional subtag.
-	 * @param range
-	 *        the optional range.
+	 * @param tag    the specified tag.
+	 * @param subtag the optional subtag.
+	 * @param range  the optional range.
 	 */
 	default void write(ItemInventoryComponent source, CompoundNBT tag, Optional<String> subtag, Optional<Range<Integer>> range) {
 		if (source == null || source.getItemSize() <= 0) {
@@ -389,14 +403,10 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 * Deserializes a CompoundTag to an existing inventory. If a range is passed, contents are only deserialized for the
 	 * given range. If a subtag is passed, the inventory is read form the subtag.
 	 *
-	 * @param target
-	 *        the specified target.
-	 * @param tag
-	 *        the specified tag.
-	 * @param subtag
-	 *        the optional subtag.
-	 * @param range
-	 *        the optional range.
+	 * @param target the specified target.
+	 * @param tag    the specified tag.
+	 * @param subtag the optional subtag.
+	 * @param range  the optional range.
 	 */
 	default void read(ItemInventoryComponent target, CompoundNBT tag, Optional<String> subtag, Optional<Range<Integer>> range) {
 		if (tag == null) {
@@ -480,8 +490,7 @@ public interface ItemInventoryComponent extends NameableComponent {
 	/**
 	 * Adds a listener to this inventory.
 	 *
-	 * @param listener
-	 *        the specified listener.
+	 * @param listener the specified listener.
 	 */
 	default void addListener(Runnable listener) {
 		this.getItemListeners().add(listener);
@@ -495,8 +504,7 @@ public interface ItemInventoryComponent extends NameableComponent {
 	/**
 	 * Removes a listener from this inventory.
 	 *
-	 * @param listener
-	 *        the specified listener.
+	 * @param listener the specified listener.
 	 */
 	default void removeListener(Runnable listener) {
 		this.getItemListeners().remove(listener);
@@ -521,10 +529,5 @@ public interface ItemInventoryComponent extends NameableComponent {
 	 */
 	default boolean isEmpty() {
 		return this.getContents().values().stream().allMatch(ItemStack::isEmpty);
-	}
-
-	@Override
-	default @NotNull ComponentType<?> getComponentType() {
-		return AstromineComponentTypes.ITEM_INVENTORY_COMPONENT;
 	}
 }

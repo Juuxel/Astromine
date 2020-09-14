@@ -35,6 +35,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,11 +45,11 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public interface EnergyInventoryComponent extends NameableComponent {
+public interface EnergyInventoryComponent extends NameableComponent, IEnergyStorage {
 	EnergyVolume getVolume();
 
 	default Item getSymbol() {
-		return AstromineItems.ENERGY.asItem();
+		return AstromineItems.ENERGY.get().asItem();
 	}
 
 	default TranslationTextComponent getName() {
@@ -75,6 +76,36 @@ public interface EnergyInventoryComponent extends NameableComponent {
 		return true;
 	}
 
+	@Override
+	default int receiveEnergy(int maxReceive, boolean simulate) {
+
+	}
+
+	@Override
+	default int extractEnergy(int maxExtract, boolean simulate) {
+
+	}
+
+	@Override
+	default int getEnergyStored() {
+		return getVolume().getAmount();
+	}
+
+	@Override
+	default int getMaxEnergyStored() {
+		return getVolume().getSize();
+	}
+
+	@Override
+	default boolean canExtract() {
+		return canExtract(null);
+	}
+
+	@Override
+	default boolean canReceive() {
+		return canInsert(null);
+	}
+
 	default ActionResult<EnergyVolume> insert(Direction direction, EnergyVolume volume) {
 		if (this.canInsert(direction)) {
 			return this.insert(direction, volume);
@@ -83,7 +114,7 @@ public interface EnergyInventoryComponent extends NameableComponent {
 		}
 	}
 
-	default ActionResult<EnergyVolume> insert(Direction direction, double amount) {
+	default ActionResult<EnergyVolume> insert(Direction direction, int amount) {
 		EnergyVolume volume = getVolume();
 		if (canInsert(direction, amount)) {
 			volume.add(amount);
@@ -152,7 +183,7 @@ public interface EnergyInventoryComponent extends NameableComponent {
 		return null;
 	}
 
-	default ActionResult<EnergyVolume> extract(Direction direction, double amount) {
+	default ActionResult<EnergyVolume> extract(Direction direction, int amount) {
 		EnergyVolume volume = this.getVolume();
 
 		if (canExtract(direction, amount)) {
@@ -178,8 +209,8 @@ public interface EnergyInventoryComponent extends NameableComponent {
 		if (tag.contains("energy", NbtType.COMPOUND)) {
 			EnergyVolume energy = EnergyVolume.fromTag(tag.getCompound("energy"));
 			volume.setAmount(energy.getAmount());
-		} else if (tag.contains("energy", NbtType.DOUBLE)) {
-			double energy = tag.getDouble("energy");
+		} else if (tag.contains("energy", NbtType.INT)) {
+			int energy = tag.getInt("energy");
 			volume.setAmount(energy);
 		}
 	}
@@ -198,7 +229,7 @@ public interface EnergyInventoryComponent extends NameableComponent {
 	}
 
 	default void clear() {
-		this.getVolume().setAmount(0.0);
+		this.getVolume().setAmount(0);
 	}
 
 	default boolean isEmpty() {
@@ -207,24 +238,19 @@ public interface EnergyInventoryComponent extends NameableComponent {
 
 	<T extends EnergyInventoryComponent> T copy();
 
-	@Override
-	default @NotNull ComponentType<?> getComponentType() {
-		return AstromineComponentTypes.ENERGY_INVENTORY_COMPONENT;
-	}
-
-	default void setAmount(double amount) {
+	default void setAmount(int amount) {
 		getVolume().setAmount(amount);
 	}
-	
-	default double getAmount() {
+
+	default int getAmount() {
 		return getVolume().getAmount();
 	}
 
-	default void setSize(double amount) {
+	default void setSize(int amount) {
 		getVolume().setSize(amount);
 	}
 
-	default double getSize() {
+	default int getSize() {
 		return getVolume().getSize();
 	}
 }

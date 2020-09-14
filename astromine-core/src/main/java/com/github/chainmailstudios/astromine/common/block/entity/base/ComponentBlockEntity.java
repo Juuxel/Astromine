@@ -24,58 +24,58 @@
 
 package com.github.chainmailstudios.astromine.common.block.entity.base;
 
-import com.github.chainmailstudios.astromine.common.block.base.BlockWithEntity;
-import com.github.chainmailstudios.astromine.common.utilities.capability.inventory.ExtendedComponentSidedInventoryProvider;
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.DirectionalBlock;
-import net.minecraft.block.HorizontalBlock;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.util.math.BlockPos;
 import alexiil.mc.lib.attributes.SearchOptions;
 import alexiil.mc.lib.attributes.item.ItemAttributes;
 import alexiil.mc.lib.attributes.item.ItemExtractable;
 import alexiil.mc.lib.attributes.item.ItemInsertable;
 import com.github.chainmailstudios.astromine.AstromineCommon;
+import com.github.chainmailstudios.astromine.common.block.base.BlockWithEntity;
 import com.github.chainmailstudios.astromine.common.block.transfer.TransferType;
 import com.github.chainmailstudios.astromine.common.component.SidedComponentProvider;
 import com.github.chainmailstudios.astromine.common.component.block.entity.BlockEntityTransferComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
 import com.github.chainmailstudios.astromine.common.packet.PacketConsumer;
 import com.github.chainmailstudios.astromine.common.utilities.TransportUtilities;
+import com.github.chainmailstudios.astromine.common.utilities.capability.inventory.ExtendedComponentSidedInventoryProvider;
 import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import nerdhub.cardinal.components.api.ComponentRegistry;
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.Component;
+import net.fabricmc.fabric.api.network.PacketContext;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.DirectionalBlock;
+import net.minecraft.block.HorizontalBlock;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tuple;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.items.CapabilityItemHandler;
 import org.jetbrains.annotations.NotNull;
 import team.reborn.energy.Energy;
 import team.reborn.energy.EnergyHandler;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 public abstract class ComponentBlockEntity extends net.minecraft.tileentity.TileEntity implements SidedComponentProvider, PacketConsumer, ITickableTileEntity {
 	protected final BlockEntityTransferComponent transferComponent = new BlockEntityTransferComponent();
 
-	protected final Map<ComponentType<?>, Component> allComponents = Maps.newHashMap();
+	protected final Map<Capability<?>, Object> allComponents = Maps.newHashMap();
 
 	protected final Map<ResourceLocation, BiConsumer<PacketBuffer, NetworkEvent.Context>> allHandlers = Maps.newHashMap();
 
@@ -83,7 +83,7 @@ public abstract class ComponentBlockEntity extends net.minecraft.tileentity.Tile
 
 	public boolean isActive = false;
 
-	public boolean[] activity = { false, false, false, false, false };
+	public boolean[] activity = {false, false, false, false, false};
 
 	public static final ResourceLocation TRANSFER_UPDATE_PACKET = AstromineCommon.identifier("transfer_update_packet");
 
@@ -105,12 +105,12 @@ public abstract class ComponentBlockEntity extends net.minecraft.tileentity.Tile
 		this.skipInventory = false;
 	}
 
-	public void addComponent(ComponentType<?> type, Component component) {
+	public <T> void addComponent(Capability<T> type, T component) {
 		allComponents.put(type, component);
 		transferComponent.add(type);
 	}
 
-	public void addConsumer(ResourceLocation identifier, BiConsumer<PacketBuffer, PacketContext> consumer) {
+	public void addConsumer(ResourceLocation identifier, BiConsumer<PacketBuffer, NetworkEvent.Context> consumer) {
 		allHandlers.put(identifier, consumer);
 	}
 
@@ -135,26 +135,11 @@ public abstract class ComponentBlockEntity extends net.minecraft.tileentity.Tile
 	}
 
 	@Override
-	public boolean hasComponent(ComponentType<?> componentType) {
-		return allComponents.containsKey(componentType) || componentType == AstromineComponentTypes.BLOCK_ENTITY_TRANSFER_COMPONENT;
-	}
-
-	@Override
-	public <C extends Component> C getComponent(ComponentType<C> componentType) {
-		return componentType == AstromineComponentTypes.BLOCK_ENTITY_TRANSFER_COMPONENT ? (C) transferComponent : (C) allComponents.get(componentType);
-	}
-
-	@Override
-	public Set<ComponentType<?>> getComponentTypes() {
-		return allComponents.keySet();
-	}
-
-	@Override
 	public CompoundNBT save(CompoundNBT tag) {
 		tag.put("transfer", transferComponent.toTag(new CompoundNBT()));
 
 		allComponents.forEach((type, component) -> {
-			tag.put(type.getId().toString(), component.toTag(new CompoundNBT()));
+			tag.put(type.toString(), ((Capability<Object>) type).writeNBT(component, null));
 		});
 
 		return super.save(tag);
@@ -165,8 +150,8 @@ public abstract class ComponentBlockEntity extends net.minecraft.tileentity.Tile
 		transferComponent.fromTag(tag.getCompound("transfer"));
 
 		allComponents.forEach((type, component) -> {
-			if (tag.contains(type.getId().toString())) {
-				component.fromTag(tag.getCompound(type.getId().toString()));
+			if (tag.contains(type.getName())) {
+				((Capability<Object>) type).readNBT(component, null, tag.get(type.toString()));
 			}
 		});
 
@@ -174,21 +159,10 @@ public abstract class ComponentBlockEntity extends net.minecraft.tileentity.Tile
 	}
 
 	@Override
-	public CompoundNBT toClientTag(CompoundNBT compoundTag) {
-		compoundTag = save(compoundTag);
-		if (skipInventory) {
-			compoundTag.remove(AstromineComponentTypes.ITEM_INVENTORY_COMPONENT.getId().toString());
-		} else {
-			skipInventory = true;
-		}
-		return compoundTag;
-	}
-
-	@Override
 	public CompoundNBT getUpdateTag() {
 		CompoundNBT compoundTag = save(new CompoundNBT());
 		if (skipInventory) {
-			compoundTag.remove(AstromineComponentTypes.ITEM_INVENTORY_COMPONENT.getId().toString());
+			compoundTag.remove(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.getName());
 		} else {
 			skipInventory = true;
 		}
@@ -200,7 +174,7 @@ public abstract class ComponentBlockEntity extends net.minecraft.tileentity.Tile
 		if (!hasLevel() || level.isClientSide())
 			return;
 
-		FluidInventoryComponent fluidComponent = getComponent(AstromineComponentTypes.FLUID_INVENTORY_COMPONENT);
+		FluidInventoryComponent fluidComponent = getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY);
 
 		List<Tuple<EnergyHandler, EnergyHandler>> energyTransfers = Lists.newArrayList();
 
@@ -210,20 +184,19 @@ public abstract class ComponentBlockEntity extends net.minecraft.tileentity.Tile
 
 			net.minecraft.tileentity.TileEntity neighborBlockEntity = level.getBlockEntity(neighborPos);
 			if (neighborBlockEntity != null) {
-				SidedComponentProvider neighborProvider = SidedComponentProvider.fromBlockEntity(neighborBlockEntity);
 				Direction neighborDirection = offsetDirection.getOpposite();
-				BlockEntityTransferComponent neighborTransferComponent = neighborProvider != null ? neighborProvider.getComponent(AstromineComponentTypes.BLOCK_ENTITY_TRANSFER_COMPONENT) : null;
+				BlockEntityTransferComponent neighborTransferComponent = neighborBlockEntity.getCapability(AstromineComponentTypes.BLOCK_ENTITY_TRANSFER_COMPONENT).orElse(null);
 
 				// Handle Item Siding
 				if (this instanceof ExtendedComponentSidedInventoryProvider) {
-					if (!transferComponent.get(AstromineComponentTypes.ITEM_INVENTORY_COMPONENT).get(offsetDirection).isDefault()) {
+					if (!transferComponent.get(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).get(offsetDirection).isDefault()) {
 						// input
 						ItemExtractable neighbor = ItemAttributes.EXTRACTABLE.get(level, neighborPos, SearchOptions.inDirection(offsetDirection));
 						ItemInsertable self = ItemAttributes.INSERTABLE.get(level, getBlockPos(), SearchOptions.inDirection(neighborDirection));
 
 						TransportUtilities.move(neighbor, self, 1);
 					}
-					if (!transferComponent.get(AstromineComponentTypes.ITEM_INVENTORY_COMPONENT).get(offsetDirection).isDefault()) {
+					if (!transferComponent.get(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).get(offsetDirection).isDefault()) {
 						// output
 						ItemExtractable self = ItemAttributes.EXTRACTABLE.get(level, getBlockPos(), SearchOptions.inDirection(neighborDirection));
 						ItemInsertable neighbor = ItemAttributes.INSERTABLE.get(level, neighborPos, SearchOptions.inDirection(offsetDirection));
@@ -233,12 +206,12 @@ public abstract class ComponentBlockEntity extends net.minecraft.tileentity.Tile
 				}
 
 				// Handle fluid siding
-				if (fluidComponent != null && transferComponent.get(AstromineComponentTypes.FLUID_INVENTORY_COMPONENT).get(offsetDirection).canExtract()) {
-					FluidInventoryComponent neighborFluidComponent = null;
+				if (fluidComponent != null && transferComponent.get(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).get(offsetDirection).canExtract()) {
+					IFluidHandler neighborFluidComponent = null;
 					if (neighborTransferComponent != null) {
 						// Get via astromine siding
-						if (neighborTransferComponent.get(AstromineComponentTypes.FLUID_INVENTORY_COMPONENT).get(neighborDirection).canInsert())
-							neighborFluidComponent = neighborProvider.getComponent(AstromineComponentTypes.FLUID_INVENTORY_COMPONENT);
+						if (neighborTransferComponent.get(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).get(neighborDirection).canInsert())
+							neighborFluidComponent = neighborBlockEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, neighborDirection).orElse(null);
 					}
 
 					if (neighborFluidComponent != null) {

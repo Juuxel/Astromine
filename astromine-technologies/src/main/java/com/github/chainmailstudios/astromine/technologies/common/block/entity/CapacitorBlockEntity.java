@@ -40,8 +40,10 @@ import com.github.chainmailstudios.astromine.technologies.registry.AstromineTech
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
 import team.reborn.energy.Energy;
-import team.reborn.energy.EnergyHandler;
 
 public abstract class CapacitorBlockEntity extends ComponentEnergyInventoryBlockEntity implements EnergySizeProvider, TierProvider, SpeedProvider {
 	public CapacitorBlockEntity(Block energyBlock, TileEntityType<?> type) {
@@ -66,14 +68,14 @@ public abstract class CapacitorBlockEntity extends ComponentEnergyInventoryBlock
 		if (level.isClientSide) return;
 
 		ItemStack inputStack = itemComponent.getStack(0);
-		if (Energy.valid(inputStack)) {
-			EnergyHandler energyHandler = Energy.of(inputStack);
+		LazyOptional<IEnergyStorage> inputEnergy = inputStack.getCapability(CapabilityEnergy.ENERGY);
+		if (inputEnergy.isPresent()) {
 			energyHandler.into(Energy.of(this)).move(1024 * getMachineSpeed());
 		}
 
 		ItemStack outputStack = itemComponent.getStack(1);
-		if (Energy.valid(outputStack)) {
-			EnergyHandler energyHandler = Energy.of(outputStack);
+		LazyOptional<IEnergyStorage> outputEnergy = outputStack.getCapability(CapabilityEnergy.ENERGY);
+		if (outputEnergy.isPresent()) {
 			Energy.of(this).into(energyHandler).move(1024 * getMachineSpeed());
 		}
 	}

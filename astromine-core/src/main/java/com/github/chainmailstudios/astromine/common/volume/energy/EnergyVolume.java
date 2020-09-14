@@ -30,24 +30,24 @@ import com.github.chainmailstudios.astromine.common.volume.base.Volume;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 
-public class EnergyVolume extends Volume<ResourceLocation, Double> {
+public class EnergyVolume extends Volume<ResourceLocation, Integer> {
 	public static final ResourceLocation ID = AstromineCommon.identifier("energy");
 
-	public EnergyVolume(double amount, double size) {
+	public EnergyVolume(int amount, int size) {
 		super(ID, amount, size);
 	}
 
-	public EnergyVolume(double amount, double size, Runnable runnable) {
+	public EnergyVolume(int amount, int size, Runnable runnable) {
 		super(ID, amount, size, runnable);
 	}
 
 	@Override
-	public <V extends Volume<ResourceLocation, Double>> V add(V v, Double doubleA) {
+	public <V extends Volume<ResourceLocation, Integer>> V add(V v, Integer doubleA) {
 		if (!(v instanceof EnergyVolume)) return (V) this;
 
-		double amount = Math.min(v.getSize() - v.getAmount(), Math.min(getAmount(), doubleA));
+		int amount = Math.min(v.getSize() - v.getAmount(), Math.min(getAmount(), doubleA));
 
-		if (amount > 0.0D) {
+		if (amount > 0) {
 			v.setAmount(v.getAmount() + amount);
 			setAmount(getAmount() - amount);
 		}
@@ -56,8 +56,8 @@ public class EnergyVolume extends Volume<ResourceLocation, Double> {
 	}
 
 	@Override
-	public <V extends Volume<ResourceLocation, Double>> V add(Double aDouble) {
-		double amount = Math.min(getSize() - getAmount(), aDouble);
+	public <V extends Volume<ResourceLocation, Integer>> V add(Integer aInteger) {
+		int amount = Math.min(getSize() - getAmount(), aInteger);
 
 		setAmount(getAmount() + amount);
 
@@ -65,7 +65,7 @@ public class EnergyVolume extends Volume<ResourceLocation, Double> {
 	}
 
 	@Override
-	public <V extends Volume<ResourceLocation, Double>> V moveFrom(V v, Double doubleA) {
+	public <V extends Volume<ResourceLocation, Integer>> V moveFrom(V v, Integer doubleA) {
 		if (!(v instanceof EnergyVolume)) return (V) this;
 
 		v.add(this, doubleA);
@@ -74,8 +74,8 @@ public class EnergyVolume extends Volume<ResourceLocation, Double> {
 	}
 
 	@Override
-	public <V extends Volume<ResourceLocation, Double>> V minus(Double aDouble) {
-		double amount = Math.min(getAmount(), aDouble);
+	public <V extends Volume<ResourceLocation, Integer>> V minus(Integer aInteger) {
+		int amount = Math.min(getAmount(), aInteger);
 
 		setAmount(getAmount() - amount);
 
@@ -83,39 +83,39 @@ public class EnergyVolume extends Volume<ResourceLocation, Double> {
 	}
 
 	public static EnergyVolume empty() {
-		return new EnergyVolume(0.0D, 0.0D);
+		return new EnergyVolume(0, 0);
 	}
 
 	public static EnergyVolume attached(SimpleEnergyInventoryComponent component) {
-		return new EnergyVolume(0.0D, 0.0D, component::dispatchConsumers);
+		return new EnergyVolume(0, 0, component::dispatchConsumers);
 	}
 
-	public static EnergyVolume attached(double size, SimpleEnergyInventoryComponent component) {
-		return new EnergyVolume(0.0D, size, component::dispatchConsumers);
+	public static EnergyVolume attached(int size, SimpleEnergyInventoryComponent component) {
+		return new EnergyVolume(0, size, component::dispatchConsumers);
 	}
 
-	public static EnergyVolume of(double amount) {
-		return new EnergyVolume(amount, Long.MAX_VALUE);
+	public static EnergyVolume of(int amount) {
+		return new EnergyVolume(amount, Integer.MAX_VALUE);
 	}
 
-	public static EnergyVolume of(double amount, double size) {
+	public static EnergyVolume of(int amount, int size) {
 		return new EnergyVolume(amount, size);
 	}
 
 	@Override
 	public CompoundNBT toTag() {
 		CompoundNBT tag = new CompoundNBT();
-		tag.putDouble("amount", getAmount());
-		tag.putDouble("size", getSize());
+		tag.putInt("amount", getAmount());
+		tag.putInt("size", getSize());
 		return tag;
 	}
 
 	public static EnergyVolume fromTag(CompoundNBT tag) {
-		return of(tag.getDouble("amount"), tag.getDouble("size"));
+		return of(tag.getInt("amount"), tag.getInt("size"));
 	}
 
 	@Override
-	public <V extends Volume<ResourceLocation, Double>> V copy() {
+	public <V extends Volume<ResourceLocation, Integer>> V copy() {
 		return (V) of(getAmount(), getSize());
 	}
 }
