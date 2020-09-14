@@ -24,17 +24,18 @@
 
 package com.github.chainmailstudios.astromine.registry.client;
 
-import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
+
 import java.util.function.Function;
 
 public class AstromineBlockEntityRenderers {
 	public static void initialize() {}
 
 	public static <B extends TileEntity, C extends TileEntityType<B>> void register(C c, Function<TileEntityRendererDispatcher, TileEntityRenderer<B>> b) {
-		BlockEntityRendererRegistry.INSTANCE.register(c, b);
+		ClientRegistry.bindTileEntityRenderer(c, b);
 	}
 }
