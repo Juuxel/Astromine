@@ -27,11 +27,17 @@ package com.github.chainmailstudios.astromine.registry;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
-import net.minecraft.util.registry.Registry;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class AstromineAttributes {
-	public static final Attribute GRAVITY_MULTIPLIER = Registry.register(Registry.ATTRIBUTE, AstromineCommon.identifier("gravity_multiplier"), new RangedAttribute("attribute.name.generic.astromine.gravity_multiplier", 1d, -100d, 100d));
+	private static final DeferredRegister<Attribute> ATTRIBUTE_DEFERRED_REGISTER = DeferredRegister.create(ForgeRegistries.ATTRIBUTES, AstromineCommon.MOD_ID);
 
-	public static void initialize() {}
+	public static final RegistryObject<Attribute> GRAVITY_MULTIPLIER = ATTRIBUTE_DEFERRED_REGISTER.register("gravity_multiplier", () -> new RangedAttribute("attribute.name.generic.astromine.gravity_multiplier", 1d, -100d, 100d));
 
+	public static void initialize(IEventBus modBus) {
+		ATTRIBUTE_DEFERRED_REGISTER.register(modBus);
+	}
 }
