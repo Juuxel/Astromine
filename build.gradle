@@ -16,10 +16,10 @@ plugins {
 //    id 'com.diffplug.spotless' version '5.1.0' apply false
     id("com.matthewprenger.cursegradle") version '1.4.0'
     id("net.corda.plugins.jar-filter") version("4.0.48") apply false
+    id("net.minecraftforge.gradle")
 }
 
 apply from: 'dependencies.gradle'
-apply plugin: 'net.minecraftforge.gradle'
 
 gradle.projectsEvaluated {
     tasks.withType(JavaCompile) {
@@ -184,6 +184,7 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
+            properties 'forge.logging.console.level': 'debug'
             mods {
                 astromine {
                     sources(sourceSets.main)
@@ -210,6 +211,7 @@ minecraft {
         }
         server {
             workingDirectory project.file('run_server')
+            properties 'forge.logging.console.level': 'debug'
             mods {
                 astromine {
                     sources(sourceSets.main)
@@ -236,6 +238,7 @@ minecraft {
         }
         data {
             workingDirectory project.file('run_data')
+            properties 'forge.logging.console.level': 'debug'
             environment 'target', 'fmluserdevdata'
 
             mods {
@@ -303,6 +306,10 @@ repositories {
         url = "https://dl.bintray.com/shedaniel/cloth"
     }
     maven {
+        name "Garrett's Maven"
+        url 'http://maven.tterrag.com/'
+    }
+    maven {
         name = "Modmaven"
         url = "https://modmaven.k-4u.nl"
     }
@@ -340,24 +347,46 @@ dependencies {
 //            }
 //        }
 
-    minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
-    implementation("org.jetbrains:annotations:19.0.0")
+    // Minecraft
+    minecraft("net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}")
 
-    implementation("com.terraformersmc:shapes:${shapes_version}") {
+    // AutoConfig1u
+    implementation(fg.deobf("me.shedaniel:autoconfig1u-forge:${auto_config_version}")) {
+        transitive = false
+    }
+    /*
+    compileOnly("me.shedaniel:autoconfig1u-forge:${auto_config_version}") {
         transitive = false
     }
     runtimeOnly(fg.deobf("me.shedaniel:autoconfig1u-forge:${auto_config_version}")) {
         transitive = false
     }
-    compileOnly("me.shedaniel:autoconfig1u-forge:${auto_config_version}") {
-        transitive = false
-    }
+     */
+
+    // Cloth Config
     implementation(fg.deobf("me.shedaniel.cloth:cloth-config-forge:${cloth_config_version}"))
+
+    // JetBrains Annotations
+    implementation("org.jetbrains:annotations:19.0.0")
+
+    // Kotlin Standard Library
     implementation("org.jetbrains.kotlin:kotlin-stdlib:${project.kotlin_version}")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${project.kotlin_version}")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${project.kotlin_version}")
+
+    // Patchouli
     implementation(fg.deobf("vazkii.patchouli:Patchouli:${patchouli_version}"))
+
+    // Roughly Enough Items
     implementation(fg.deobf("me.shedaniel:RoughlyEnoughItems:${rei_version}"))
+
+    // Shapes
+    implementation("com.terraformersmc:shapes:${shapes_version}") {
+        transitive = false
+    }
+
+    // The One Probe
+    implementation(fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${the_one_probe_version}"))
 }
 
 /*spotless {
