@@ -46,7 +46,7 @@ project.ext.setDefaultApis = {
 //    useAsApi("me.shedaniel.cloth.api:cloth-datagen-api-v1:${cloth_api_version}")
 
     // Cloth Config
-    compile(fg.deobf("me.shedaniel.cloth:cloth-config-forge:${cloth_config_version}"))
+    implementation(fg.deobf("me.shedaniel.cloth:cloth-config-forge:${cloth_config_version}"))
 
     // RoughlyEnoughItems
 //    useAsApiOptionally("me.shedaniel:RoughlyEnoughItems:${rei_version}")
@@ -61,9 +61,9 @@ project.ext.setDefaultApis = {
 //    useAsApi("com.zundrel:wrenchable:${wrenchable_version}")
 
     // Kotlin
-    compile("org.jetbrains.kotlin:kotlin-stdlib:${project.kotlin_version}")
-    compile("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${project.kotlin_version}")
-    compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${project.kotlin_version}")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:${project.kotlin_version}")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${project.kotlin_version}")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${project.kotlin_version}")
 
     // JOML
 //    useAsApi("org.joml:joml:${joml_version}")

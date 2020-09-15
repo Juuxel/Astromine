@@ -10,116 +10,369 @@ buildscript {
 }
 
 plugins {
-    id 'maven-publish'
+    id("maven-publish")
     id("java")
     id("java-library")
 //    id 'com.diffplug.spotless' version '5.1.0' apply false
-    id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id("com.matthewprenger.cursegradle") version '1.4.0'
     id("net.corda.plugins.jar-filter") version("4.0.48") apply false
 }
 
 apply from: 'dependencies.gradle'
+apply plugin: 'net.minecraftforge.gradle'
+
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xmaxerrs" << "4096"
+    }
+}
+
+sourceCompatibility = targetCompatibility = 1.8
+
+archivesBaseName = project.mod_name
+group = rootProject.mod_group
+version = rootProject.mod_version + "+" + project.version_meta
+
+def versionProperties = ["version" : project.version]
 
 sourceSets {
+    // Root
     main {
         java {
-            srcDir 'astromine-core/src/main/java'
-            srcDir 'astromine-discoveries/src/main/java'
-            srcDir 'astromine-foundations/src/main/java'
-            srcDir 'astromine-technologies/src/main/java'
-            srcDir 'astromine-transportations/src/main/java'
+            srcDir 'src/main/java'
         }
         resources {
-            srcDir 'astromine-core/src/main/resources'
-            srcDir 'astromine-discoveries/src/main/resources'
-            srcDir 'astromine-foundations/src/main/resources'
-            srcDir 'astromine-technologies/src/main/resources'
-            srcDir 'astromine-transportations/src/main/resources'
+            srcDirs += 'src/generated/resources'
+        }
+    }
+
+    // Modules
+    core {
+        makeSourceSet(sourceSets.core, 'core')
+    }
+    foundations {
+        makeSourceSet(sourceSets.foundations, 'foundations')
+    }
+    transportations {
+        makeSourceSet(sourceSets.transportations, 'transportations')
+    }
+    technologies {
+        makeSourceSet(sourceSets.technologies, 'technologies')
+        compileClasspath += sourceSets.foundations.output
+    }
+    discoveries {
+        makeSourceSet(sourceSets.discoveries, 'discoveries')
+        compileClasspath += sourceSets.foundations.output
+        compileClasspath += sourceSets.technologies.output
+    }
+
+    // Test
+    test {
+        compileClasspath += sourceSets.core.output + sourceSets.discoveries.output + sourceSets.foundations.output + sourceSets.technologies.output + sourceSets.transportations.output
+        runtimeClasspath += sourceSets.core.output + sourceSets.discoveries.output + sourceSets.foundations.output + sourceSets.technologies.output + sourceSets.transportations.output
+    }
+
+    // Data
+    dataMain {
+        java.srcDirs = ["src/datagen/java"]
+        resources.srcDirs = ["src/datagen/resources"]
+        compileClasspath += sourceSets.main.output
+    }
+    dataCore {
+        makeDataSourceSet(sourceSets.dataCore, sourceSets.core, 'core')
+    }
+    dataDiscoveries {
+        makeDataSourceSet(sourceSets.dataDiscoveries, sourceSets.discoveries, 'discoveries')
+    }
+    dataFoundations {
+        makeDataSourceSet(sourceSets.dataFoundations, sourceSets.foundations, 'foundations')
+    }
+    dataTechnologies {
+        makeDataSourceSet(sourceSets.dataTechnologies, sourceSets.technologies, 'technologies')
+    }
+    dataTransportations {
+        makeDataSourceSet(sourceSets.dataTransportations, sourceSets.transportations, 'transportations')
+    }
+}
+
+def makeSourceSet(SourceSet set, String name) {
+    set.java {
+        srcDir "astromine-$name/src/main/java"
+    }
+    set.resources {
+        srcDirs += "astromine-$name/generated/resources"
+    }
+    set.compileClasspath += sourceSets.main.output
+}
+
+def makeDataSourceSet(SourceSet data, SourceSet base, String name) {
+    data.java.srcDirs = ["astromine-$name/src/datagen/java"]
+    data.resources.srcDirs = ["astromine-$name/src/datagen/resources"]
+    data.compileClasspath += sourceSets.main.output
+    data.compileClasspath += sourceSets.dataMain.output
+    data.compileClasspath += base.output
+}
+
+ext {
+    replaceResourcesInfo = [
+            "main" : sourceSets.main,
+            "core" : sourceSets.core,
+            "discoveries" : sourceSets.discoveries,
+            "foundations" : sourceSets.foundations,
+            "technologies" : sourceSets.technologies,
+            "transportations" : sourceSets.transportations
+    ]
+}
+
+replaceResourcesInfo.each { output, set ->
+    return tasks.create("${output}ReplaceResources", Copy) {
+        outputs.upToDateWhen { false }
+        from (set.resources) {
+            include 'META-INF/mods.toml'
+            expand versionProperties
+        }
+        into "$buildDir/resources/$output/"
+    }
+}
+
+configurations {
+    def implementationExt = [coreImplementation, discoveriesImplementation, foundationsImplementation, technologiesImplementation, transportationsImplementation, testImplementation,
+                             dataMainImplementation, dataCoreImplementation, dataDiscoveriesImplementation, dataFoundationsImplementation, dataTechnologiesImplementation,
+                             dataTransportationsImplementation]
+    def compileOnlyExt = [coreCompileOnly, discoveriesCompileOnly, foundationsCompileOnly, technologiesCompileOnly, transportationsCompileOnly, testCompileOnly,
+                          dataMainCompileOnly, dataCoreCompileOnly, dataDiscoveriesCompileOnly, dataFoundationsCompileOnly, dataTechnologiesCompileOnly,
+                          dataTransportationsCompileOnly]
+    def runtimeOnlyExt = [coreRuntimeOnly, discoveriesRuntimeOnly, foundationsRuntimeOnly, technologiesRuntimeOnly, transportationsRuntimeOnly, testRuntimeOnly,
+                          dataMainRuntimeOnly, dataCoreRuntimeOnly, dataDiscoveriesRuntimeOnly, dataFoundationsRuntimeOnly, dataTechnologiesRuntimeOnly,
+                          dataTransportationsRuntimeOnly]
+
+    for (def impl : implementationExt) {
+        impl.extendsFrom(implementation)
+    }
+    for (def co : compileOnlyExt) {
+        co.extendsFrom(compileOnly)
+    }
+    for (def ro : runtimeOnlyExt) {
+        ro.extendsFrom(runtimeOnly)
+    }
+}
+
+minecraft {
+    mappings channel: 'official', version: project.minecraft_version
+    accessTransformers(
+            file('src/main/resources/META-INF/accesstransformer.cfg'),
+            file('astromine-core/src/main/resources/META-INF/accesstransformer.cfg'),
+            file('astromine-discoveries/src/main/resources/META-INF/accesstransformer.cfg'),
+            file('astromine-foundations/src/main/resources/META-INF/accesstransformer.cfg'),
+            file('astromine-technologies/src/main/resources/META-INF/accesstransformer.cfg'),
+            file('astromine-transportations/src/main/resources/META-INF/accesstransformer.cfg'),
+    )
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            mods {
+                astromine {
+                    sources(sourceSets.main)
+                }
+                astrominecore {
+                    sources(sourceSets.core)
+                }
+                astrominediscoveries {
+                    sources(sourceSets.discoveries)
+                }
+                astrominefoundations {
+                    sources(sourceSets.foundations)
+                }
+                astrominetechnologies {
+                    sources(sourceSets.technologies)
+                }
+                astrominetransportations {
+                    sources(sourceSets.transportations)
+                }
+            }
+        }
+        server {
+            workingDirectory project.file('run_server')
+            mods {
+                astromine {
+                    sources(sourceSets.main)
+                }
+                astrominecore {
+                    sources(sourceSets.core)
+                }
+                astrominediscoveries {
+                    sources(sourceSets.discoveries)
+                }
+                astrominefoundations {
+                    sources(sourceSets.foundations)
+                }
+                astrominetechnologies {
+                    sources(sourceSets.technologies)
+                }
+                astrominetransportations {
+                    sources(sourceSets.transportations)
+                }
+            }
+        }
+        data {
+            workingDirectory project.file('run_data')
+            environment 'target', 'fmluserdevdata'
+        }
+        coreData {
+            parent runs.data
+
+            args '--all', '--output', project.file('astromine-core/generated/resources'),
+                    '--mod', 'astrominecore', '--existing', sourceSets.core.resources.srcDirs[0]
+
+            mods {
+                astromine {
+                    sources(sourceSets.main, sourceSets.dataMain)
+                }
+                astrominecore {
+                    sources(sourceSets.core, sourceSets.dataCore)
+                }
+                astrominediscoveries {
+                    sources(sourceSets.discoveries, sourceSets.dataDiscoveries)
+                }
+                astrominefoundations {
+                    sources(sourceSets.foundations, sourceSets.dataFoundations)
+                }
+                astrominetechnologies {
+                    sources(sourceSets.technologies, sourceSets.dataTechnologies)
+                }
+                astrominetransportations {
+                    sources(sourceSets.transportations, sourceSets.dataTransportations)
+                }
+            }
+        }
+        discoveriesData {
+            parent runs.data
+
+            args '--all', '--output', project.file('astromine-discoveries/generated/resources'),
+                    '--mod', 'astrominediscoveries', '--existing', sourceSets.discoveries.resources.srcDirs[0]
+
+            mods {
+                astromine {
+                    sources(sourceSets.main, sourceSets.dataMain)
+                }
+                astrominecore {
+                    sources(sourceSets.core, sourceSets.dataCore)
+                }
+                astrominediscoveries {
+                    sources(sourceSets.discoveries, sourceSets.dataDiscoveries)
+                }
+                astrominefoundations {
+                    sources(sourceSets.foundations, sourceSets.dataFoundations)
+                }
+                astrominetechnologies {
+                    sources(sourceSets.technologies, sourceSets.dataTechnologies)
+                }
+                astrominetransportations {
+                    sources(sourceSets.transportations, sourceSets.dataTransportations)
+                }
+            }
+        }
+        foundationsData {
+            parent runs.data
+
+            args '--all', '--output', project.file('astromine-foundations/generated/resources'),
+                    '--mod', 'astrominefoundations', '--existing', sourceSets.foundations.resources.srcDirs[0]
+
+            mods {
+                astromine {
+                    sources(sourceSets.main, sourceSets.dataMain)
+                }
+                astrominecore {
+                    sources(sourceSets.core, sourceSets.dataCore)
+                }
+                astrominediscoveries {
+                    sources(sourceSets.discoveries, sourceSets.dataDiscoveries)
+                }
+                astrominefoundations {
+                    sources(sourceSets.foundations, sourceSets.dataFoundations)
+                }
+                astrominetechnologies {
+                    sources(sourceSets.technologies, sourceSets.dataTechnologies)
+                }
+                astrominetransportations {
+                    sources(sourceSets.transportations, sourceSets.dataTransportations)
+                }
+            }
+        }
+        technologiesData {
+            parent runs.data
+
+            args '--all', '--output', project.file('astromine-technologies/generated/resources'),
+                    '--mod', 'astrominetechnologies', '--existing', sourceSets.technologies.resources.srcDirs[0]
+
+            mods {
+                astromine {
+                    sources(sourceSets.main, sourceSets.dataMain)
+                }
+                astrominecore {
+                    sources(sourceSets.core, sourceSets.dataCore)
+                }
+                astrominediscoveries {
+                    sources(sourceSets.discoveries, sourceSets.dataDiscoveries)
+                }
+                astrominefoundations {
+                    sources(sourceSets.foundations, sourceSets.dataFoundations)
+                }
+                astrominetechnologies {
+                    sources(sourceSets.technologies, sourceSets.dataTechnologies)
+                }
+                astrominetransportations {
+                    sources(sourceSets.transportations, sourceSets.dataTransportations)
+                }
+            }
+        }
+        transportationsData {
+            parent runs.data
+
+            args '--all', '--output', project.file('astromine-transportations/generated/resources'),
+                    '--mod', 'astrominetransportations', '--existing', sourceSets.transportations.resources.srcDirs[0]
+
+            mods {
+                astromine {
+                    sources(sourceSets.main, sourceSets.dataMain)
+                }
+                astrominecore {
+                    sources(sourceSets.core, sourceSets.dataCore)
+                }
+                astrominediscoveries {
+                    sources(sourceSets.discoveries, sourceSets.dataDiscoveries)
+                }
+                astrominefoundations {
+                    sources(sourceSets.foundations, sourceSets.dataFoundations)
+                }
+                astrominetechnologies {
+                    sources(sourceSets.technologies, sourceSets.dataTechnologies)
+                }
+                astrominetransportations {
+                    sources(sourceSets.transportations, sourceSets.dataTransportations)
+                }
+            }
         }
     }
 }
 
-allprojects {
-    gradle.projectsEvaluated {
-        tasks.withType(JavaCompile) {
-            options.compilerArgs << "-Xmaxerrs" << "4096"
-        }
+repositories {
+    mavenLocal()
+    maven {
+        name = "Cloth"
+        url = "https://dl.bintray.com/shedaniel/cloth"
     }
-
-    apply plugin: 'net.minecraftforge.gradle'
-    apply plugin: 'maven-publish'
-//    apply plugin: 'com.diffplug.spotless'
-    apply plugin: 'com.matthewprenger.cursegradle'
-    apply plugin: 'net.corda.plugins.jar-filter'
-    apply plugin: 'java'
-    apply plugin: 'java-library'
-
-    sourceCompatibility = targetCompatibility = 1.8
-
-    archivesBaseName = project.mod_name
-    group = rootProject.mod_group
-    version = rootProject.mod_version + "+" + project.version_meta
-
-    ext {
-        shouldGenerateData = false
-        // A special flag to disable this module to go into production jar and mark this moudle to be running the datagen task.
-        isRunningGenerateDataTask = path == ":astromine-datagen-initializer"
+    maven {
+        name = "Modmaven"
+        url = "https://modmaven.k-4u.nl"
     }
+    maven { url "https://dl.bintray.com/shedaniel/autoconfig1u" }
+    maven { url "https://dl.bintray.com/shedaniel/cloth-config-2" }
+    maven { url "https://dl.bintray.com/shedaniel/cloth" }
+}
 
-    minecraft {
-        mappings channel: 'official', version: rootProject.minecraft_version
-        accessTransformer = rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
-
-        runs {
-            client {
-                workingDirectory project.file('run')
-
-                mods {
-                    create(project.name) {
-                        source sourceSets.main
-                    }
-                }
-            }
-
-            server {
-                workingDirectory project.file('run')
-
-                mods {
-                    create(project.name) {
-                        source sourceSets.main
-                    }
-                }
-            }
-        }
-    }
-
-    /*spotless {
-        encoding 'UTF-8'
-        enforceCheck(false)
-
-        java {
-            licenseHeaderFile(rootProject.file('HEADER'))
-            removeUnusedImports()
-            eclipse().configFile(rootProject.file('spotless/formatter-settings.xml'))
-        }
-    }*/
-
-    repositories {
-        mavenLocal()
-        maven {
-            name = "Cloth"
-            url = "https://dl.bintray.com/shedaniel/cloth"
-        }
-        maven {
-            name = "Modmaven"
-            url = "https://modmaven.k-4u.nl"
-        }
-        maven { url "https://dl.bintray.com/shedaniel/autoconfig1u" }
-        maven { url "https://dl.bintray.com/shedaniel/cloth-config-2" }
-        maven { url "https://dl.bintray.com/shedaniel/cloth" }
-    }
-
-    dependencies {
+dependencies {
 //        dependencies.ext.useAsApiOptionally = { dep ->
 //            modApi(dep) {
 //                if (!dep.contains("net.fabricmc.fabric-api")) {
@@ -148,36 +401,270 @@ allprojects {
 //            }
 //        }
 
-        minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
-        compile("org.jetbrains:annotations:19.0.0")
+    minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
+    implementation("org.jetbrains:annotations:19.0.0")
 
-        compile("com.terraformersmc:shapes:${shapes_version}") {
-            transitive = false
-        }
-        runtimeOnly(fg.deobf("me.shedaniel:autoconfig1u-forge:${auto_config_version}")) {
-            transitive = false
-        }
-        compileOnly("me.shedaniel:autoconfig1u-forge:${auto_config_version}") {
-            transitive = false
-        }
-        compile(fg.deobf("me.shedaniel.cloth:cloth-config-forge:${cloth_config_version}"))
-        compile("org.jetbrains.kotlin:kotlin-stdlib:${project.kotlin_version}")
-        compile("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${project.kotlin_version}")
-        compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${project.kotlin_version}")
-        compile(fg.deobf("vazkii.patchouli:Patchouli:${patchouli_version}"))
-        compile(fg.deobf("me.shedaniel:RoughlyEnoughItems:${rei_version}"))
+    implementation("com.terraformersmc:shapes:${shapes_version}") {
+        transitive = false
     }
-
-    tasks.withType(JavaCompile) {
-        options.encoding = "UTF-8"
+    runtimeOnly(fg.deobf("me.shedaniel:autoconfig1u-forge:${auto_config_version}")) {
+        transitive = false
     }
+    compileOnly("me.shedaniel:autoconfig1u-forge:${auto_config_version}") {
+        transitive = false
+    }
+    implementation(fg.deobf("me.shedaniel.cloth:cloth-config-forge:${cloth_config_version}"))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:${project.kotlin_version}")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${project.kotlin_version}")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${project.kotlin_version}")
+    implementation(fg.deobf("vazkii.patchouli:Patchouli:${patchouli_version}"))
+    implementation(fg.deobf("me.shedaniel:RoughlyEnoughItems:${rei_version}"))
+}
 
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier("sources")
-        from sourceSets.main.allSource
+/*spotless {
+    encoding 'UTF-8'
+    enforceCheck(false)
+
+    java {
+        licenseHeaderFile(rootProject.file('HEADER'))
+        removeUnusedImports()
+        eclipse().configFile(rootProject.file('spotless/formatter-settings.xml'))
+    }
+}*/
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+/*
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier("sources")
+    from sourceSets.main.allSource
+}
+ */
+
+processResources {
+    exclude 'META-INF/mods.toml'
+    finalizedBy mainReplaceResources
+}
+
+processCoreResources {
+    exclude 'META-INF/mods.toml'
+    finalizedBy coreReplaceResources
+}
+
+processDiscoveriesResources {
+    exclude 'META-INF/mods.toml'
+    finalizedBy discoveriesReplaceResources
+}
+
+processFoundationsResources {
+    exclude 'META-INF/mods.toml'
+    finalizedBy foundationsReplaceResources
+}
+
+processTechnologiesResources {
+    exclude 'META-INF/mods.toml'
+    finalizedBy technologiesReplaceResources
+}
+
+processTransportationsResources {
+    exclude 'META-INF/mods.toml'
+    finalizedBy transportationsReplaceResources
+}
+
+def makeManifest(String mod) {
+    return [
+            "Specification-Title": mod,
+            "Specification-Vendor": "Astromine",
+            "Specification-Version": "${project.mod_version}",
+            "Implementation-Title": mod,
+            "Implementation-Vendor": "Mixinors",
+            "Implementation-Version": "${project.mod_version}",
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+    ]
+}
+
+jar {
+    from sourceSets.main.output
+    manifest.attributes(makeManifest("AstromineMain"))
+}
+
+task coreJar(type: Jar) {
+    shouldRunAfter(coreReplaceResources)
+    archiveName = "AstromineCore-${project.version}.jar"
+    classifier = "core"
+    from sourceSets.core.output
+    manifest.attributes(makeManifest("AstromineCore"))
+    afterEvaluate {
+        finalizedBy reobfCoreJar
     }
 }
 
+task discoveriesJar(type: Jar) {
+    shouldRunAfter(discoveriesReplaceResources)
+    archiveName = "AstromineDiscoveries-${project.version}.jar"
+    classifier = "discoveries"
+    from sourceSets.discoveries.output
+    manifest.attributes(makeManifest("AstromineDiscoveries"))
+    afterEvaluate {
+        finalizedBy reobfDiscoveriesJar
+    }
+}
+
+task foundationsJar(type: Jar) {
+    shouldRunAfter(foundationsReplaceResources)
+    archiveName = "AstromineFoundations-${project.version}.jar"
+    classifier = "foundations"
+    from sourceSets.foundations.output
+    manifest.attributes(makeManifest("AstromineFoundations"))
+    afterEvaluate {
+        finalizedBy reobfFoundationsJar
+    }
+}
+
+task technologiesJar(type: Jar) {
+    shouldRunAfter(technologiesReplaceResources)
+    archiveName = "AstromineTechnologies-${project.version}.jar"
+    classifier = "technologies"
+    from sourceSets.technologies.output
+    manifest.attributes(makeManifest("AstromineTechnologies"))
+    afterEvaluate {
+        finalizedBy reobfTechnologiesJar
+    }
+}
+
+task transportationsJar(type: Jar) {
+    shouldRunAfter(transportationsReplaceResources)
+    archiveName = "AstromineTransportations-${project.version}.jar"
+    classifier = "transportations"
+    from sourceSets.transportations.output
+    manifest.attributes(makeManifest("AstromineTransportations"))
+    afterEvaluate {
+        finalizedBy reobfTransportationsJar
+    }
+}
+
+task fatJar(type: Jar) {
+    shouldRunAfter(jar, coreJar, discoveriesJar, foundationsJar, technologiesJar, transportationsJar,
+            processResources, processCoreResources, processDiscoveriesResources, processFoundationsResources, processTechnologiesResources, processTransportationsResources)
+    afterEvaluate {
+        finalizedBy reobfFatJar
+    }
+    classifier = "fat"
+    manifest.attributes(makeManifest("Astromine"))
+    doFirst {
+        mkDir("$buildDir/generated/META-INF")
+        (new File("$buildDir/generated/META-INF/accesstransformer.cfg")).text = mergeATs(sourceSets.main, sourceSets.core, sourceSets.discoveries,
+                sourceSets.foundations, sourceSets.technologies, sourceSets.transportations)
+        (new File("$buildDir/generated/META-INF/mods.toml")).text = mergeTomls(sourceSets.main, sourceSets.core, sourceSets.discoveries,
+                sourceSets.foundations, sourceSets.technologies, sourceSets.transportations)
+    }
+    from (sourceSets.main.output) {
+        exclude 'META-INF/mods.toml'
+        exclude 'META-INF/accesstransformer.cfg'
+    }
+    from (sourceSets.core.output) {
+        exclude 'META-INF/mods.toml'
+        exclude 'META-INF/accesstransformer.cfg'
+        exclude 'pack.mcmeta'
+    }
+    from (sourceSets.discoveries.output) {
+        exclude 'META-INF/mods.toml'
+        exclude 'META-INF/accesstransformer.cfg'
+        exclude 'pack.mcmeta'
+    }
+    from (sourceSets.foundations.output) {
+        exclude 'META-INF/mods.toml'
+        exclude 'META-INF/accesstransformer.cfg'
+        exclude 'pack.mcmeta'
+    }
+    from (sourceSets.technologies.output) {
+        exclude 'META-INF/mods.toml'
+        exclude 'META-INF/accesstransformer.cfg'
+        exclude 'pack.mcmeta'
+    }
+    from (sourceSets.transportations.output) {
+        exclude 'META-INF/mods.toml'
+        exclude 'META-INF/accesstransformer.cfg'
+        exclude 'pack.mcmeta'
+    }
+    from ("$buildDir/generated") {
+        include 'META-INF/mods.toml'
+        expand versionProperties
+    }
+    from ("$buildDir/generated") {
+        include 'META-INF/accesstransformer.cfg'
+    }
+}
+
+static String mergeATs(SourceSet... sets) {
+    String text = ""
+    for (def set : sets) {
+        text += set.name
+        text += "\n"
+        set.resources.matching {
+            include 'META-INF/accesstransformer.cfg'
+        }.each {
+            text += it.getText()
+            text += "\n"
+        }
+    }
+    return text
+}
+
+static String mergeTomls(SourceSet... sets) {
+    String text = ""
+    for (def set : sets) {
+        set.resources.matching {
+            include 'META-INF/mods.toml'
+        }.each {
+            if (text.isEmpty()) {
+                text = it.getText()
+            } else {
+                def lines = it.getText().split("\n")
+                for (int i = 4; i < lines.length; ++i) {
+                    text += "\n"
+                    text += lines[i]
+                }
+            }
+        }
+    }
+    return text
+}
+
+artifacts {
+    archives jar
+    archives coreJar
+    archives discoveriesJar
+    archives foundationsJar
+    archives technologiesJar
+    archives transportationsJar
+}
+
+reobf {
+    jar {
+        classpath = sourceSets.main.compileClasspath
+    }
+    coreJar {
+        classpath = sourceSets.core.compileClasspath
+    }
+    discoveriesJar {
+        classpath = sourceSets.discoveries.compileClasspath
+    }
+    foundationsJar {
+        classpath = sourceSets.foundations.compileClasspath
+    }
+    technologiesJar {
+        classpath = sourceSets.technologies.compileClasspath
+    }
+    transportationsJar {
+        classpath = sourceSets.transportations.compileClasspath
+    }
+    fatJar {}
+}
+
+/*
 subprojects {
     archivesBaseName = project.name
 
@@ -362,6 +849,7 @@ dependencies {
         }
     }
 }
+*/
 
 publishing {
     publications {
@@ -388,14 +876,18 @@ publishing {
     }
 }
 
+tasks.curseforge.dependsOn jar, coreJar, discoveriesJar, foundationsJar, technologiesJar, transportationsJar
+
 curseforge {
     if (project.hasProperty('curse_api_key') || System.getenv('curse_api_key') != null) {
         apiKey = project.hasProperty('curse_api_key') ? project.property('curse_api_key') : System.getenv('curse_api_key')
+        // TODO Add all other projects
         project {
             id = "391739"
-            releaseType = rootProject.release_cycle
+            releaseType = project.release_cycle
+            // TODO: Generate
             changelog = "View the changelog at https://github.com/Chainmail-Studios/Astromine"
-            ((String) rootProject.tagged_versions).split(",").each {
+            ((String) project.tagged_versions).split(",").each {
                 addGameVersion it
             }
             relations {
