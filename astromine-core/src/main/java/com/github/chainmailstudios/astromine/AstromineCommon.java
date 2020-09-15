@@ -40,7 +40,7 @@ import java.util.function.Supplier;
 
 @Mod("astrominecore")
 public class AstromineCommon {
-	interface SidedInit {
+	public interface SidedInit {
 		void onSidedInit(IEventBus modBus, IEventBus forgeBus);
 	}
 
@@ -62,8 +62,8 @@ public class AstromineCommon {
 		final IEventBus forgeBus = MinecraftForge.EVENT_BUS;
 
 		this.onInitialize(modBus, forgeBus);
-		// TODO Check whether this is actually safe
-		DistExecutor.unsafeRunForDist(() -> this::getClientInitializer, () -> this::getServerInitializer).get().onSidedInit(modBus, forgeBus);
+		// TODO Check safety (though it should be safer)
+		DistExecutor.unsafeRunForDist(() -> () -> AstromineClient.setUp(modBus, forgeBus, this), () -> () -> AstromineDedicated.setUp(modBus, forgeBus, this));
 	}
 
 	public void onInitialize(IEventBus modBus, IEventBus forgeBus) {

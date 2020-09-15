@@ -54,4 +54,9 @@ public class AstromineClient implements AstromineCommon.SidedInit {
 			return configScreen.get();
 		});
 	}
+
+	static Void setUp(IEventBus modBus, IEventBus forgeBus, AstromineCommon module) {
+		module.getClientInitializer().get().onSidedInit(modBus, forgeBus);
+		return null;
+	}
 }

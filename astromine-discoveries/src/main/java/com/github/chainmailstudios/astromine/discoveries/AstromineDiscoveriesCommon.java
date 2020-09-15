@@ -24,9 +24,7 @@
 
 package com.github.chainmailstudios.astromine.discoveries;
 
-import com.github.chainmailstudios.astromine.AstromineClient;
 import com.github.chainmailstudios.astromine.AstromineCommon;
-import com.github.chainmailstudios.astromine.AstromineDedicated;
 import com.github.chainmailstudios.astromine.discoveries.registry.*;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -62,12 +60,12 @@ public class AstromineDiscoveriesCommon extends AstromineCommon {
 	}
 
 	@Override
-	public Supplier<? extends AstromineClient> getClientInitializer() {
+	public Supplier<? extends AstromineCommon.SidedInit> getClientInitializer() {
 		return AstromineDiscoveriesClient::new;
 	}
 
 	@Override
-	public Supplier<? extends AstromineDedicated> getServerInitializer() {
+	public Supplier<? extends AstromineCommon.SidedInit> getServerInitializer() {
 		return AstromineDiscoveriesDedicated::new;
 	}
 }

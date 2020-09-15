@@ -24,9 +24,7 @@
 
 package com.github.chainmailstudios.astromine.foundations;
 
-import com.github.chainmailstudios.astromine.AstromineClient;
 import com.github.chainmailstudios.astromine.AstromineCommon;
-import com.github.chainmailstudios.astromine.AstromineDedicated;
 import com.github.chainmailstudios.astromine.foundations.registry.*;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -47,12 +45,12 @@ public class AstromineFoundationsCommon extends AstromineCommon {
 	}
 
 	@Override
-	public Supplier<? extends AstromineClient> getClientInitializer() {
+	public Supplier<? extends AstromineCommon.SidedInit> getClientInitializer() {
 		return AstromineFoundationsClient::new;
 	}
 
 	@Override
-	public Supplier<? extends AstromineDedicated> getServerInitializer() {
+	public Supplier<? extends AstromineCommon.SidedInit> getServerInitializer() {
 		return AstromineFoundationsDedicated::new;
 	}
 }

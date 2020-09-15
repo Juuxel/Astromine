@@ -24,9 +24,7 @@
 
 package com.github.chainmailstudios.astromine.transportations;
 
-import com.github.chainmailstudios.astromine.AstromineClient;
 import com.github.chainmailstudios.astromine.AstromineCommon;
-import com.github.chainmailstudios.astromine.AstromineDedicated;
 import com.github.chainmailstudios.astromine.transportations.registry.AstromineTransportationsBlockEntityTypes;
 import com.github.chainmailstudios.astromine.transportations.registry.AstromineTransportationsBlocks;
 import com.github.chainmailstudios.astromine.transportations.registry.AstromineTransportationsItems;
@@ -34,7 +32,6 @@ import com.github.chainmailstudios.astromine.transportations.registry.AstromineT
 import com.github.chainmailstudios.astromine.transportations.registry.client.AstromineTransportationsItemGroups;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.util.function.Supplier;
 
@@ -50,12 +47,12 @@ public class AstromineTransportationsCommon extends AstromineCommon {
 	}
 
 	@Override
-	public Supplier<? extends AstromineClient> getClientInitializer() {
+	public Supplier<? extends AstromineCommon.SidedInit> getClientInitializer() {
 		return AstromineTransportationsClient::new;
 	}
 
 	@Override
-	public Supplier<? extends AstromineDedicated> getServerInitializer() {
+	public Supplier<? extends AstromineCommon.SidedInit> getServerInitializer() {
 		return AstromineTransportationsDedicated::new;
 	}
 }

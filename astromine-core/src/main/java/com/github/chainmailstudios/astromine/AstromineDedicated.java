@@ -28,7 +28,10 @@ import net.minecraftforge.eventbus.api.IEventBus;
 
 public class AstromineDedicated implements AstromineCommon.SidedInit {
 	@Override
-	public void onSidedInit(IEventBus modBus, IEventBus forgeBus) {
+	public void onSidedInit(IEventBus modBus, IEventBus forgeBus) {}
 
+	static Void setUp(IEventBus modBus, IEventBus forgeBus, AstromineCommon module) {
+		module.getServerInitializer().get().onSidedInit(modBus, forgeBus);
+		return null;
 	}
 }
