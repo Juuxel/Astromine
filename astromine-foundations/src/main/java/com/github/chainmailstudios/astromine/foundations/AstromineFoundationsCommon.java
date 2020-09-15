@@ -24,12 +24,19 @@
 
 package com.github.chainmailstudios.astromine.foundations;
 
+import com.github.chainmailstudios.astromine.AstromineClient;
 import com.github.chainmailstudios.astromine.AstromineCommon;
+import com.github.chainmailstudios.astromine.AstromineDedicated;
 import com.github.chainmailstudios.astromine.foundations.registry.*;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.common.Mod;
 
+import java.util.function.Supplier;
+
+@Mod("astrominefoundations")
 public class AstromineFoundationsCommon extends AstromineCommon {
 	@Override
-	public void onInitialize() {
+	public void onInitialize(IEventBus modBus, IEventBus forgeBus) {
 		AstromineFoundationsBlocks.initialize();
 		AstromineFoundationsItems.initialize();
 		AstromineFoundationsOres.initialize();
@@ -37,5 +44,15 @@ public class AstromineFoundationsCommon extends AstromineCommon {
 		AstromineFoundationsCriteria.initialize();
 		AstromineFoundationsFluidEffects.initialize();
 		AstromineFoundationsFeatures.initialize();
+	}
+
+	@Override
+	public Supplier<? extends AstromineClient> getClientInitializer() {
+		return AstromineFoundationsClient::new;
+	}
+
+	@Override
+	public Supplier<? extends AstromineDedicated> getServerInitializer() {
+		return AstromineFoundationsDedicated::new;
 	}
 }

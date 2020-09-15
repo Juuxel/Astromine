@@ -28,11 +28,12 @@ import com.github.chainmailstudios.astromine.AstromineClient;
 import com.github.chainmailstudios.astromine.technologies.registry.client.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.eventbus.api.IEventBus;
 
 @OnlyIn(Dist.CLIENT)
 public class AstromineTechnologiesClient extends AstromineClient {
 	@Override
-	public void onInitializeClient() {
+	public void onSidedInit(IEventBus modBus, IEventBus forgeBus) {
 		AstromineTechnologiesBlockEntityRenderers.initialize();
 		AstromineTechnologiesPatchouliPages.initialize();
 		AstromineTechnologiesScreens.initialize();

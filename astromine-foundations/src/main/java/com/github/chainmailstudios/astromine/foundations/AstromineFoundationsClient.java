@@ -25,10 +25,9 @@
 package com.github.chainmailstudios.astromine.foundations;
 
 import com.github.chainmailstudios.astromine.AstromineClient;
+import net.minecraftforge.eventbus.api.IEventBus;
 
 public class AstromineFoundationsClient extends AstromineClient {
 	@Override
-	public void onInitializeClient() {
-
-	}
+	public void onSidedInit(IEventBus modBus, IEventBus forgeBus) {}
 }

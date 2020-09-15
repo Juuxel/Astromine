@@ -30,11 +30,12 @@ import com.github.chainmailstudios.astromine.transportations.registry.client.Ast
 import com.github.chainmailstudios.astromine.transportations.registry.client.AstromineTransportationsRenderLayers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.eventbus.api.IEventBus;
 
 @OnlyIn(Dist.CLIENT)
 public class AstromineTransportationsClient extends AstromineClient {
 	@Override
-	public void onInitializeClient() {
+	public void onSidedInit(IEventBus modBus, IEventBus forgeBus) {
 		AstromineTransportationsBlockEntityRenderers.initialize();
 		AstromineTransportationsClientCallbacks.initialize();
 		AstromineTransportationsRenderLayers.initialize();

@@ -25,10 +25,9 @@
 package com.github.chainmailstudios.astromine.transportations;
 
 import com.github.chainmailstudios.astromine.AstromineDedicated;
+import net.minecraftforge.eventbus.api.IEventBus;
 
 public class AstromineTransportationsDedicated extends AstromineDedicated {
 	@Override
-	public void onInitializeServer() {
-
-	}
+	public void onSidedInit(IEventBus modBus, IEventBus forgeBus) {}
 }

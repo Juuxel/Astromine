@@ -26,10 +26,11 @@ package com.github.chainmailstudios.astromine.discoveries;
 
 import com.github.chainmailstudios.astromine.AstromineClient;
 import com.github.chainmailstudios.astromine.discoveries.registry.client.*;
+import net.minecraftforge.eventbus.api.IEventBus;
 
 public class AstromineDiscoveriesClient extends AstromineClient {
 	@Override
-	public void onInitializeClient() {
+	public void onSidedInit(IEventBus modBus, IEventBus forgeBus) {
 		AstromineDiscoveriesSkyboxes.initialize();
 		AstromineDiscoveriesEntityRenderers.initialize();
 		AstromineDiscoveriesParticleFactories.initialize();

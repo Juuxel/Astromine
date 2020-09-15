@@ -104,11 +104,11 @@ public class AstromineCommon {
 		}
 	}
 
-	public Supplier<? extends AstromineClient> getClientInitializer() {
+	public Supplier<? extends SidedInit> getClientInitializer() {
 		return AstromineClient::new;
 	}
 
-	public Supplier<? extends AstromineDedicated> getServerInitializer() {
+	public Supplier<? extends SidedInit> getServerInitializer() {
 		return AstromineDedicated::new;
 	}
 }

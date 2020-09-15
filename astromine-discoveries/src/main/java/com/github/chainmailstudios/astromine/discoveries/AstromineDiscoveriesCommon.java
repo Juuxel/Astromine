@@ -24,12 +24,19 @@
 
 package com.github.chainmailstudios.astromine.discoveries;
 
+import com.github.chainmailstudios.astromine.AstromineClient;
 import com.github.chainmailstudios.astromine.AstromineCommon;
+import com.github.chainmailstudios.astromine.AstromineDedicated;
 import com.github.chainmailstudios.astromine.discoveries.registry.*;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.common.Mod;
 
+import java.util.function.Supplier;
+
+@Mod("astrominediscoveries")
 public class AstromineDiscoveriesCommon extends AstromineCommon {
 	@Override
-	public void onInitialize() {
+	public void onInitialize(IEventBus modBus, IEventBus forgeBus) {
 		AstromineDiscoveriesDecorators.initialize();
 		AstromineDiscoveriesBiomes.initialize();
 		AstromineDiscoveriesBiomeSources.initialize();
@@ -52,5 +59,15 @@ public class AstromineDiscoveriesCommon extends AstromineCommon {
 		AstromineDiscoveriesRecipeSerializers.initialize();
 		AstromineDiscoveriesScreenHandlers.initialize();
 		AstromineDiscoveriesParticles.initialize();
+	}
+
+	@Override
+	public Supplier<? extends AstromineClient> getClientInitializer() {
+		return AstromineDiscoveriesClient::new;
+	}
+
+	@Override
+	public Supplier<? extends AstromineDedicated> getServerInitializer() {
+		return AstromineDiscoveriesDedicated::new;
 	}
 }

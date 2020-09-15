@@ -24,12 +24,19 @@
 
 package com.github.chainmailstudios.astromine.technologies;
 
+import com.github.chainmailstudios.astromine.AstromineClient;
 import com.github.chainmailstudios.astromine.AstromineCommon;
+import com.github.chainmailstudios.astromine.AstromineDedicated;
 import com.github.chainmailstudios.astromine.technologies.registry.*;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.common.Mod;
 
+import java.util.function.Supplier;
+
+@Mod("astrominetechnologies")
 public class AstromineTechnologiesCommon extends AstromineCommon {
 	@Override
-	public void onInitialize() {
+	public void onInitialize(IEventBus modBus, IEventBus forgeBus) {
 		AstromineTechnologiesBlockEntityTypes.initialize();
 		AstromineTechnologiesBlocks.initialize();
 		AstromineTechnologiesItems.initialize();
@@ -42,5 +49,15 @@ public class AstromineTechnologiesCommon extends AstromineCommon {
 		AstromineTechnologiesNetworkMembers.initialize();
 		AstromineTechnologiesRecipeSerializers.initialize();
 		AstromineTechnologiesCommonPackets.initialize();
+	}
+
+	@Override
+	public Supplier<? extends AstromineClient> getClientInitializer() {
+		return AstromineTechnologiesClient::new;
+	}
+
+	@Override
+	public Supplier<? extends AstromineDedicated> getServerInitializer() {
+		return AstromineTechnologiesDedicated::new;
 	}
 }
