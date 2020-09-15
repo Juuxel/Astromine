@@ -28,10 +28,6 @@ import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.foundations.registry.*;
 
 public class AstromineFoundationsCommon extends AstromineCommon {
-	public static String appendId(String id) {
-		return MOD_ID + ":" + id;
-	}
-
 	@Override
 	public void onInitialize() {
 		AstromineFoundationsBlocks.initialize();

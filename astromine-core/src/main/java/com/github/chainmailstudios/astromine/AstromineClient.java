@@ -25,23 +25,17 @@
 package com.github.chainmailstudios.astromine;
 
 import com.github.chainmailstudios.astromine.registry.AstromineConfig;
-import me.shedaniel.autoconfig1u.AutoConfig;
-import me.shedaniel.autoconfig1u.gui.ConfigScreenProvider;
-import net.fabricmc.api.ClientModInitializer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-
 import com.github.chainmailstudios.astromine.registry.AstromineKeybinds;
 import com.github.chainmailstudios.astromine.registry.client.*;
+import me.shedaniel.autoconfig1u.AutoConfig;
+import me.shedaniel.autoconfig1u.gui.ConfigScreenProvider;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.ExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @OnlyIn(Dist.CLIENT)
-public class AstromineClient implements ClientModInitializer {
-
-	@Override
+public class AstromineClient {
 	public void onInitializeClient() {
 		AstromineEntityRenderers.initialize();
 		AstromineBlockEntityRenderers.initialize();

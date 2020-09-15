@@ -30,14 +30,18 @@ import com.github.chainmailstudios.astromine.transportations.registry.AstromineT
 import com.github.chainmailstudios.astromine.transportations.registry.AstromineTransportationsItems;
 import com.github.chainmailstudios.astromine.transportations.registry.AstromineTransportationsSoundEvents;
 import com.github.chainmailstudios.astromine.transportations.registry.client.AstromineTransportationsItemGroups;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 public class AstromineTransportationsCommon extends AstromineCommon {
 	@Override
 	public void onInitialize() {
+		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+
 		AstromineTransportationsBlocks.initialize();
 		AstromineTransportationsItems.initialize();
 		AstromineTransportationsItemGroups.initialize();
 		AstromineTransportationsBlockEntityTypes.initialize();
-		AstromineTransportationsSoundEvents.initialize();
+		AstromineTransportationsSoundEvents.initialize(bus);
 	}
 }

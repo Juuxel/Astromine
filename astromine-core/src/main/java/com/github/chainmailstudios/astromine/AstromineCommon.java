@@ -24,20 +24,19 @@
 
 package com.github.chainmailstudios.astromine;
 
-import blue.endless.jankson.Jankson;
 import com.github.chainmailstudios.astromine.registry.*;
 import com.google.gson.Gson;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class AstromineCommon implements ModInitializer {
+public class AstromineCommon {
 	public static final String LOG_ID = "Astromine";
 	public static final String MOD_ID = "astromine";
 
-	public static final Jankson JANKSON = Jankson.builder().build();
 	public static final Gson GSON = new Gson();
 
 	public static final Logger LOGGER = LogManager.getLogger(LOG_ID);
@@ -48,15 +47,16 @@ public class AstromineCommon implements ModInitializer {
 		return new ResourceLocation(MOD_ID, name);
 	}
 
-	@Override
 	public void onInitialize() {
+		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+
 		AstromineIdentifierFixes.initialize();
 		AstromineDimensions.initialize();
 		AstromineFeatures.initialize();
-		AstromineItems.initialize();
-		AstromineBlocks.initialize();
+		AstromineItems.initialize(bus);
+		AstromineBlocks.initialize(bus);
 		AstromineScreenHandlers.initialize();
-		AstromineEntityTypes.initialize();
+		AstromineEntityTypes.initialize(bus);
 		AstromineComponentTypes.initialize();
 		AstromineNetworkTypes.initialize();
 		AstrominePotions.initialize();
@@ -72,13 +72,13 @@ public class AstromineCommon implements ModInitializer {
 		AstromineRecipeSerializers.initialize();
 		AstromineCommands.initialize();
 		AstromineAtmospheres.initialize();
-		AstromineBlockEntityTypes.initialize();
-		AstromineSoundEvents.initialize();
+		AstromineBlockEntityTypes.initialize(bus);
+		AstromineSoundEvents.initialize(bus);
 		AstromineNetworkMembers.initialize();
 		AstromineCriteria.initialize();
 		AstromineFluidEffects.initialize();
 
-		if (FabricLoader.getInstance().isModLoaded("libblockattributes_fluids")) {
+		if (ModList.get().isLoaded("libblockattributes_fluids")) {
 			try {
 				Class.forName("com.github.chainmailstudios.astromine.common.lba.LibBlockAttributesCompatibility").getDeclaredMethod("initialize").invoke(null);
 			} catch (Throwable e) {

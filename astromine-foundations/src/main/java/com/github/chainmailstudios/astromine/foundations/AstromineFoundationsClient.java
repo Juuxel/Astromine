@@ -24,9 +24,9 @@
 
 package com.github.chainmailstudios.astromine.foundations;
 
-import net.fabricmc.api.ClientModInitializer;
+import com.github.chainmailstudios.astromine.AstromineClient;
 
-public class AstromineFoundationsClient implements ClientModInitializer {
+public class AstromineFoundationsClient extends AstromineClient {
 	@Override
 	public void onInitializeClient() {
 

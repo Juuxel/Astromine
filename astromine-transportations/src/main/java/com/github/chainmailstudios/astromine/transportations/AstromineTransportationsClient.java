@@ -24,14 +24,12 @@
 
 package com.github.chainmailstudios.astromine.transportations;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-
 import com.github.chainmailstudios.astromine.AstromineClient;
 import com.github.chainmailstudios.astromine.transportations.registry.client.AstromineTransportationsBlockEntityRenderers;
 import com.github.chainmailstudios.astromine.transportations.registry.client.AstromineTransportationsClientCallbacks;
 import com.github.chainmailstudios.astromine.transportations.registry.client.AstromineTransportationsRenderLayers;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class AstromineTransportationsClient extends AstromineClient {

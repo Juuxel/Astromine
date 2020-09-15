@@ -25,14 +25,7 @@
 package com.github.chainmailstudios.astromine.discoveries;
 
 import com.github.chainmailstudios.astromine.AstromineClient;
-import com.github.chainmailstudios.astromine.discoveries.registry.client.AstromineDiscoveriesBlockEntityRenderers;
-import com.github.chainmailstudios.astromine.discoveries.registry.client.AstromineDiscoveriesClientCallbacks;
-import com.github.chainmailstudios.astromine.discoveries.registry.client.AstromineDiscoveriesClientModels;
-import com.github.chainmailstudios.astromine.discoveries.registry.client.AstromineDiscoveriesEntityRenderers;
-import com.github.chainmailstudios.astromine.discoveries.registry.client.AstromineDiscoveriesParticleFactories;
-import com.github.chainmailstudios.astromine.discoveries.registry.client.AstromineDiscoveriesRenderLayers;
-import com.github.chainmailstudios.astromine.discoveries.registry.client.AstromineDiscoveriesScreens;
-import com.github.chainmailstudios.astromine.discoveries.registry.client.AstromineDiscoveriesSkyboxes;
+import com.github.chainmailstudios.astromine.discoveries.registry.client.*;
 
 public class AstromineDiscoveriesClient extends AstromineClient {
 	@Override
