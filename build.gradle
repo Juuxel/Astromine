@@ -104,7 +104,8 @@ def makeSourceSet(SourceSet set, String name) {
         srcDir "astromine-$name/src/main/java"
     }
     set.resources {
-        srcDirs += "astromine-$name/generated/resources"
+        srcDirs += "astromine-$name/src/main/resources"
+        srcDirs += "astromine-$name/src/generated/resources"
     }
     set.compileClasspath += sourceSets.main.output
 }
