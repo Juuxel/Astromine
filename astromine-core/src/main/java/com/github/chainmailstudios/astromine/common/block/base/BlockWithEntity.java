@@ -30,7 +30,6 @@ import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -55,9 +54,11 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 
-public abstract class BlockWithEntity extends Block implements ITileEntityProvider {
+public abstract class BlockWithEntity extends Block {
 	public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
 	protected BlockWithEntity(AbstractBlock.Properties settings) {
@@ -84,6 +85,17 @@ public abstract class BlockWithEntity extends Block implements ITileEntityProvid
 		}
 	}
 
+	@Override
+	public boolean hasTileEntity(BlockState state) {
+		return true;
+	}
+
+	@Nullable
+	@Override
+	public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+		return createBlockEntity();
+	}
+
 	public abstract boolean hasScreenHandler();
 
 	public abstract TileEntity createBlockEntity();
@@ -91,11 +103,6 @@ public abstract class BlockWithEntity extends Block implements ITileEntityProvid
 	public abstract Container createScreenHandler(BlockState state, World world, BlockPos pos, int syncId, PlayerInventory playerInventory, PlayerEntity player);
 
 	public abstract void populateScreenHandlerBuffer(BlockState state, World world, BlockPos pos, ServerPlayerEntity player, PacketBuffer buffer);
-
-	@Override
-	public TileEntity newBlockEntity(IBlockReader world) {
-		return createBlockEntity();
-	}
 
 	@Override
 	public INamedContainerProvider getMenuProvider(BlockState state, World world, BlockPos pos) {

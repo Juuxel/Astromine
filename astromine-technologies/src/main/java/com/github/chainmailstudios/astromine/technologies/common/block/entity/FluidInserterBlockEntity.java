@@ -51,7 +51,7 @@ public class FluidInserterBlockEntity extends ComponentEnergyFluidBlockEntity im
 	private Fraction cooldown = Fraction.empty();
 
 	public FluidInserterBlockEntity() {
-		super(AstromineTechnologiesBlocks.FLUID_INSERTER, AstromineTechnologiesBlockEntityTypes.FLUID_INSERTER);
+		super(AstromineTechnologiesBlocks.FLUID_INSERTER.get(), AstromineTechnologiesBlockEntityTypes.FLUID_INSERTER);
 	}
 
 	@Override

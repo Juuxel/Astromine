@@ -67,7 +67,7 @@ public abstract class WrenchableHorizontalFacingTieredBlockWithEntity extends Wr
 
 					if (newBlock.isPresent()) {
 						if (world.isClientSide) {
-							Random random = world.getFreeMapId();
+							Random random = world.getRandom();
 							double x = pos.getX() - 0.3;
 							double y = pos.getY() - 0.3;
 							double z = pos.getZ() - 0.3;
