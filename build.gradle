@@ -50,6 +50,9 @@ sourceSets {
     core {
         makeSourceSet(sourceSets.core, 'core')
     }
+    dataInit {
+        makeSourceSet(sourceSets.dataInit, 'datagen-initializer')
+    }
     foundations {
         makeSourceSet(sourceSets.foundations, 'foundations')
         compileClasspath += sourceSets.core.output
@@ -84,6 +87,9 @@ sourceSets {
     }
     dataCore {
         makeDataSourceSet(sourceSets.dataCore, sourceSets.core, 'core')
+    }
+    dataDataInit {
+        makeDataSourceSet(sourceSets.dataDataInit, sourceSets.dataInit, 'datagen-initializer')
     }
     dataDiscoveries {
         makeDataSourceSet(sourceSets.dataDiscoveries, sourceSets.discoveries, 'discoveries')
@@ -122,6 +128,7 @@ ext {
     replaceResourcesInfo = [
             "main" : sourceSets.main,
             "core" : sourceSets.core,
+            "dataInit" : sourceSets.dataInit,
             "discoveries" : sourceSets.discoveries,
             "foundations" : sourceSets.foundations,
             "technologies" : sourceSets.technologies,
@@ -141,14 +148,14 @@ replaceResourcesInfo.each { output, set ->
 }
 
 configurations {
-    def implementationExt = [coreImplementation, discoveriesImplementation, foundationsImplementation, technologiesImplementation, transportationsImplementation, testImplementation,
-                             dataMainImplementation, dataCoreImplementation, dataDiscoveriesImplementation, dataFoundationsImplementation, dataTechnologiesImplementation,
-                             dataTransportationsImplementation]
-    def compileOnlyExt = [coreCompileOnly, discoveriesCompileOnly, foundationsCompileOnly, technologiesCompileOnly, transportationsCompileOnly, testCompileOnly,
-                          dataMainCompileOnly, dataCoreCompileOnly, dataDiscoveriesCompileOnly, dataFoundationsCompileOnly, dataTechnologiesCompileOnly,
+    def implementationExt = [coreImplementation, dataInitImplementation, discoveriesImplementation, foundationsImplementation, technologiesImplementation, transportationsImplementation,
+                             testImplementation, dataMainImplementation, dataCoreImplementation, dataDataInitImplementation, dataDiscoveriesImplementation, dataFoundationsImplementation,
+                             dataTechnologiesImplementation, dataTransportationsImplementation]
+    def compileOnlyExt = [coreCompileOnly, dataInitCompileOnly, discoveriesCompileOnly, foundationsCompileOnly, technologiesCompileOnly, transportationsCompileOnly, testCompileOnly,
+                          dataMainCompileOnly, dataCoreCompileOnly, dataDataInitCompileOnly, dataDiscoveriesCompileOnly, dataFoundationsCompileOnly, dataTechnologiesCompileOnly,
                           dataTransportationsCompileOnly]
-    def runtimeOnlyExt = [coreRuntimeOnly, discoveriesRuntimeOnly, foundationsRuntimeOnly, technologiesRuntimeOnly, transportationsRuntimeOnly, testRuntimeOnly,
-                          dataMainRuntimeOnly, dataCoreRuntimeOnly, dataDiscoveriesRuntimeOnly, dataFoundationsRuntimeOnly, dataTechnologiesRuntimeOnly,
+    def runtimeOnlyExt = [coreRuntimeOnly, dataInitRuntimeOnly, discoveriesRuntimeOnly, foundationsRuntimeOnly, technologiesRuntimeOnly, transportationsRuntimeOnly, testRuntimeOnly,
+                          dataMainRuntimeOnly, dataCoreRuntimeOnly, dataDataInitRuntimeOnly, dataDiscoveriesRuntimeOnly, dataFoundationsRuntimeOnly, dataTechnologiesRuntimeOnly,
                           dataTransportationsRuntimeOnly]
 
     for (def impl : implementationExt) {
@@ -167,6 +174,7 @@ minecraft {
     accessTransformers(
             file('src/main/resources/META-INF/accesstransformer.cfg'),
             file('astromine-core/src/main/resources/META-INF/accesstransformer.cfg'),
+            file('astromine-datagen-initializer/src/main/resources/META-INF/accesstransformer.cfg'),
             file('astromine-discoveries/src/main/resources/META-INF/accesstransformer.cfg'),
             file('astromine-foundations/src/main/resources/META-INF/accesstransformer.cfg'),
             file('astromine-technologies/src/main/resources/META-INF/accesstransformer.cfg'),
@@ -182,6 +190,9 @@ minecraft {
                 }
                 astrominecore {
                     sources(sourceSets.core)
+                }
+                astrominedatainit {
+                    sources(sourceSets.dataInit)
                 }
                 astrominediscoveries {
                     sources(sourceSets.discoveries)
@@ -206,6 +217,9 @@ minecraft {
                 astrominecore {
                     sources(sourceSets.core)
                 }
+                astrominedatainit {
+                    sources(sourceSets.dataInit)
+                }
                 astrominediscoveries {
                     sources(sourceSets.discoveries)
                 }
@@ -223,12 +237,6 @@ minecraft {
         data {
             workingDirectory project.file('run_data')
             environment 'target', 'fmluserdevdata'
-        }
-        coreData {
-            parent runs.data
-
-            args '--all', '--output', project.file('astromine-core/generated/resources'),
-                    '--mod', 'astrominecore', '--existing', sourceSets.core.resources.srcDirs[0]
 
             mods {
                 astromine {
@@ -236,6 +244,9 @@ minecraft {
                 }
                 astrominecore {
                     sources(sourceSets.core, sourceSets.dataCore)
+                }
+                astrominedatainit {
+                    sources(sourceSets.dataInit, sourceSets.dataDataInit)
                 }
                 astrominediscoveries {
                     sources(sourceSets.discoveries, sourceSets.dataDiscoveries)
@@ -250,114 +261,37 @@ minecraft {
                     sources(sourceSets.transportations, sourceSets.dataTransportations)
                 }
             }
+        }
+        // So, somehow this is the ONLY run that doesn't work and needs manual fixing... whatever
+        coreData {
+            parent runs.data
+
+            args '--all', '--output', project.file('astromine-core/generated/resources'),
+                    '--mod', 'astrominecore', '--existing', sourceSets.core.resources.srcDirs[0]
         }
         discoveriesData {
             parent runs.data
 
             args '--all', '--output', project.file('astromine-discoveries/generated/resources'),
                     '--mod', 'astrominediscoveries', '--existing', sourceSets.discoveries.resources.srcDirs[0]
-
-            mods {
-                astromine {
-                    sources(sourceSets.main, sourceSets.dataMain)
-                }
-                astrominecore {
-                    sources(sourceSets.core, sourceSets.dataCore)
-                }
-                astrominediscoveries {
-                    sources(sourceSets.discoveries, sourceSets.dataDiscoveries)
-                }
-                astrominefoundations {
-                    sources(sourceSets.foundations, sourceSets.dataFoundations)
-                }
-                astrominetechnologies {
-                    sources(sourceSets.technologies, sourceSets.dataTechnologies)
-                }
-                astrominetransportations {
-                    sources(sourceSets.transportations, sourceSets.dataTransportations)
-                }
-            }
         }
         foundationsData {
             parent runs.data
 
             args '--all', '--output', project.file('astromine-foundations/generated/resources'),
                     '--mod', 'astrominefoundations', '--existing', sourceSets.foundations.resources.srcDirs[0]
-
-            mods {
-                astromine {
-                    sources(sourceSets.main, sourceSets.dataMain)
-                }
-                astrominecore {
-                    sources(sourceSets.core, sourceSets.dataCore)
-                }
-                astrominediscoveries {
-                    sources(sourceSets.discoveries, sourceSets.dataDiscoveries)
-                }
-                astrominefoundations {
-                    sources(sourceSets.foundations, sourceSets.dataFoundations)
-                }
-                astrominetechnologies {
-                    sources(sourceSets.technologies, sourceSets.dataTechnologies)
-                }
-                astrominetransportations {
-                    sources(sourceSets.transportations, sourceSets.dataTransportations)
-                }
-            }
         }
         technologiesData {
             parent runs.data
 
             args '--all', '--output', project.file('astromine-technologies/generated/resources'),
                     '--mod', 'astrominetechnologies', '--existing', sourceSets.technologies.resources.srcDirs[0]
-
-            mods {
-                astromine {
-                    sources(sourceSets.main, sourceSets.dataMain)
-                }
-                astrominecore {
-                    sources(sourceSets.core, sourceSets.dataCore)
-                }
-                astrominediscoveries {
-                    sources(sourceSets.discoveries, sourceSets.dataDiscoveries)
-                }
-                astrominefoundations {
-                    sources(sourceSets.foundations, sourceSets.dataFoundations)
-                }
-                astrominetechnologies {
-                    sources(sourceSets.technologies, sourceSets.dataTechnologies)
-                }
-                astrominetransportations {
-                    sources(sourceSets.transportations, sourceSets.dataTransportations)
-                }
-            }
         }
         transportationsData {
             parent runs.data
 
             args '--all', '--output', project.file('astromine-transportations/generated/resources'),
                     '--mod', 'astrominetransportations', '--existing', sourceSets.transportations.resources.srcDirs[0]
-
-            mods {
-                astromine {
-                    sources(sourceSets.main, sourceSets.dataMain)
-                }
-                astrominecore {
-                    sources(sourceSets.core, sourceSets.dataCore)
-                }
-                astrominediscoveries {
-                    sources(sourceSets.discoveries, sourceSets.dataDiscoveries)
-                }
-                astrominefoundations {
-                    sources(sourceSets.foundations, sourceSets.dataFoundations)
-                }
-                astrominetechnologies {
-                    sources(sourceSets.technologies, sourceSets.dataTechnologies)
-                }
-                astrominetransportations {
-                    sources(sourceSets.transportations, sourceSets.dataTransportations)
-                }
-            }
         }
     }
 }
@@ -458,6 +392,11 @@ processCoreResources {
     finalizedBy coreReplaceResources
 }
 
+processDataInitResources {
+    exclude 'META-INF/mods.toml'
+    finalizedBy dataInitReplaceResources
+}
+
 processDiscoveriesResources {
     exclude 'META-INF/mods.toml'
     finalizedBy discoveriesReplaceResources
@@ -506,6 +445,17 @@ task coreJar(type: Jar) {
     }
 }
 
+task dataInitJar(type: Jar) {
+    shouldRunAfter(dataInitReplaceResources)
+    archiveName = "AstromineDataInit-${project.version}.jar"
+    classifier = "dataInit"
+    from sourceSets.dataInit.output
+    manifest.attributes(makeManifest("AstromineDataInit"))
+    afterEvaluate {
+        finalizedBy reobfDataInitJar
+    }
+}
+
 task discoveriesJar(type: Jar) {
     shouldRunAfter(discoveriesReplaceResources)
     archiveName = "AstromineDiscoveries-${project.version}.jar"
@@ -551,8 +501,8 @@ task transportationsJar(type: Jar) {
 }
 
 task fatJar(type: Jar) {
-    shouldRunAfter(jar, coreJar, discoveriesJar, foundationsJar, technologiesJar, transportationsJar,
-            processResources, processCoreResources, processDiscoveriesResources, processFoundationsResources, processTechnologiesResources, processTransportationsResources)
+    shouldRunAfter(jar, coreJar, dataInitJar, discoveriesJar, foundationsJar, technologiesJar, transportationsJar, processResources, processCoreResources, processDataInitResources,
+            processDiscoveriesResources, processFoundationsResources, processTechnologiesResources, processTransportationsResources)
     afterEvaluate {
         finalizedBy reobfFatJar
     }
@@ -570,6 +520,11 @@ task fatJar(type: Jar) {
         exclude 'META-INF/accesstransformer.cfg'
     }
     from (sourceSets.core.output) {
+        exclude 'META-INF/mods.toml'
+        exclude 'META-INF/accesstransformer.cfg'
+        exclude 'pack.mcmeta'
+    }
+    from (sourceSets.dataInit.output) {
         exclude 'META-INF/mods.toml'
         exclude 'META-INF/accesstransformer.cfg'
         exclude 'pack.mcmeta'
@@ -641,6 +596,7 @@ static String mergeTomls(SourceSet... sets) {
 artifacts {
     archives jar
     archives coreJar
+    archives dataInitJar
     archives discoveriesJar
     archives foundationsJar
     archives technologiesJar
@@ -653,6 +609,9 @@ reobf {
     }
     coreJar {
         classpath = sourceSets.core.compileClasspath
+    }
+    dataInitJar {
+        classpath = sourceSets.dataInit.compileClasspath
     }
     discoveriesJar {
         classpath = sourceSets.discoveries.compileClasspath
@@ -881,7 +840,7 @@ publishing {
     }
 }
 
-tasks.curseforge.dependsOn jar, coreJar, discoveriesJar, foundationsJar, technologiesJar, transportationsJar
+tasks.curseforge.dependsOn jar, coreJar, dataInitJar, discoveriesJar, foundationsJar, technologiesJar, transportationsJar
 
 curseforge {
     if (project.hasProperty('curse_api_key') || System.getenv('curse_api_key') != null) {
