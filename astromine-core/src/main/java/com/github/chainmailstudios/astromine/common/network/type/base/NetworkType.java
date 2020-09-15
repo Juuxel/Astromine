@@ -27,14 +27,15 @@ package com.github.chainmailstudios.astromine.common.network.type.base;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.network.NetworkInstance;
 import com.github.chainmailstudios.astromine.common.registry.NetworkTypeRegistry;
+import net.minecraft.world.World;
 
 public abstract class NetworkType {
 	public static final NetworkType EMPTY = NetworkTypeRegistry.INSTANCE.register(AstromineCommon.identifier("empty_network"), new NetworkType() {
 		@Override
-		public void tick(NetworkInstance instance) {
+		public void tick(World world, NetworkInstance instance) {
 
 		}
 	});
 
-	public abstract void tick(NetworkInstance instance);
+	public abstract void tick(World world, NetworkInstance instance);
 }

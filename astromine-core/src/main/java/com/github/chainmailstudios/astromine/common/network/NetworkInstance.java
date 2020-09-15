@@ -27,33 +27,29 @@ package com.github.chainmailstudios.astromine.common.network;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.network.type.base.NetworkType;
 import com.github.chainmailstudios.astromine.common.registry.NetworkTypeRegistry;
-
 import com.google.common.collect.Sets;
-import java.util.Iterator;
-import java.util.Set;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class NetworkInstance implements Iterable<NetworkNode>, ITickableTileEntity {
+import java.util.Iterator;
+import java.util.Set;
+
+public class NetworkInstance implements Iterable<NetworkNode> {
 	public static final NetworkInstance EMPTY = new NetworkInstance();
 
 	public final Set<NetworkMemberNode> members = Sets.newConcurrentHashSet();
 	public final Set<NetworkNode> nodes = Sets.newConcurrentHashSet();
 
-	private final World world;
 	public NetworkType type;
 	private CompoundNBT additionalData = new CompoundNBT();
 
 	private NetworkInstance() {
 		this.type = NetworkType.EMPTY;
-		this.world = null;
 	}
 
-	public NetworkInstance(World world, NetworkType type) {
+	public NetworkInstance(NetworkType type) {
 		this.type = type;
-		this.world = world;
 	}
 
 	public CompoundNBT getAdditionalData() {
@@ -105,22 +101,17 @@ public class NetworkInstance implements Iterable<NetworkNode>, ITickableTileEnti
 		return this;
 	}
 
-	public World getWorld() {
-		return world;
-	}
-
 	public int size() {
 		return this.nodes.size();
 	}
 
-	@Override
-	public void tick() {
-		this.type.tick(this);
+	public void tick(World world) {
+		this.type.tick(world, this);
 	}
 
 	@Override
 	public String toString() {
-		return "NetworkInstance{" + "type=" + NetworkTypeRegistry.INSTANCE.getKey(type) + ", world=" + world.dimension().location() + ", members=" + members + ", nodes=" + nodes + ", additionalData=" + additionalData + '}';
+		return "NetworkInstance{" + "type=" + NetworkTypeRegistry.INSTANCE.getKey(type) + ", members=" + members + ", nodes=" + nodes + ", additionalData=" + additionalData + '}';
 	}
 
 	public boolean isStupidlyEmpty() {

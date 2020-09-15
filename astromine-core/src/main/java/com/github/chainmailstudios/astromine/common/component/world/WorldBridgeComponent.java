@@ -25,8 +25,8 @@
 package com.github.chainmailstudios.astromine.common.component.world;
 
 import com.github.chainmailstudios.astromine.common.utilities.VoxelShapeUtilities;
+import com.google.common.collect.Sets;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
-import nerdhub.cardinal.components.api.component.Component;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
@@ -34,23 +34,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.World;
-import com.google.common.collect.Sets;
+
 import java.util.Map;
 import java.util.Set;
 
-public class WorldBridgeComponent implements Component {
+public class WorldBridgeComponent {
 	public final Long2ObjectArrayMap<Set<Vector3i>> entries = new Long2ObjectArrayMap<>();
-
-	private final World world;
-
-	public WorldBridgeComponent(World world) {
-		this.world = world;
-	}
-
-	public World getWorld() {
-		return world;
-	}
 
 	public void add(BlockPos pos, Vector3i vec) {
 		add(pos.asLong(), vec);
@@ -112,7 +101,6 @@ public class WorldBridgeComponent implements Component {
 		return shape;
 	}
 
-	@Override
 	public CompoundNBT toTag(CompoundNBT tag) {
 		CompoundNBT dataTag = new CompoundNBT();
 
@@ -144,7 +132,6 @@ public class WorldBridgeComponent implements Component {
 		return tag;
 	}
 
-	@Override
 	public void fromTag(CompoundNBT tag) {
 		CompoundNBT dataTag = tag.getCompound("data");
 

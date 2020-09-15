@@ -31,7 +31,6 @@ import alexiil.mc.lib.attributes.item.ItemInsertable;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.block.base.BlockWithEntity;
 import com.github.chainmailstudios.astromine.common.block.transfer.TransferType;
-import com.github.chainmailstudios.astromine.common.component.SidedComponentProvider;
 import com.github.chainmailstudios.astromine.common.component.block.entity.BlockEntityTransferComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
 import com.github.chainmailstudios.astromine.common.packet.PacketConsumer;
@@ -44,12 +43,12 @@ import com.google.common.collect.Maps;
 import nerdhub.cardinal.components.api.ComponentRegistry;
 import nerdhub.cardinal.components.api.ComponentType;
 import nerdhub.cardinal.components.api.component.Component;
-import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.DirectionalBlock;
 import net.minecraft.block.HorizontalBlock;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
@@ -62,6 +61,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.items.CapabilityItemHandler;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.Energy;
 import team.reborn.energy.EnergyHandler;
 
@@ -72,7 +72,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-public abstract class ComponentBlockEntity extends net.minecraft.tileentity.TileEntity implements SidedComponentProvider, PacketConsumer, ITickableTileEntity {
+public abstract class ComponentBlockEntity extends net.minecraft.tileentity.TileEntity implements PacketConsumer, ITickableTileEntity {
 	protected final BlockEntityTransferComponent transferComponent = new BlockEntityTransferComponent();
 
 	protected final Map<Capability<?>, Object> allComponents = Maps.newHashMap();
@@ -174,7 +174,7 @@ public abstract class ComponentBlockEntity extends net.minecraft.tileentity.Tile
 		if (!hasLevel() || level.isClientSide())
 			return;
 
-		FluidInventoryComponent fluidComponent = getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY);
+		FluidInventoryComponent fluidComponent = getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY).orElse(null);
 
 		List<Tuple<EnergyHandler, EnergyHandler>> energyTransfers = Lists.newArrayList();
 
@@ -260,5 +260,11 @@ public abstract class ComponentBlockEntity extends net.minecraft.tileentity.Tile
 
 	public void tickInactive() {
 		isActive = false;
+	}
+
+	@Nullable
+	@Override
+	public SUpdateTileEntityPacket getUpdatePacket() {
+		return new SUpdateTileEntityPacket(this.worldPosition, 64, this.getUpdateTag());
 	}
 }

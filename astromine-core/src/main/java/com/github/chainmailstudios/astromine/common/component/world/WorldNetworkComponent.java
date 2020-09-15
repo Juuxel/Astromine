@@ -44,14 +44,8 @@ import org.jetbrains.annotations.NotNull;
 import com.google.common.collect.Sets;
 import java.util.Set;
 
-public class WorldNetworkComponent implements Component, ITickableTileEntity {
+public class WorldNetworkComponent {
 	private final Set<NetworkInstance> instances = Sets.newConcurrentHashSet();
-
-	private final World world;
-
-	public WorldNetworkComponent(World world) {
-		this.world = world;
-	}
 
 	public void addInstance(NetworkInstance instance) {
 		if (!instance.nodes.isEmpty())
@@ -70,11 +64,6 @@ public class WorldNetworkComponent implements Component, ITickableTileEntity {
 		return getInstance(type, position) != NetworkInstance.EMPTY;
 	}
 
-	public World getWorld() {
-		return world;
-	}
-
-	@Override
 	@NotNull
 	public CompoundNBT toTag(CompoundNBT tag) {
 		ListNBT instanceTags = new ListNBT();
@@ -105,7 +94,6 @@ public class WorldNetworkComponent implements Component, ITickableTileEntity {
 		return tag;
 	}
 
-	@Override
 	public void fromTag(CompoundNBT tag) {
 		ListNBT instanceTags = tag.getList("instanceTags", NbtType.COMPOUND);
 		for (INBT instanceTag : instanceTags) {
@@ -114,7 +102,7 @@ public class WorldNetworkComponent implements Component, ITickableTileEntity {
 			ListNBT memberList = dataTag.getList("members", NbtType.COMPOUND);
 
 			NetworkType type = NetworkTypeRegistry.INSTANCE.get(new ResourceLocation(dataTag.getString("type")));
-			NetworkInstance instance = new NetworkInstance(world, type);
+			NetworkInstance instance = new NetworkInstance( type);
 
 			for (INBT nodeKey : nodeList) {
 				instance.addNode(NetworkNode.of(((LongNBT) nodeKey).getAsLong()));
@@ -132,9 +120,8 @@ public class WorldNetworkComponent implements Component, ITickableTileEntity {
 		}
 	}
 
-	@Override
-	public void tick() {
+	public void tick(World world) {
 		this.instances.removeIf(NetworkInstance::isStupidlyEmpty);
-		this.instances.forEach(NetworkInstance::tick);
+		this.instances.forEach(instance -> instance.tick(world));
 	}
 }

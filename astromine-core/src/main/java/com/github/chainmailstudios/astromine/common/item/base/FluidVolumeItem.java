@@ -24,24 +24,33 @@
 
 package com.github.chainmailstudios.astromine.common.item.base;
 
-import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
-import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
+import org.jetbrains.annotations.Nullable;
 
-public class FluidVolumeItem extends BaseVolumeItem<FluidVolume> {
-	private final Fraction size;
+public class FluidVolumeItem extends Item {
+	private final int size;
 
-	private FluidVolumeItem(Item.Properties settings, Fraction size) {
+	private FluidVolumeItem(Item.Properties settings, int size) {
 		super(settings);
 
 		this.size = size;
 	}
 
-	public Fraction getSize() {
+	public int getSize() {
 		return size;
 	}
 
-	public static FluidVolumeItem of(Item.Properties settings, Fraction size) {
+	public static FluidVolumeItem of(Item.Properties settings, int size) {
 		return new FluidVolumeItem(settings, size);
+	}
+
+	@Nullable
+	@Override
+	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
+		return new FluidHandlerItemStack(stack, getSize());
 	}
 }

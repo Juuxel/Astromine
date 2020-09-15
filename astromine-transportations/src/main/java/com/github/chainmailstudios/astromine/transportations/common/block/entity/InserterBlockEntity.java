@@ -24,8 +24,17 @@
 
 package com.github.chainmailstudios.astromine.transportations.common.block.entity;
 
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachmentBlockEntity;
+import alexiil.mc.lib.attributes.SearchOptions;
+import alexiil.mc.lib.attributes.Simulation;
+import alexiil.mc.lib.attributes.item.ItemAttributes;
+import alexiil.mc.lib.attributes.item.ItemExtractable;
+import alexiil.mc.lib.attributes.item.ItemInsertable;
+import alexiil.mc.lib.attributes.item.compat.FixedInventoryVanillaWrapper;
+import alexiil.mc.lib.attributes.item.impl.EmptyItemExtractable;
+import alexiil.mc.lib.attributes.item.impl.RejectingItemInsertable;
+import com.github.chainmailstudios.astromine.common.inventory.SingularStackInventory;
+import com.github.chainmailstudios.astromine.transportations.common.block.InserterBlock;
+import com.github.chainmailstudios.astromine.transportations.registry.AstromineTransportationsBlockEntityTypes;
 import net.minecraft.block.AbstractFurnaceBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ComposterBlock;
@@ -48,22 +57,12 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.server.ServerWorld;
-import alexiil.mc.lib.attributes.SearchOptions;
-import alexiil.mc.lib.attributes.Simulation;
-import alexiil.mc.lib.attributes.item.ItemAttributes;
-import alexiil.mc.lib.attributes.item.ItemExtractable;
-import alexiil.mc.lib.attributes.item.ItemInsertable;
-import alexiil.mc.lib.attributes.item.compat.FixedInventoryVanillaWrapper;
-import alexiil.mc.lib.attributes.item.impl.EmptyItemExtractable;
-import alexiil.mc.lib.attributes.item.impl.RejectingItemInsertable;
-import com.github.chainmailstudios.astromine.common.inventory.SingularStackInventory;
-import com.github.chainmailstudios.astromine.transportations.common.block.InserterBlock;
-import com.github.chainmailstudios.astromine.transportations.registry.AstromineTransportationsBlockEntityTypes;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.stream.IntStream;
 
-public class InserterBlockEntity extends TileEntity implements SingularStackInventory, RenderAttachmentBlockEntity, ITickableTileEntity {
+public class InserterBlockEntity extends TileEntity implements SingularStackInventory, ITickableTileEntity {
 	protected int position = 0;
 	protected int prevPosition = 0;
 	private NonNullList<ItemStack> stacks = NonNullList.withSize(1, ItemStack.EMPTY);
@@ -182,7 +181,7 @@ public class InserterBlockEntity extends TileEntity implements SingularStackInve
 				} else {
 					BlockPos offsetPos = getBlockPos().relative(direction.getOpposite());
 					List<ChestMinecartEntity> minecartEntities = getLevel().getEntitiesOfClass(ChestMinecartEntity.class, new AxisAlignedBB(offsetPos.getX(), offsetPos.getY(), offsetPos.getZ(), offsetPos.getX() + 1, offsetPos.getY() + 1, offsetPos.getZ() + 1),
-						EntityPredicates.NO_SPECTATORS);
+							EntityPredicates.NO_SPECTATORS);
 					if (position == 0 && minecartEntities.size() >= 1) {
 						ChestMinecartEntity minecartEntity = minecartEntities.get(0);
 						FixedInventoryVanillaWrapper wrapper = new FixedInventoryVanillaWrapper(minecartEntity);
@@ -224,7 +223,7 @@ public class InserterBlockEntity extends TileEntity implements SingularStackInve
 				} else {
 					BlockPos offsetPos = getBlockPos().relative(direction);
 					List<ChestMinecartEntity> minecartEntities = getLevel().getEntitiesOfClass(ChestMinecartEntity.class, new AxisAlignedBB(offsetPos.getX(), offsetPos.getY(), offsetPos.getZ(), offsetPos.getX() + 1, offsetPos.getY() + 1, offsetPos.getZ() + 1),
-						EntityPredicates.NO_SPECTATORS);
+							EntityPredicates.NO_SPECTATORS);
 					if (minecartEntities.size() >= 1) {
 						ChestMinecartEntity minecartEntity = minecartEntities.get(0);
 						if (minecartEntity instanceof IInventory) {
@@ -293,9 +292,8 @@ public class InserterBlockEntity extends TileEntity implements SingularStackInve
 			sendPacket((ServerWorld) level, save(new CompoundNBT()));
 	}
 
-	@Override
 	public int[] getRenderAttachmentData() {
-		return new int[]{ position, prevPosition };
+		return new int[]{position, prevPosition};
 	}
 
 	public int getPosition() {
@@ -344,5 +342,11 @@ public class InserterBlockEntity extends TileEntity implements SingularStackInve
 	@Override
 	public CompoundNBT getUpdateTag() {
 		return save(new CompoundNBT());
+	}
+
+	@Nullable
+	@Override
+	public SUpdateTileEntityPacket getUpdatePacket() {
+		return new SUpdateTileEntityPacket(this.worldPosition, 64, this.getUpdateTag());
 	}
 }

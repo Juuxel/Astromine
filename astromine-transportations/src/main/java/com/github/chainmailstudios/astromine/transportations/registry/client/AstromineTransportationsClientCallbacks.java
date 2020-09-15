@@ -30,7 +30,9 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import com.github.chainmailstudios.astromine.common.network.type.EnergyNetworkType;
 import com.github.chainmailstudios.astromine.registry.client.AstromineClientCallbacks;
+import net.minecraftforge.fml.common.Mod;
 
+@Mod.EventBusSubscriber(modid = "astromine")
 public class AstromineTransportationsClientCallbacks extends AstromineClientCallbacks {
 	public static void initialize() {
 		ItemTooltipCallback.EVENT.register(((stack, context, tooltip) -> {

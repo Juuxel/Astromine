@@ -30,44 +30,26 @@ import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import com.github.chainmailstudios.astromine.registry.AstromineConfig;
 import com.google.common.collect.Lists;
-import nerdhub.cardinal.components.api.ComponentType;
-import nerdhub.cardinal.components.api.component.ComponentProvider;
-import nerdhub.cardinal.components.api.component.extension.CopyableComponent;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.capabilities.CapabilityProvider;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ChunkAtmosphereComponent implements CopyableComponent, ITickableTileEntity {
+public class ChunkAtmosphereComponent {
 	private final List<Direction> directions = Lists.newArrayList(Direction.values());
 
 	private final Map<BlockPos, FluidVolume> volumes = new ConcurrentHashMap<>();
-
-	private final World world;
-	private final IChunk chunk;
-
-	public ChunkAtmosphereComponent(World world, IChunk chunk) {
-		this.world = world;
-		this.chunk = chunk;
-	}
-
-	public World getWorld() {
-		return world;
-	}
-
-	public IChunk getChunk() {
-		return chunk;
-	}
 
 	public Map<BlockPos, FluidVolume> getVolumes() {
 		return volumes;
@@ -77,7 +59,7 @@ public class ChunkAtmosphereComponent implements CopyableComponent, ITickableTil
 		return volumes.getOrDefault(position, FluidVolume.empty());
 	}
 
-	public void add(BlockPos blockPos, FluidVolume volume) {
+	public void add(World world, BlockPos blockPos, FluidVolume volume) {
 		volumes.put(blockPos, volume);
 
 		if (!world.isClientSide) {
@@ -87,7 +69,7 @@ public class ChunkAtmosphereComponent implements CopyableComponent, ITickableTil
 		}
 	}
 
-	public void remove(BlockPos blockPos) {
+	public void remove(World world, BlockPos blockPos) {
 		volumes.remove(blockPos);
 
 		if (!world.isClientSide) {
@@ -97,8 +79,7 @@ public class ChunkAtmosphereComponent implements CopyableComponent, ITickableTil
 		}
 	}
 
-	@Override
-	public void tick() {
+	public void tick(Chunk chunk, World world) {
 		for (Map.Entry<BlockPos, FluidVolume> pair : volumes.entrySet()) {
 			BlockPos centerPos = pair.getKey();
 
@@ -107,14 +88,14 @@ public class ChunkAtmosphereComponent implements CopyableComponent, ITickableTil
 			centerVolume.minus(Fraction.of(AstromineConfig.get().gasDecayNumerator, AstromineConfig.get().gasDecayDenominator));
 
 			if (centerVolume.isEmpty()) {
-				remove(centerPos);
+				remove(world, centerPos);
 			}
 
 			Collections.shuffle(directions);
 
 			for (Direction direction : directions) {
 				BlockPos sidePos = centerPos.relative(direction);
-				if (isInChunk(sidePos)) {
+				if (isInChunk(chunk, sidePos)) {
 					FluidVolume sideVolume = get(sidePos);
 
 					if (!(Registry.BLOCK.getKey(world.getBlockState(sidePos).getBlock()).toString().equals("astromine:airlock") && !world.getBlockState(sidePos).getValue(BlockStateProperties.POWERED)) && (world.getBlockState(sidePos).isAir() || !world.getBlockState(sidePos).isFaceSturdy(world, sidePos, direction.getOpposite())) && (world.getBlockState(centerPos).isAir() || !world.getBlockState(centerPos).isFaceSturdy(world, centerPos, direction)) && (sideVolume.isEmpty() || sideVolume.getFluid() == centerVolume.getFluid()) && (centerVolume.hasStored(Fraction.bottle()) || !world.isEmptyBlock(centerPos) && world.getBlockState(sidePos).isSolidRender(world, centerPos)) && sideVolume.smallerThan(centerVolume.getAmount())) {
@@ -126,12 +107,12 @@ public class ChunkAtmosphereComponent implements CopyableComponent, ITickableTil
 							centerVolume.add(sideVolume, centerVolume.getAmount());
 						}
 
-						add(sidePos, sideVolume);
+						add(world, sidePos, sideVolume);
 					}
 				} else {
-					ChunkPos neighborPos = getNeighborFromPos(sidePos);
-					ComponentProvider provider = ComponentProvider.fromChunk(world.getChunk(neighborPos.x, neighborPos.z));
-					ChunkAtmosphereComponent chunkAtmosphereComponent = provider.getComponent(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT);
+					ChunkPos neighborPos = getNeighborFromPos(chunk, sidePos);
+					CapabilityProvider provider = world.getChunk(neighborPos.x, neighborPos.z);
+					ChunkAtmosphereComponent chunkAtmosphereComponent = provider.getCapability(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT).orElse(null);
 
 					FluidVolume sideVolume = chunkAtmosphereComponent.get(sidePos);
 
@@ -148,18 +129,18 @@ public class ChunkAtmosphereComponent implements CopyableComponent, ITickableTil
 							centerVolume.add(sideVolume, centerVolume.getAmount());
 						}
 
-						chunkAtmosphereComponent.add(sidePos, sideVolume);
+						chunkAtmosphereComponent.add(world, sidePos, sideVolume);
 					}
 				}
 			}
 		}
 	}
 
-	public boolean isInChunk(BlockPos pos) {
+	public boolean isInChunk(Chunk chunk, BlockPos pos) {
 		return isInChunk(chunk.getPos(), pos);
 	}
 
-	public ChunkPos getNeighborFromPos(BlockPos pos) {
+	public ChunkPos getNeighborFromPos(Chunk chunk, BlockPos pos) {
 		return getNeighborFromPos(chunk.getPos(), pos);
 	}
 
@@ -180,7 +161,6 @@ public class ChunkAtmosphereComponent implements CopyableComponent, ITickableTil
 		return chunkPos;
 	}
 
-	@Override
 	public CompoundNBT toTag(CompoundNBT tag) {
 		CompoundNBT dataTag = new CompoundNBT();
 
@@ -200,7 +180,6 @@ public class ChunkAtmosphereComponent implements CopyableComponent, ITickableTil
 		return tag;
 	}
 
-	@Override
 	public void fromTag(CompoundNBT tag) {
 		CompoundNBT dataTag = tag.getCompound("data");
 
@@ -209,10 +188,5 @@ public class ChunkAtmosphereComponent implements CopyableComponent, ITickableTil
 
 			volumes.put(BlockPos.of(pointTag.getLong("pos")), FluidVolume.fromTag(pointTag.getCompound("volume")));
 		}
-	}
-
-	@Override
-	public ComponentType<?> getComponentType() {
-		return AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT;
 	}
 }

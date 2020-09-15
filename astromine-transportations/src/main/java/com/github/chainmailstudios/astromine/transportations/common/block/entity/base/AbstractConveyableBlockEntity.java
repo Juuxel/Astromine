@@ -42,6 +42,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.server.ServerWorld;
+import org.jetbrains.annotations.Nullable;
 
 public class AbstractConveyableBlockEntity extends TileEntity implements Conveyable, DoubleStackInventory, ITickableTileEntity {
 	int leftPosition = 0;
@@ -291,5 +292,11 @@ public class AbstractConveyableBlockEntity extends TileEntity implements Conveya
 	@Override
 	public CompoundNBT getUpdateTag() {
 		return save(new CompoundNBT());
+	}
+
+	@Nullable
+	@Override
+	public SUpdateTileEntityPacket getUpdatePacket() {
+		return new SUpdateTileEntityPacket(this.worldPosition, 64, this.getUpdateTag());
 	}
 }

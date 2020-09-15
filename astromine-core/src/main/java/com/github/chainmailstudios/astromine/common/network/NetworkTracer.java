@@ -32,7 +32,6 @@ import com.github.chainmailstudios.astromine.common.utilities.data.position.Worl
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import nerdhub.cardinal.components.api.component.ComponentProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.util.Direction;
@@ -40,11 +39,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.World;
-import java.util.ArrayDeque;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 
 public class NetworkTracer {
 	public static class Tracer {
@@ -54,8 +50,7 @@ public class NetworkTracer {
 
 		public void trace(NetworkType type, WorldPos initialPosition) {
 			World world = initialPosition.getWorld();
-			ComponentProvider provider = ComponentProvider.fromWorld(world);
-			WorldNetworkComponent networkComponent = provider.getComponent(AstromineComponentTypes.WORLD_NETWORK_COMPONENT);
+			WorldNetworkComponent networkComponent = world.getCapability(AstromineComponentTypes.WORLD_NETWORK_COMPONENT).orElse(null);
 			NetworkMember initialMember = NetworkMemberRegistry.get(initialPosition);
 
 			if (!initialMember.acceptsType(type) || !initialMember.isNode(type) || networkComponent.containsInstance(type, initialPosition.getBlockPos())) {
@@ -66,7 +61,7 @@ public class NetworkTracer {
 			tracedPositions.add(initialPosition.getBlockPos().asLong());
 			ArrayDeque<BlockPos> positionsToTrace = new ArrayDeque<>(Collections.singleton(initialPosition.getBlockPos()));
 
-			NetworkInstance instance = new NetworkInstance(world, type);
+			NetworkInstance instance = new NetworkInstance(type);
 			instance.addNode(NetworkNode.of(initialPosition.getBlockPos()));
 
 			while (!positionsToTrace.isEmpty()) {

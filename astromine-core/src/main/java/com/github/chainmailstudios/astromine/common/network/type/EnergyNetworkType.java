@@ -36,6 +36,7 @@ import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.Reference2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Reference2DoubleOpenHashMap;
+import net.minecraft.world.World;
 import team.reborn.energy.Energy;
 import team.reborn.energy.EnergyHandler;
 
@@ -47,7 +48,7 @@ import net.minecraft.tileentity.TileEntity;
 
 public class EnergyNetworkType extends NetworkType {
 	@Override
-	public void tick(NetworkInstance instance) {
+	public void tick(World world, NetworkInstance instance) {
 		Reference2DoubleMap<EnergyHandler> providers = new Reference2DoubleOpenHashMap<>();
 		Reference2DoubleMap<EnergyHandler> requesters = new Reference2DoubleOpenHashMap<>();
 

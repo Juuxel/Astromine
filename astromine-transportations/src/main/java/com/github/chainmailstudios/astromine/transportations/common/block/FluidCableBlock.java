@@ -29,7 +29,7 @@ import com.github.chainmailstudios.astromine.common.network.type.base.NetworkTyp
 import com.github.chainmailstudios.astromine.registry.AstromineNetworkTypes;
 
 public class FluidCableBlock extends CableBlock {
-	public FluidCableBlock(Settings settings) {
+	public FluidCableBlock(Properties settings) {
 		super(settings);
 	}
 

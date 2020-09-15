@@ -29,7 +29,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.DamageSource;
 
-public abstract class OxygenComponent {
+public class OxygenComponent {
 	int oxygen;
 
 	int minimumOxygen = -20;
@@ -52,9 +52,9 @@ public abstract class OxygenComponent {
 		return tag;
 	}
 
-	public void simulate(boolean isBreathing) {
-		if (getEntity() instanceof PlayerEntity) {
-			PlayerEntity player = (PlayerEntity) getEntity();
+	public void simulate(Entity entity, boolean isBreathing) {
+		if (entity instanceof PlayerEntity) {
+			PlayerEntity player = (PlayerEntity) entity;
 
 			if (player.isCreative() || player.isSpectator()) {
 				return;
@@ -64,7 +64,7 @@ public abstract class OxygenComponent {
 		oxygen = nextOxygen(isBreathing, oxygen);
 
 		if (oxygen == getMinimumOxygen()) {
-			getEntity().hurt(DamageSource.GENERIC, 1.0F);
+			entity.hurt(DamageSource.GENERIC, 1.0F);
 		}
 	}
 
@@ -95,8 +95,4 @@ public abstract class OxygenComponent {
 	public void setMaximumOxygen(int maximumOxygen) {
 		this.maximumOxygen = maximumOxygen;
 	}
-
-	public abstract Entity getEntity();
-
-	public abstract void setEntity(Entity entity);
 }

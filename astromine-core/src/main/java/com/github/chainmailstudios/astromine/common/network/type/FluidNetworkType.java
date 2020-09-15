@@ -26,7 +26,6 @@ package com.github.chainmailstudios.astromine.common.network.type;
 
 import com.github.chainmailstudios.astromine.common.block.transfer.TransferType;
 import com.github.chainmailstudios.astromine.common.component.block.entity.BlockEntityTransferComponent;
-import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
 import com.github.chainmailstudios.astromine.common.network.NetworkInstance;
 import com.github.chainmailstudios.astromine.common.network.NetworkMember;
 import com.github.chainmailstudios.astromine.common.network.NetworkMemberNode;
@@ -50,7 +49,7 @@ import java.util.List;
 
 public class FluidNetworkType extends NetworkType {
 	@Override
-	public void tick(NetworkInstance instance) {
+	public void tick(World world, NetworkInstance instance) {
 		List<FluidVolume> inputs = Lists.newArrayList();
 		List<Tuple<IFluidHandler, Direction>> outputs = Lists.newArrayList();
 

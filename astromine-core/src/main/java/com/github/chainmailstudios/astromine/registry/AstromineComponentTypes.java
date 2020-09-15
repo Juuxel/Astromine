@@ -26,29 +26,33 @@ package com.github.chainmailstudios.astromine.registry;
 
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.component.block.entity.BlockEntityTransferComponent;
-import com.github.chainmailstudios.astromine.common.component.entity.EntityOxygenComponent;
 import com.github.chainmailstudios.astromine.common.component.entity.OxygenComponent;
-import com.github.chainmailstudios.astromine.common.component.inventory.EnergyInventoryComponent;
-import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
-import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.world.ChunkAtmosphereComponent;
 import com.github.chainmailstudios.astromine.common.component.world.WorldBridgeComponent;
 import com.github.chainmailstudios.astromine.common.component.world.WorldNetworkComponent;
-import nerdhub.cardinal.components.api.ComponentRegistry;
-import nerdhub.cardinal.components.api.ComponentType;
+import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.util.Direction;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityProvider;
+import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class AstromineComponentTypes {
-	public static final ComponentType<WorldNetworkComponent> WORLD_NETWORK_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(AstromineCommon.identifier("world_network_component"), WorldNetworkComponent.class);
-	public static final ComponentType<ChunkAtmosphereComponent> CHUNK_ATMOSPHERE_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(AstromineCommon.identifier("chunk_atmosphere_component"), ChunkAtmosphereComponent.class);
-	public static final ComponentType<WorldBridgeComponent> WORLD_BRIDGE_COMPONENT = ComponentRegistry.INSTANCE.registerIfAbsent(AstromineCommon.identifier("world_bridge_component"), WorldBridgeComponent.class);
+	@CapabilityInject(WorldNetworkComponent.class)
+	public static Capability<WorldNetworkComponent> WORLD_NETWORK_COMPONENT = null;
+	@CapabilityInject(ChunkAtmosphereComponent.class)
+	public static Capability<ChunkAtmosphereComponent> CHUNK_ATMOSPHERE_COMPONENT = null;
+	@CapabilityInject(WorldBridgeComponent.class)
+	public static Capability<WorldBridgeComponent> WORLD_BRIDGE_COMPONENT = null;
 
 	@CapabilityInject(BlockEntityTransferComponent.class)
 	public static Capability<BlockEntityTransferComponent> BLOCK_ENTITY_TRANSFER_COMPONENT = null;
@@ -56,6 +60,30 @@ public class AstromineComponentTypes {
 	public static Capability<OxygenComponent> ENTITY_OXYGEN_COMPONENT = null;
 
 	public static void initialize() {
+		CapabilityManager.INSTANCE.register(ChunkAtmosphereComponent.class, new Capability.IStorage<ChunkAtmosphereComponent>() {
+			@Nullable
+			@Override
+			public INBT writeNBT(Capability<ChunkAtmosphereComponent> capability, ChunkAtmosphereComponent instance, Direction side) {
+				return instance.toTag(new CompoundNBT());
+			}
+
+			@Override
+			public void readNBT(Capability<ChunkAtmosphereComponent> capability, ChunkAtmosphereComponent instance, Direction side, INBT nbt) {
+				instance.fromTag((CompoundNBT) nbt);
+			}
+		}, ChunkAtmosphereComponent::new);
+		CapabilityManager.INSTANCE.register(WorldBridgeComponent.class, new Capability.IStorage<WorldBridgeComponent>() {
+			@Nullable
+			@Override
+			public INBT writeNBT(Capability<WorldBridgeComponent> capability, WorldBridgeComponent instance, Direction side) {
+				return instance.toTag(new CompoundNBT());
+			}
+
+			@Override
+			public void readNBT(Capability<WorldBridgeComponent> capability, WorldBridgeComponent instance, Direction side, INBT nbt) {
+				instance.fromTag((CompoundNBT) nbt);
+			}
+		}, WorldBridgeComponent::new);
 		CapabilityManager.INSTANCE.register(BlockEntityTransferComponent.class, new Capability.IStorage<BlockEntityTransferComponent>() {
 			@Nullable
 			@Override
@@ -80,5 +108,95 @@ public class AstromineComponentTypes {
 				instance.fromTag((CompoundNBT) nbt);
 			}
 		}, OxygenComponent::new);
+		MinecraftForge.EVENT_BUS.<AttachCapabilitiesEvent<Chunk>, Chunk>addGenericListener(Chunk.class, event -> {
+			event.addCapability(AstromineCommon.identifier("chunk_atmosphere"), new ICapabilitySerializable<CompoundNBT>() {
+				private ChunkAtmosphereComponent atmosphereComponent = new ChunkAtmosphereComponent();
+
+				@Override
+				public CompoundNBT serializeNBT() {
+					return atmosphereComponent.toTag(new CompoundNBT());
+				}
+
+				@Override
+				public void deserializeNBT(CompoundNBT nbt) {
+					atmosphereComponent.fromTag(nbt);
+				}
+
+				@NotNull
+				@Override
+				public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+					if (cap == CHUNK_ATMOSPHERE_COMPONENT)
+						return LazyOptional.of(() -> atmosphereComponent).cast();
+					return LazyOptional.empty();
+				}
+			});
+		});
+		MinecraftForge.EVENT_BUS.<AttachCapabilitiesEvent<World>, World>addGenericListener(World.class, event -> {
+			event.addCapability(AstromineCommon.identifier("world_network"), new ICapabilitySerializable<CompoundNBT>() {
+				private WorldNetworkComponent networkComponent = new WorldNetworkComponent();
+
+				@Override
+				public CompoundNBT serializeNBT() {
+					return networkComponent.toTag(new CompoundNBT());
+				}
+
+				@Override
+				public void deserializeNBT(CompoundNBT nbt) {
+					networkComponent.fromTag(nbt);
+				}
+
+				@NotNull
+				@Override
+				public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+					if (cap == WORLD_NETWORK_COMPONENT)
+						return LazyOptional.of(() -> networkComponent).cast();
+					return LazyOptional.empty();
+				}
+			});
+			event.addCapability(AstromineCommon.identifier("world_bridge"), new ICapabilitySerializable<CompoundNBT>() {
+				private WorldBridgeComponent bridgeComponent = new WorldBridgeComponent();
+
+				@Override
+				public CompoundNBT serializeNBT() {
+					return bridgeComponent.toTag(new CompoundNBT());
+				}
+
+				@Override
+				public void deserializeNBT(CompoundNBT nbt) {
+					bridgeComponent.fromTag(nbt);
+				}
+
+				@NotNull
+				@Override
+				public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+					if (cap == WORLD_BRIDGE_COMPONENT)
+						return LazyOptional.of(() -> bridgeComponent).cast();
+					return LazyOptional.empty();
+				}
+			});
+		});
+		MinecraftForge.EVENT_BUS.<AttachCapabilitiesEvent<Entity>, Entity>addGenericListener(Entity.class, event -> {
+			event.addCapability(AstromineCommon.identifier("entity_oxygen"), new ICapabilitySerializable<CompoundNBT>() {
+				private OxygenComponent oxygenComponent = new OxygenComponent();
+
+				@Override
+				public CompoundNBT serializeNBT() {
+					return oxygenComponent.toTag(new CompoundNBT());
+				}
+
+				@Override
+				public void deserializeNBT(CompoundNBT nbt) {
+					oxygenComponent.fromTag(nbt);
+				}
+
+				@NotNull
+				@Override
+				public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+					if (cap == ENTITY_OXYGEN_COMPONENT)
+						return LazyOptional.of(() -> oxygenComponent).cast();
+					return LazyOptional.empty();
+				}
+			});
+		});
 	}
 }

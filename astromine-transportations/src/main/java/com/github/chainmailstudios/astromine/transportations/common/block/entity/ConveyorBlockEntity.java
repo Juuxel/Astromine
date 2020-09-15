@@ -44,6 +44,7 @@ import com.github.chainmailstudios.astromine.transportations.common.conveyor.Con
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.ConveyorConveyable;
 import com.github.chainmailstudios.astromine.transportations.common.conveyor.ConveyorTypes;
 import com.github.chainmailstudios.astromine.transportations.registry.AstromineTransportationsBlockEntityTypes;
+import org.jetbrains.annotations.Nullable;
 
 public class ConveyorBlockEntity extends TileEntity implements ConveyorConveyable, SingularStackInventory, ITickableTileEntity {
 	protected boolean front = false;
@@ -320,5 +321,11 @@ public class ConveyorBlockEntity extends TileEntity implements ConveyorConveyabl
 	@Override
 	public CompoundNBT getUpdateTag() {
 		return save(new CompoundNBT());
+	}
+
+	@Nullable
+	@Override
+	public SUpdateTileEntityPacket getUpdatePacket() {
+		return new SUpdateTileEntityPacket(this.worldPosition, 64, this.getUpdateTag());
 	}
 }

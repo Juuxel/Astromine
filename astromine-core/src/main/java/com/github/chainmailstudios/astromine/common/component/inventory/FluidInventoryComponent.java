@@ -25,12 +25,8 @@
 package com.github.chainmailstudios.astromine.common.component.inventory;
 
 import com.github.chainmailstudios.astromine.AstromineCommon;
-import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
 import com.github.chainmailstudios.astromine.common.utilities.data.Range;
-import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
-import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import com.github.chainmailstudios.astromine.registry.AstromineItems;
-import nerdhub.cardinal.components.api.ComponentType;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
@@ -39,51 +35,47 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.fluids.FluidStack;
 import org.apache.logging.log4j.Level;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public interface FluidInventoryComponent extends NameableComponent {
-	Map<Integer, FluidVolume> getContents();
+	Map<Integer, FluidStack> getContents();
 
 	default Item getSymbol() {
-		return AstromineItems.FLUID.asItem();
+		return AstromineItems.FLUID.get().asItem();
 	}
 
 	default TranslationTextComponent getName() {
 		return new TranslationTextComponent("text.astromine.fluid");
 	}
 
-	default Collection<FluidVolume> getContentsMatching(Predicate<FluidVolume> predicate) {
+	default Collection<FluidStack> getContentsMatching(Predicate<FluidStack> predicate) {
 		return this.getContents().values().stream().filter(predicate).collect(Collectors.toList());
 	}
 
-	default Collection<FluidVolume> getExtractableContentsMatching(Direction direction, Predicate<FluidVolume> predicate) {
+	default Collection<FluidStack> getExtractableContentsMatching(Direction direction, Predicate<FluidStack> predicate) {
 		return this.getContents().entrySet().stream().filter((entry) -> canExtract(direction, entry.getValue(), entry.getKey()) && predicate.test(entry.getValue())).map(Map.Entry::getValue).collect(Collectors.toList());
 	}
 
-	default Collection<FluidVolume> getContentsMatchingSimulated(Predicate<FluidVolume> predicate) {
+	default Collection<FluidStack> getContentsMatchingSimulated(Predicate<FluidStack> predicate) {
 		return this.getContentsSimulated().stream().filter(predicate).collect(Collectors.toList());
 	}
 
-	default Collection<FluidVolume> getContentsSimulated() {
-		return this.getContents().values().stream().map((volume) -> (FluidVolume) volume.copy()).collect(Collectors.toList());
+	default Collection<FluidStack> getContentsSimulated() {
+		return this.getContents().values().stream().map((volume) -> (FluidStack) volume.copy()).collect(Collectors.toList());
 	}
 
 	default boolean canInsert() {
 		return true;
 	}
 
-	default boolean canInsert(@Nullable Direction direction, FluidVolume volume, int slot) {
+	default boolean canInsert(@Nullable Direction direction, FluidStack volume, int slot) {
 		return true;
 	}
 
@@ -91,11 +83,11 @@ public interface FluidInventoryComponent extends NameableComponent {
 		return true;
 	}
 
-	default boolean canExtract(@Nullable Direction direction, FluidVolume volume, int slot) {
+	default boolean canExtract(@Nullable Direction direction, FluidStack volume, int slot) {
 		return true;
 	}
 
-	default ActionResult<FluidVolume> insert(Direction direction, FluidVolume volume) {
+	default ActionResult<FluidStack> insert(Direction direction, FluidStack volume) {
 		if (this.canInsert()) {
 			return this.insert(direction, volume.getFluid(), volume.getAmount());
 		} else {
@@ -103,20 +95,20 @@ public interface FluidInventoryComponent extends NameableComponent {
 		}
 	}
 
-	default ActionResult<FluidVolume> insert(Direction direction, Fluid fluid, Fraction fraction) {
-		Optional<Map.Entry<Integer, FluidVolume>> matchingVolumeOptional = this.getContents().entrySet().stream().filter(entry -> {
+	default ActionResult<FluidStack> insert(Direction direction, Fluid fluid, int fraction) {
+		Optional<Map.Entry<Integer, FluidStack>> matchingVolumeOptional = this.getContents().entrySet().stream().filter(entry -> {
 			return canInsert(direction, entry.getValue(), entry.getKey()) && entry.getValue().getFluid() == fluid;
 		}).findFirst();
 
 		if (matchingVolumeOptional.isPresent()) {
-			matchingVolumeOptional.get().getValue().add(fraction);
+			matchingVolumeOptional.get().getValue().grow(fraction);
 			return new ActionResult<>(ActionResultType.SUCCESS, matchingVolumeOptional.get().getValue());
 		} else {
 			return new ActionResult<>(ActionResultType.FAIL, null);
 		}
 	}
 
-	default void setVolume(int slot, FluidVolume volume) {
+	default void setVolume(int slot, FluidStack volume) {
 		if (slot <= this.getSize()) {
 			this.getContents().put(slot, volume);
 			this.dispatchConsumers();
@@ -131,11 +123,11 @@ public interface FluidInventoryComponent extends NameableComponent {
 
 	List<Runnable> getListeners();
 
-	default ActionResult<Collection<FluidVolume>> extractMatching(Direction direction, Predicate<FluidVolume> predicate) {
-		HashSet<FluidVolume> extractedVolumes = new HashSet<>();
+	default ActionResult<Collection<FluidStack>> extractMatching(Direction direction, Predicate<FluidStack> predicate) {
+		HashSet<FluidStack> extractedVolumes = new HashSet<>();
 		this.getContents().forEach((slot, volume) -> {
 			if (canExtract(direction, volume, slot) && predicate.test(volume)) {
-				ActionResult<FluidVolume> extractionResult = this.extract(direction, slot);
+				ActionResult<FluidStack> extractionResult = this.extract(direction, slot);
 
 				if (extractionResult.getResult().consumesAction()) {
 					extractedVolumes.add(extractionResult.getObject());
@@ -150,50 +142,51 @@ public interface FluidInventoryComponent extends NameableComponent {
 		}
 	}
 
-	default ActionResult<FluidVolume> extract(Direction direction, int slot) {
-		FluidVolume volume = this.getVolume(slot);
+	default ActionResult<FluidStack> extract(Direction direction, int slot) {
+		FluidStack volume = this.getVolume(slot);
 
 		if (!volume.isEmpty() && this.canExtract(direction, volume, slot)) {
 			return this.extract(direction, slot, volume.getAmount());
 		} else {
-			return new ActionResult<>(ActionResultType.FAIL, FluidVolume.empty());
+			return new ActionResult<>(ActionResultType.FAIL, FluidStack.EMPTY);
 		}
 	}
 
 	@Nullable
-	default FluidVolume getVolume(int slot) {
+	default FluidStack getVolume(int slot) {
 		return this.getContents().getOrDefault(slot, null);
 	}
 
 	@Nullable
-	default FluidVolume getFirstExtractableVolume(Direction direction) {
+	default FluidStack getFirstExtractableVolume(Direction direction) {
 		return getContents().entrySet().stream().filter((entry) -> canExtract(direction, entry.getValue(), entry.getKey()) && !entry.getValue().isEmpty()).map(Map.Entry::getValue).findFirst().orElse(null);
 	}
 
 	@Nullable
-	default FluidVolume getFirstInsertableVolume(FluidVolume volume, Direction direction) {
+	default FluidStack getFirstInsertableVolume(FluidStack volume, Direction direction) {
 		return getContents().entrySet().stream().filter((entry) -> canInsert(direction, entry.getValue(), entry.getKey()) && (entry.getValue().isEmpty() || (entry.getValue().getFluid() == volume.getFluid() && entry.getValue().hasAvailable(volume.getAmount())))).map(
-			Map.Entry::getValue).findFirst().orElse(null);
+				Map.Entry::getValue).findFirst().orElse(null);
 	}
 
 	@Nullable
-	default FluidVolume getFirstInsertableVolume(Fluid fluid, Direction direction) {
+	default FluidStack getFirstInsertableVolume(Fluid fluid, Direction direction) {
 		return getContents().entrySet().stream().filter((entry) -> canInsert(direction, entry.getValue(), entry.getKey()) && (entry.getValue().isEmpty() || (entry.getValue().getFluid() == fluid))).map(Map.Entry::getValue).findFirst().orElse(null);
 	}
 
-	default ActionResult<FluidVolume> extract(Direction direction, int slot, Fraction fraction) {
-		Optional<FluidVolume> matchingVolumeOptional = Optional.ofNullable(this.getVolume(slot));
+	default ActionResult<FluidStack> extract(Direction direction, int slot, int fraction) {
+		Optional<FluidStack> matchingVolumeOptional = Optional.ofNullable(this.getVolume(slot));
 
 		if (matchingVolumeOptional.isPresent()) {
-			FluidVolume volume = matchingVolumeOptional.get();
+			FluidStack volume = matchingVolumeOptional.get();
 
 			if (canExtract(direction, volume, slot)) {
-				return new ActionResult<>(ActionResultType.SUCCESS, matchingVolumeOptional.get().minus(fraction));
+				matchingVolumeOptional.get().shrink(fraction);
+				return new ActionResult<>(ActionResultType.SUCCESS, matchingVolumeOptional.get());
 			} else {
-				return new ActionResult<>(ActionResultType.FAIL, FluidVolume.empty());
+				return new ActionResult<>(ActionResultType.FAIL, FluidStack.EMPTY);
 			}
 		} else {
-			return new ActionResult<>(ActionResultType.FAIL, FluidVolume.empty());
+			return new ActionResult<>(ActionResultType.FAIL, FluidStack.EMPTY);
 		}
 	}
 
@@ -219,10 +212,10 @@ public interface FluidInventoryComponent extends NameableComponent {
 
 		for (int position = minimum; position < maximum; ++position) {
 			if (source.getVolume(position) != null) {
-				FluidVolume volume = source.getVolume(position);
+				FluidStack volume = source.getVolume(position);
 
 				if (volume != null) {
-					CompoundNBT volumeTag = source.getVolume(position).toTag();
+					CompoundNBT volumeTag = source.getVolume(position).writeToNBT(new CompoundNBT());
 
 					volumesTag.put(String.valueOf(position), volumeTag);
 				}
@@ -311,15 +304,10 @@ public interface FluidInventoryComponent extends NameableComponent {
 
 				CompoundNBT volumeTag = (CompoundNBT) rawVolumeTag;
 
-				FluidVolume volume = FluidVolume.fromTag(volumeTag);
+				FluidStack volume = FluidStack.loadFluidStackFromNBT(volumeTag);
 
 				if (target.getSize() >= position) {
-					if (target.getVolume(position) != null) {
-						target.getVolume(position).setAmount(volume.getAmount());
-						target.getVolume(position).setFluid(volume.getFluid());
-					} else {
-						target.setVolume(position, volume);
-					}
+					target.setVolume(position, volume);
 				}
 			}
 		}
@@ -338,22 +326,13 @@ public interface FluidInventoryComponent extends NameableComponent {
 		this.getListeners().remove(listener);
 	}
 
-	default Fraction getMaximumFradction(Fraction slot) {
-		return new Fraction(16, 1);
-	}
-
 	default void clear() {
 		this.getContents().clear();
 	}
 
 	default boolean isEmpty() {
-		return this.getContents().values().stream().allMatch(FluidVolume::isEmpty);
+		return this.getContents().values().stream().allMatch(FluidStack::isEmpty);
 	}
 
 	<T extends FluidInventoryComponent> T copy();
-
-	@Override
-	default @NotNull ComponentType<?> getComponentType() {
-		return AstromineComponentTypes.FLUID_INVENTORY_COMPONENT;
-	}
 }

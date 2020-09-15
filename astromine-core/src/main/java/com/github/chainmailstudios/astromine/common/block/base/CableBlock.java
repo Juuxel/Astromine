@@ -143,9 +143,7 @@ public abstract class CableBlock extends Block implements IWaterLoggable, CableW
 		if (state.getBlock() == newState.getBlock())
 			return;
 
-		ComponentProvider provider = ComponentProvider.fromWorld(world);
-
-		WorldNetworkComponent networkComponent = provider.getComponent(AstromineComponentTypes.WORLD_NETWORK_COMPONENT);
+		WorldNetworkComponent networkComponent = world.getCapability(AstromineComponentTypes.WORLD_NETWORK_COMPONENT).orElse(null);
 
 		networkComponent.removeInstance(networkComponent.getInstance(getNetworkType(), position));
 

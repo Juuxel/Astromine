@@ -47,6 +47,8 @@ import net.minecraft.block.DirectionalBlock;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.chunk.IChunk;
+import net.minecraftforge.common.capabilities.CapabilityProvider;
 
 public class VentBlockEntity extends ComponentEnergyFluidBlockEntity implements FluidSizeProvider, EnergySizeProvider, SpeedProvider, EnergyConsumedProvider {
 	public VentBlockEntity() {
@@ -104,9 +106,9 @@ public class VentBlockEntity extends ComponentEnergyFluidBlockEntity implements 
 				BlockPos output = position.relative(direction);
 
 				if (energyVolume.hasStored(getEnergyConsumed()) && (level.getBlockState(output).isAir() || level.getBlockState(output).isFaceSturdy(level, worldPosition, direction.getOpposite()))) {
-					ComponentProvider componentProvider = ComponentProvider.fromChunk(level.getChunk(getBlockPos()));
+					CapabilityProvider provider = (CapabilityProvider)level.getChunk(getBlockPos());
 
-					ChunkAtmosphereComponent atmosphereComponent = componentProvider.getComponent(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT);
+					ChunkAtmosphereComponent atmosphereComponent = provider.getCapability(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT);
 
 					FluidVolume centerVolume = fluids.getFirst();
 

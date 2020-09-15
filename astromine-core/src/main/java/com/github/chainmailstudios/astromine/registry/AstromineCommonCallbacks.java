@@ -24,104 +24,30 @@
 
 package com.github.chainmailstudios.astromine.registry;
 
-import com.github.chainmailstudios.astromine.common.callback.ServerChunkTickCallback;
-import com.github.chainmailstudios.astromine.common.component.entity.EntityOxygenComponent;
-import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
-import com.github.chainmailstudios.astromine.common.component.inventory.SimpleFluidInventoryComponent;
+import com.github.chainmailstudios.astromine.common.callback.ServerChunkTickEvent;
 import com.github.chainmailstudios.astromine.common.component.world.ChunkAtmosphereComponent;
-import com.github.chainmailstudios.astromine.common.component.world.WorldBridgeComponent;
 import com.github.chainmailstudios.astromine.common.component.world.WorldNetworkComponent;
 import com.github.chainmailstudios.astromine.common.entity.base.*;
-import com.github.chainmailstudios.astromine.common.item.base.FluidVolumeItem;
 import com.github.chainmailstudios.astromine.common.screenhandler.base.block.ComponentBlockEntityScreenHandler;
-import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
-import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
-import nerdhub.cardinal.components.api.component.ComponentProvider;
-import nerdhub.cardinal.components.api.event.ChunkComponentCallback;
 import nerdhub.cardinal.components.api.event.EntityComponentCallback;
-import nerdhub.cardinal.components.api.event.ItemComponentCallbackV2;
-import nerdhub.cardinal.components.api.event.WorldComponentCallback;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.Item;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import java.util.function.Consumer;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
+@Mod.EventBusSubscriber(modid = "astromine")
 public class AstromineCommonCallbacks {
 	public static int atmosphereTickCounter = 0;
 
 	@SuppressWarnings("UnstableApiUsage")
 	public static void initialize() {
-		ServerTickEvents.START_SERVER_TICK.register(server -> {
-			if (atmosphereTickCounter < AstromineConfig.get().gasTickRate) {
-				atmosphereTickCounter++;
-			} else {
-				atmosphereTickCounter = 0;
-			}
-		});
-
-		ServerTickEvents.START_SERVER_TICK.register((server) -> {
-			for (PlayerEntity playerEntity : server.getPlayerList().getPlayers()) {
-				if (playerEntity.containerMenu instanceof ComponentBlockEntityScreenHandler) {
-					ComponentBlockEntityScreenHandler screenHandler = (ComponentBlockEntityScreenHandler) playerEntity.containerMenu;
-
-					if (screenHandler.syncBlockEntity != null) {
-						screenHandler.syncBlockEntity.sync();
-						break;
-					}
-				}
-			}
-		});
-
-		WorldComponentCallback.register(AstromineComponentTypes.WORLD_NETWORK_COMPONENT, WorldNetworkComponent::new);
-
-		ServerTickEvents.START_WORLD_TICK.register((world -> {
-			WorldNetworkComponent component = ComponentProvider.fromWorld(world).getComponent(AstromineComponentTypes.WORLD_NETWORK_COMPONENT);
-			if (component != null) {
-				component.tick();
-			}
-		}));
-
-		ChunkComponentCallback.EVENT.register((chunk, components) -> {
-			if (chunk instanceof Chunk) {
-				components.put(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT, new ChunkAtmosphereComponent(((Chunk) chunk).getLevel(), chunk));
-			}
-		});
-
-		ServerChunkTickCallback.EVENT.register((world, chunk) -> {
-			ChunkAtmosphereComponent component = ComponentProvider.fromChunk(chunk).getComponent(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT);
-			if (component != null) {
-				if (atmosphereTickCounter == AstromineConfig.get().gasTickRate && component.getWorld().hasChunk(chunk.getPos().x, chunk.getPos().z) && world == component.getWorld()) {
-					component.tick();
-				}
-			}
-		});
-
-		WorldComponentCallback.EVENT.register((world, container) -> {
-			WorldBridgeComponent component = new WorldBridgeComponent(world);
-			container.put(AstromineComponentTypes.WORLD_BRIDGE_COMPONENT, component);
-		});
-
-		EntityComponentCallback.register(AstromineComponentTypes.ENTITY_OXYGEN_COMPONENT, LivingEntity.class, EntityOxygenComponent::defaulted);
-
-		Consumer<Item> itemConsumer = (item) -> {
-			if (item instanceof FluidVolumeItem) {
-				FluidVolumeItem volumeItem = (FluidVolumeItem) item;
-
-				ItemComponentCallbackV2.register(AstromineComponentTypes.FLUID_INVENTORY_COMPONENT, item, (useless, stack) -> {
-					FluidInventoryComponent component = new SimpleFluidInventoryComponent(1);
-					component.setVolume(0, FluidVolume.of(Fraction.empty(), volumeItem.getSize(), Fluids.EMPTY));
-					return component;
-				});
-			}
-		};
-		Registry.ITEM.forEach(itemConsumer);
-		RegistryEntryAddedCallback.event(Registry.ITEM).register((i, identifier, item) -> itemConsumer.accept(item));
-
 		EntityComponentCallback.register(AstromineComponentTypes.FLUID_INVENTORY_COMPONENT, ComponentFluidInventoryEntity.class, ComponentFluidInventoryEntity::createFluidComponent);
 		EntityComponentCallback.register(AstromineComponentTypes.ITEM_INVENTORY_COMPONENT, ComponentFluidInventoryEntity.class, ComponentFluidInventoryEntity::createItemComponent);
 
@@ -133,5 +59,46 @@ public class AstromineCommonCallbacks {
 		EntityComponentCallback.register(AstromineComponentTypes.FLUID_INVENTORY_COMPONENT, ComponentFluidEntity.class, ComponentFluidEntity::createFluidComponent);
 
 		EntityComponentCallback.register(AstromineComponentTypes.ENERGY_INVENTORY_COMPONENT, ComponentEnergyEntity.class, ComponentEnergyEntity::createEnergyComponent);
+	}
+
+	@SubscribeEvent
+	public static void onServerTick(TickEvent.ServerTickEvent event) {
+		if (atmosphereTickCounter < AstromineConfig.get().gasTickRate) {
+			atmosphereTickCounter++;
+		} else {
+			atmosphereTickCounter = 0;
+		}
+
+		for (PlayerEntity playerEntity : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers()) {
+			if (playerEntity.containerMenu instanceof ComponentBlockEntityScreenHandler) {
+				ComponentBlockEntityScreenHandler screenHandler = (ComponentBlockEntityScreenHandler) playerEntity.containerMenu;
+
+				if (screenHandler.syncBlockEntity != null) {
+					((ServerPlayerEntity) playerEntity).connection.send(screenHandler.syncBlockEntity.getUpdatePacket());
+					break;
+				}
+			}
+		}
+	}
+
+	@SubscribeEvent
+	public static void onWorldTick(TickEvent.WorldTickEvent event) {
+		World world = event.world;
+		WorldNetworkComponent component = world.getCapability(AstromineComponentTypes.WORLD_NETWORK_COMPONENT).orElse(null);
+		if (component != null) {
+			component.tick(world);
+		}
+	}
+
+	@SubscribeEvent
+	public static void onChunkTick(ServerChunkTickEvent event) {
+		Chunk chunk = event.chunk;
+		ServerWorld world = event.world;
+		ChunkAtmosphereComponent component = chunk.getCapability(AstromineComponentTypes.CHUNK_ATMOSPHERE_COMPONENT).orElse(null);
+		if (component != null) {
+			if (atmosphereTickCounter == AstromineConfig.get().gasTickRate && world.hasChunk(chunk.getPos().x, chunk.getPos().z)) {
+				component.tick(chunk, world);
+			}
+		}
 	}
 }

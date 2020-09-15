@@ -24,11 +24,10 @@
 
 package com.github.chainmailstudios.astromine.technologies.registry.client;
 
-import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
-
 import com.github.chainmailstudios.astromine.registry.client.AstromineScreens;
 import com.github.chainmailstudios.astromine.technologies.client.screen.*;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesScreenHandlers;
+import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 
 public class AstromineTechnologiesScreens extends AstromineScreens {
 	public static void initialize() {

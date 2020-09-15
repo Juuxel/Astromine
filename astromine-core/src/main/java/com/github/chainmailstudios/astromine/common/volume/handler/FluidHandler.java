@@ -5,7 +5,7 @@ import com.github.chainmailstudios.astromine.common.component.inventory.ItemInve
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleFluidInventoryComponent;
 import com.github.chainmailstudios.astromine.common.volume.energy.EnergyVolume;
 import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
-import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
+import com.github.chainmailstudios.astromine.common.volume.fluid.FluidStack;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
 import net.minecraft.fluid.Fluid;
@@ -13,6 +13,7 @@ import net.minecraft.item.BucketItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
+import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -25,101 +26,101 @@ public class FluidHandler {
 		this.component = component;
 	}
 
-	public FluidVolume getVolume(int slot) {
+	public FluidStack getVolume(int slot) {
 		return component.getVolume(slot);
 	}
 
-	public void setVolume(int slot, FluidVolume volume) {
+	public void setVolume(int slot, FluidStack volume) {
 		component.setVolume(slot, volume);
 	}
 
-	public FluidHandler withVolume(int slot, Consumer<Optional<FluidVolume>> consumer) {
+	public FluidHandler withVolume(int slot, Consumer<Optional<FluidStack>> consumer) {
 		consumer.accept(Optional.ofNullable(component.getVolume(slot)));
 
 		return this;
 	}
 
-	public FluidHandler withFirstExtractable(@Nullable Direction diretion, Consumer<Optional<FluidVolume>> consumer) {
+	public FluidHandler withFirstExtractable(@Nullable Direction diretion, Consumer<Optional<FluidStack>> consumer) {
 		consumer.accept(Optional.ofNullable(component.getFirstExtractableVolume(diretion)));
 
 		return this;
 	}
 
-	public FluidHandler withFirstInsertable(@Nullable Direction direction, Fluid fluid, Consumer<Optional<FluidVolume>> consumer) {
+	public FluidHandler withFirstInsertable(@Nullable Direction direction, Fluid fluid, Consumer<Optional<FluidStack>> consumer) {
 		consumer.accept(Optional.ofNullable(component.getFirstInsertableVolume(fluid, direction)));
 
 		return this;
 	}
 
-	public FluidVolume getFirst() {
+	public FluidStack getFirst() {
 		return getVolume(0);
 	}
 
-	public FluidVolume getSecond() {
+	public FluidStack getSecond() {
 		return getVolume(1);
 	}
 
-	public FluidVolume getThird() {
+	public FluidStack getThird() {
 		return getVolume(2);
 	}
 
-	public FluidVolume getFourth() {
+	public FluidStack getFourth() {
 		return getVolume(3);
 	}
 
-	public FluidVolume getFifth() {
+	public FluidStack getFifth() {
 		return getVolume(4);
 	}
 
-	public FluidVolume getSixth() {
+	public FluidStack getSixth() {
 		return getVolume(5);
 	}
 
-	public FluidVolume getSeventh() {
+	public FluidStack getSeventh() {
 		return getVolume(6);
 	}
 
-	public FluidVolume getEight() {
+	public FluidStack getEight() {
 		return getVolume(7);
 	}
 
-	public void setFirst(FluidVolume volume) {
+	public void setFirst(FluidStack volume) {
 		setVolume(0, volume);
 	}
 
-	public void setSecond(FluidVolume volume) {
+	public void setSecond(FluidStack volume) {
 		setVolume(1, volume);
 	}
 
-	public void setThird(FluidVolume volume) {
+	public void setThird(FluidStack volume) {
 		setVolume(2, volume);
 	}
 
-	public void setFourth(FluidVolume volume) {
+	public void setFourth(FluidStack volume) {
 		setVolume(3, volume);
 	}
 
-	public void setFifth(FluidVolume volume) {
+	public void setFifth(FluidStack volume) {
 		setVolume(4, volume);
 	}
 
-	public void setSixth(FluidVolume volume) {
+	public void setSixth(FluidStack volume) {
 		setVolume(5, volume);
 	}
 
-	public void setSeventh(FluidVolume volume) {
+	public void setSeventh(FluidStack volume) {
 		setVolume(6, volume);
 	}
 
-	public void setEight(FluidVolume volume) {
+	public void setEight(FluidStack volume) {
 		setVolume(7, volume);
 	}
 
-	public void setNinth(FluidVolume volume) {
+	public void setNinth(FluidStack volume) {
 		setVolume(8, volume);
 	}
 
-	public FluidVolume getNinth() {
+	public FluidStack getNinth() {
 		return getVolume(8);
 	}
 
@@ -147,7 +148,7 @@ public class FluidHandler {
 
 						FluidInventoryComponent bucketComponent = new SimpleFluidInventoryComponent(1);
 
-						Optional<FluidVolume> bucketVolume = Optional.of(FluidVolume.of(Fraction.bucket(), bucket.content));
+						Optional<FluidStack> bucketVolume = Optional.of(FluidStack.of(Fraction.bucket(), bucket.content));
 
 						if (bucketVolume.isPresent()) {
 							bucketComponent.setVolume(0, bucketVolume.get());
