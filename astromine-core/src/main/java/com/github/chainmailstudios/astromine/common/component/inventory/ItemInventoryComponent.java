@@ -24,19 +24,14 @@
 
 package com.github.chainmailstudios.astromine.common.component.inventory;
 
-import com.github.chainmailstudios.astromine.AstromineCommon;
-import com.github.chainmailstudios.astromine.common.utilities.data.Range;
 import com.github.chainmailstudios.astromine.registry.AstromineItems;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.items.IItemHandler;
-import org.apache.logging.log4j.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -332,159 +327,6 @@ public interface ItemInventoryComponent extends NameableComponent, IItemHandler 
 		} else {
 			return new ActionResult<>(ActionResultType.FAIL, ItemStack.EMPTY);
 		}
-	}
-
-	/**
-	 * Serializes this inventory to a new CompoundTag. If a subtag is passed, contents are serialized to it. If a range
-	 * is passed, only contents in slots within the range are serialized. If a subtag is passed, the inventory is
-	 * written to the subtag.
-	 *
-	 * @param source the specified source.
-	 * @param subtag the optional subtag.
-	 * @param range  the optional range.
-	 */
-	default CompoundNBT write(ItemInventoryComponent source, Optional<String> subtag, Optional<Range<Integer>> range) {
-		CompoundNBT tag = new CompoundNBT();
-		this.write(source, tag, subtag, range);
-		return tag;
-	}
-
-	/**
-	 * Serializes this inventory to an existing CompoundTag. If a subtag is passed, contents are serialized to it. If a
-	 * range is passed, only contents in slots within the range are serialized. If a subtag is specified, the inventory
-	 * is written to the subtag.
-	 *
-	 * @param tag    the specified tag.
-	 * @param subtag the optional subtag.
-	 * @param range  the optional range.
-	 */
-	default void write(ItemInventoryComponent source, CompoundNBT tag, Optional<String> subtag, Optional<Range<Integer>> range) {
-		if (source == null || source.getItemSize() <= 0) {
-			return;
-		}
-
-		if (tag == null) {
-			return;
-		}
-
-		CompoundNBT stacksTag = new CompoundNBT();
-
-		int minimum = range.isPresent() ? range.get().getMinimum() : 0;
-		int maximum = range.isPresent() ? range.get().getMaximum() : source.getItemSize();
-
-		for (int position = minimum; position < maximum; ++position) {
-			ItemStack stack = source.getStack(position);
-
-			CompoundNBT stackTag;
-			if (stack != null && !stack.isEmpty()) {
-				stackTag = source.getStack(position).save(new CompoundNBT());
-			} else {
-				stackTag = ItemStack.EMPTY.save(new CompoundNBT());
-			}
-			if (!stackTag.isEmpty()) {
-				stacksTag.put(String.valueOf(position), stackTag);
-			}
-		}
-
-		if (subtag.isPresent()) {
-			CompoundNBT inventoryTag = new CompoundNBT();
-
-			inventoryTag.putInt("size", source.getItemSize());
-			inventoryTag.put("stacks", stacksTag);
-
-			tag.put(subtag.get(), inventoryTag);
-		} else {
-			tag.putInt("size", source.getItemSize());
-			tag.put("stacks", stacksTag);
-		}
-	}
-
-	/**
-	 * Deserializes a CompoundTag to an existing inventory. If a range is passed, contents are only deserialized for the
-	 * given range. If a subtag is passed, the inventory is read form the subtag.
-	 *
-	 * @param target the specified target.
-	 * @param tag    the specified tag.
-	 * @param subtag the optional subtag.
-	 * @param range  the optional range.
-	 */
-	default void read(ItemInventoryComponent target, CompoundNBT tag, Optional<String> subtag, Optional<Range<Integer>> range) {
-		if (tag == null) {
-			return;
-		}
-
-		INBT rawTag;
-
-		if (subtag.isPresent()) {
-			rawTag = tag.get(subtag.get());
-		} else {
-			rawTag = tag;
-		}
-
-		if (!(rawTag instanceof CompoundNBT)) {
-			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + rawTag.getClass().getName() + " is not instance of " + CompoundNBT.class.getName() + "!");
-			return;
-		}
-
-		CompoundNBT compoundTag = (CompoundNBT) rawTag;
-
-		if (!compoundTag.contains("size")) {
-			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + CompoundNBT.class.getName() + " does not contain 'size' value! (" + getClass().getName() + ")");
-			return;
-		}
-
-		int size = compoundTag.getInt("size");
-
-		if (size == 0) {
-			AstromineCommon.LOGGER.log(Level.WARN, "Inventory contents size successfully read, but with size of zero. This may indicate a non-integer 'size' value! (" + getClass().getName() + ")");
-		}
-
-		if (!compoundTag.contains("stacks")) {
-			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + CompoundNBT.class.getName() + " does not contain 'stacks' subtag!");
-			return;
-		}
-
-		INBT rawStacksTag = compoundTag.get("stacks");
-
-		if (!(rawStacksTag instanceof CompoundNBT)) {
-			AstromineCommon.LOGGER.log(Level.ERROR, "Inventory contents failed to be read: " + rawStacksTag.getClass().getName() + " is not instance of " + CompoundNBT.class.getName() + "!");
-			return;
-		}
-
-		CompoundNBT stacksTag = (CompoundNBT) rawStacksTag;
-
-		int minimum = range.isPresent() ? range.get().getMinimum() : 0;
-		int maximum = range.isPresent() ? range.get().getMaximum() : target.getItemSize();
-
-		if (size < maximum) {
-			AstromineCommon.LOGGER.log(Level.WARN, "Inventory size from tag smaller than specified maximum: will continue reading!");
-			maximum = size;
-		}
-
-		if (target.getItemSize() < maximum) {
-			AstromineCommon.LOGGER.log(Level.WARN, "Inventory size from target smaller than specified maximum: will continue reading!");
-			maximum = target.getItemSize();
-		}
-
-		for (int position = minimum; position < maximum; ++position) {
-			if (stacksTag.contains(String.valueOf(position))) {
-				INBT rawStackTag = stacksTag.get(String.valueOf(position));
-
-				if (!(rawStackTag instanceof CompoundNBT)) {
-					AstromineCommon.LOGGER.log(Level.ERROR, "Inventory stack skipped: stored tag not instance of " + CompoundNBT.class.getName() + "!");
-					return;
-				}
-
-				CompoundNBT stackTag = (CompoundNBT) rawStackTag;
-
-				ItemStack stack = ItemStack.of(stackTag);
-
-				if (target.getItemSize() >= position) {
-					target.getContents().put(position, stack);
-				}
-			}
-		}
-		dispatchConsumers();
 	}
 
 	/**

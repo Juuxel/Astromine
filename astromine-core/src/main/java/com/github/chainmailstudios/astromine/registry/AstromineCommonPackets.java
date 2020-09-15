@@ -24,25 +24,25 @@
 
 package com.github.chainmailstudios.astromine.registry;
 
-import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
+import com.github.chainmailstudios.astromine.AstromineCommon;
+import com.github.chainmailstudios.astromine.common.network.NetworkingManager;
+import com.github.chainmailstudios.astromine.common.packet.PacketConsumer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import com.github.chainmailstudios.astromine.AstromineCommon;
-import com.github.chainmailstudios.astromine.common.packet.PacketConsumer;
 
 public class AstromineCommonPackets {
 	public static final ResourceLocation BLOCK_ENTITY_UPDATE_PACKET = AstromineCommon.identifier("block_entity_update");
 
 	public static void initialize() {
-		ServerSidePacketRegistry.INSTANCE.register(BLOCK_ENTITY_UPDATE_PACKET, (((context, buffer) -> {
+		NetworkingManager.registerC2SHandler(BLOCK_ENTITY_UPDATE_PACKET, (((context, buffer) -> {
 			BlockPos blockPos = buffer.readBlockPos();
 			ResourceLocation identifier = buffer.readResourceLocation();
 			PacketBuffer storedBuffer = new PacketBuffer(buffer.copy());
 
-			context.getTaskQueue().execute(() -> {
-				TileEntity blockEntity = context.getPlayer().getCommandSenderWorld().getBlockEntity(blockPos);
+			context.enqueueWork(() -> {
+				TileEntity blockEntity = context.getSender().getCommandSenderWorld().getBlockEntity(blockPos);
 
 				if (blockEntity instanceof PacketConsumer) {
 					((PacketConsumer) blockEntity).consumePacket(identifier, storedBuffer, context);

@@ -24,25 +24,22 @@
 
 package com.github.chainmailstudios.astromine.common.block.entity.base;
 
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.tileentity.TileEntityType;
-import com.github.chainmailstudios.astromine.common.component.SidedComponentProvider;
-import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
-import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 
-public abstract class ComponentFluidBlockEntity extends ComponentBlockEntity implements SidedComponentProvider, BlockEntityClientSerializable {
-	protected final FluidInventoryComponent fluidComponent = createFluidComponent();
+public abstract class ComponentFluidBlockEntity extends ComponentBlockEntity {
+	protected final IFluidHandler fluidComponent = createFluidComponent();
 
-	protected abstract FluidInventoryComponent createFluidComponent();
+	protected abstract IFluidHandler createFluidComponent();
 
 	public ComponentFluidBlockEntity(TileEntityType<?> type) {
 		super(type);
 
-		addComponent(AstromineComponentTypes.FLUID_INVENTORY_COMPONENT, fluidComponent);
-		fluidComponent.dispatchConsumers();
+		addComponent(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, fluidComponent);
 	}
 
-	public FluidInventoryComponent getFluidComponent() {
+	public IFluidHandler getFluidComponent() {
 		return fluidComponent;
 	}
 }

@@ -25,20 +25,20 @@
 package com.github.chainmailstudios.astromine.common.multiblock;
 
 import com.github.chainmailstudios.astromine.common.utilities.MapUtilities;
-import nerdhub.cardinal.components.api.ComponentType;
-import nerdhub.cardinal.components.api.component.Component;
-import net.minecraft.block.Block;
-import net.minecraft.util.math.BlockPos;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
+import net.minecraft.block.Block;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.capabilities.Capability;
+
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class MultiblockType {
 	private final ImmutableMap<BlockPos, Block> blocks;
-	private final ImmutableMultimap<BlockPos, ComponentType<?>> components;
-	private final ImmutableMap<ComponentType<?>, Supplier<Component>> suppliers;
+	private final ImmutableMultimap<BlockPos, Capability<?>> components;
+	private final ImmutableMap<Capability<?>, Supplier<Object>> suppliers;
 
 	public MultiblockType(Builder builder) {
 		this.blocks = builder.blocks.build();
@@ -50,30 +50,30 @@ public class MultiblockType {
 		return blocks;
 	}
 
-	public ImmutableMultimap<BlockPos, ComponentType<?>> getComponents() {
+	public ImmutableMultimap<BlockPos, Capability<?>> getComponents() {
 		return components;
 	}
 
-	public ImmutableMap<ComponentType<?>, Component> getSuppliers() {
+	public ImmutableMap<Capability<?>, Object> getSuppliers() {
 		return ImmutableMap.copyOf(suppliers.entrySet().stream().map(entry -> MapUtilities.entryOf(entry.getKey(), entry.getValue().get())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
 	}
 
 	public static class Builder {
 		private final ImmutableMap.Builder<BlockPos, Block> blocks = ImmutableMap.builder();
-		private final ImmutableMultimap.Builder<BlockPos, ComponentType<?>> components = ImmutableMultimap.builder();
-		private final ImmutableMap.Builder<ComponentType<?>, Supplier<Component>> suppliers = ImmutableMap.builder();
+		private final ImmutableMultimap.Builder<BlockPos, Capability<?>> components = ImmutableMultimap.builder();
+		private final ImmutableMap.Builder<Capability<?>, Supplier<Object>> suppliers = ImmutableMap.builder();
 
 		public Builder with(BlockPos relative, Block block) {
 			blocks.put(relative, block);
 			return this;
 		}
 
-		public Builder with(BlockPos relative, ComponentType<?> type) {
+		public Builder with(BlockPos relative, Capability<?> type) {
 			components.put(relative, type);
 			return this;
 		}
 
-		public Builder with(ComponentType<?> type, Supplier<Component> supplier) {
+		public Builder with(Capability<?> type, Supplier<Object> supplier) {
 			suppliers.put(type, supplier);
 			return this;
 		}

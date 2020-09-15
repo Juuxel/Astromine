@@ -26,7 +26,6 @@ package com.github.chainmailstudios.astromine.technologies.common.block.entity;
 
 import com.github.chainmailstudios.astromine.common.block.entity.base.ComponentEnergyInventoryBlockEntity;
 import com.github.chainmailstudios.astromine.common.component.inventory.EnergyInventoryComponent;
-import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleEnergyInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.utilities.tier.MachineTier;
@@ -46,9 +45,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
 
 public abstract class SolidGeneratorBlockEntity extends ComponentEnergyInventoryBlockEntity implements EnergySizeProvider, TierProvider, SpeedProvider {
 	public double progress = 0;
@@ -59,7 +57,7 @@ public abstract class SolidGeneratorBlockEntity extends ComponentEnergyInventory
 	}
 
 	@Override
-	protected ItemInventoryComponent createItemComponent() {
+	protected IItemHandler createItemComponent() {
 		return new SimpleItemInventoryComponent(1).withListener((inventory) -> {
 			progress = 0;
 			limit = 100;

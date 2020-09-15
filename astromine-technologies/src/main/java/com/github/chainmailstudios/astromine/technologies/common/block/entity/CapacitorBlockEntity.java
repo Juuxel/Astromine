@@ -26,7 +26,6 @@ package com.github.chainmailstudios.astromine.technologies.common.block.entity;
 
 import com.github.chainmailstudios.astromine.common.block.entity.base.ComponentEnergyInventoryBlockEntity;
 import com.github.chainmailstudios.astromine.common.component.inventory.EnergyInventoryComponent;
-import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleEnergyInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.utilities.tier.MachineTier;
@@ -43,6 +42,7 @@ import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.items.IItemHandler;
 import team.reborn.energy.Energy;
 
 public abstract class CapacitorBlockEntity extends ComponentEnergyInventoryBlockEntity implements EnergySizeProvider, TierProvider, SpeedProvider {
@@ -51,7 +51,7 @@ public abstract class CapacitorBlockEntity extends ComponentEnergyInventoryBlock
 	}
 
 	@Override
-	protected ItemInventoryComponent createItemComponent() {
+	protected IItemHandler createItemComponent() {
 		return new SimpleItemInventoryComponent(2);
 	}
 

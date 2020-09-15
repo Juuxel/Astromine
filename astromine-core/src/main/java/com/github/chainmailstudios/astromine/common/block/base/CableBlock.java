@@ -33,11 +33,7 @@ import com.github.chainmailstudios.astromine.common.utilities.capability.block.C
 import com.github.chainmailstudios.astromine.common.utilities.data.position.WorldPos;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.IWaterLoggable;
+import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -52,6 +48,7 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
@@ -169,9 +166,7 @@ public abstract class CableBlock extends Block implements IWaterLoggable, CableW
 	public void neighborChanged(BlockState state, World world, BlockPos position, Block block, BlockPos neighborPosition, boolean moved) {
 		super.neighborChanged(state, world, position, block, neighborPosition, moved);
 
-		ComponentProvider provider = ComponentProvider.fromWorld(world);
-
-		WorldNetworkComponent networkComponent = provider.getComponent(AstromineComponentTypes.WORLD_NETWORK_COMPONENT);
+		WorldNetworkComponent networkComponent = world.getCapability(AstromineComponentTypes.WORLD_NETWORK_COMPONENT).orElse(null);
 
 		networkComponent.removeInstance(networkComponent.getInstance(getNetworkType(), position));
 		NetworkTracer.Tracer.INSTANCE.trace(getNetworkType(), WorldPos.of(world, position));

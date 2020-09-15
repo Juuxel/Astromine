@@ -82,7 +82,7 @@ public class SpaceSlimeEntity extends SlimeEntity {
 
 	@Override
 	protected IParticleData getParticleType() {
-		return AstromineDiscoveriesParticles.SPACE_SLIME;
+		return AstromineDiscoveriesParticles.SPACE_SLIME.get();
 	}
 
 	@Override

@@ -6,13 +6,19 @@ import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
 import com.github.chainmailstudios.astromine.common.volume.handler.FluidHandler;
 import com.github.chainmailstudios.astromine.common.volume.handler.ItemHandler;
 import com.github.chainmailstudios.astromine.discoveries.registry.AstromineDiscoveriesParticles;
+import net.minecraft.item.BucketItem;
+import net.minecraft.item.Items;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.fluids.FluidStack;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 import java.util.Collection;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.function.*;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -33,13 +39,13 @@ import net.minecraft.world.server.ServerWorld;
 public abstract class RocketEntity extends ComponentFluidInventoryEntity {
 	public static final DataParameter<Boolean> IS_RUNNING = EntityDataManager.defineId(RocketEntity.class, DataSerializers.BOOLEAN);
 
-	protected abstract Predicate<FluidVolume> createFuelPredicate();
+	protected abstract Predicate<FluidStack> createFuelPredicate();
 
-	private final Predicate<FluidVolume> fuelPredicate = createFuelPredicate();
+	private final Predicate<FluidStack> fuelPredicate = createFuelPredicate();
 
-	protected abstract Function<RocketEntity, Fraction> createConsumptionFunction();
+	protected abstract IntFunction<RocketEntity> createConsumptionFunction();
 
-	private final Function<RocketEntity, Fraction> consumptionFunction = createConsumptionFunction();
+	private final IntFunction<RocketEntity> consumptionFunction = createConsumptionFunction();
 
 	protected abstract Collection<ItemStack> createExplosionRemains();
 
@@ -59,7 +65,7 @@ public abstract class RocketEntity extends ComponentFluidInventoryEntity {
 
 	@Override
 	protected void initDataTracker() {
-		this.getDataTracker().startTracking(IS_RUNNING, false);
+		this.getEntityData().startTracking(IS_RUNNING, false);
 	}
 
 	@Override
@@ -74,15 +80,15 @@ public abstract class RocketEntity extends ComponentFluidInventoryEntity {
 	public void tick() {
 		super.tick();
 
-		if (this.getDataTracker().get(IS_RUNNING)) {
-			FluidVolume tank = getTank();
+		if (this.getEntityData().get(IS_RUNNING)) {
+			FluidStack tank = getTank();
 
 			if (fuelPredicate.test(tank) || tank.isEmpty()) {
 				tank.minus(consumptionFunction.apply(this));
 
 				if (tank.isEmpty()) {
-					if (world.isClient) {
-						this.world.getPlayers().forEach(player -> player.sendMessage(new TranslatableText("text.astromine.rocket.disassemble_empty_fuel").formatted(Formatting.RED), false));
+					if (level.isClientSide) {
+						this.level.players().forEach(player -> player.displayClientMessage(new TranslationTextComponent("text.astromine.rocket.disassemble_empty_fuel").withStyle(TextFormatting.RED), false));
 					}
 
 					this.tryDisassemble();
@@ -92,43 +98,43 @@ public abstract class RocketEntity extends ComponentFluidInventoryEntity {
 					this.addVelocity(0, acceleration.y, 0);
 					this.move(MoverType.SELF, this.getVelocity());
 
-					if (!this.world.isClient) {
+					if (!this.level.isClientSide) {
 						AxisAlignedBB box = getBoundingBox();
 
 						double y = getY();
 
 						for (double x = box.minX; x < box.maxX; x += 0.0625) {
 							for (double z = box.minZ; z < box.maxZ; z += 0.0625) {
-								((ServerWorld) world).sendParticles(AstromineDiscoveriesParticles.ROCKET_FLAME, x, y, z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+								((ServerWorld) level).sendParticles(AstromineDiscoveriesParticles.ROCKET_FLAME.get(), x, y, z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
 							}
 						}
 					}
 				}
 
-				if (BlockPos.Mutable.betweenClosedStream(getBoundingBox()).anyMatch(pos -> world.getBlockState(pos).isFullCube(world, pos))) {
-					if (world.isClient) {
-						this.world.getPlayers().forEach(player -> player.sendMessage(new TranslatableText("text.astromine.rocket.disassemble_collision").formatted(Formatting.RED), false));
+				if (BlockPos.Mutable.betweenClosedStream(getBoundingBox()).anyMatch(pos -> level.getBlockState(pos).isFullCube(level, pos))) {
+					if (level.isClientSide) {
+						this.level.players().forEach(player -> player.displayClientMessage(new TranslationTextComponent("text.astromine.rocket.disassemble_collision").withStyle(TextFormatting.RED), false));
 					}
 
 					this.tryDisassemble();
 				}
 			} else {
-				if (world.isClient) {
-					this.world.getPlayers().forEach(player -> player.sendMessage(new TranslatableText("text.astromine.rocket.disassemble_invalid_fuel").formatted(Formatting.RED), false));
+				if (level.isClientSide) {
+					this.level.players().forEach(player -> player.displayClientMessage(new TranslationTextComponent("text.astromine.rocket.disassemble_invalid_fuel").withStyle(TextFormatting.RED), false));
 				}
 
 				this.tryDisassemble();
 			}
 		} else {
-			setVelocity(net.minecraft.util.math.vector.Vector3d.ZERO);
+			setVelocity(Vector3d.ZERO);
 			this.velocityDirty = true;
 		}
 
 		FluidHandler.ofOptional(this).ifPresent(fluids -> {
 			ItemHandler.ofOptional(this).ifPresent(items -> {
 				FluidHandler.ofOptional(items.getFirst()).ifPresent(stackFluids -> {
-					FluidVolume ourVolume = fluids.getFirst();
-					FluidVolume stackVolume = stackFluids.getFirst();
+					FluidStack ourVolume = fluids.getFirst();
+					FluidStack stackVolume = stackFluids.getFirst();
 
 					if (ourVolume.canAccept(stackVolume.getFluid())) {
 						if (items.getFirst().getItem() instanceof BucketItem) {
@@ -146,8 +152,8 @@ public abstract class RocketEntity extends ComponentFluidInventoryEntity {
 				});
 
 				FluidHandler.ofOptional(items.getSecond()).ifPresent(stackFluids -> {
-					FluidVolume ourVolume = fluids.getFirst();
-					FluidVolume stackVolume = stackFluids.getFirst();
+					FluidStack ourVolume = fluids.getFirst();
+					FluidStack stackVolume = stackFluids.getFirst();
 
 					if (ourVolume.canAccept(stackVolume.getFluid())) {
 						if (items.getSecond().getItem() instanceof BucketItem) {
@@ -167,18 +173,18 @@ public abstract class RocketEntity extends ComponentFluidInventoryEntity {
 		});
 	}
 
-	private FluidVolume getTank() {
+	private FluidStack getTank() {
 		return getFluidComponent().getVolume(0);
 	}
 
 	public void tryDisassemble() {
 		this.tryExplode();
-		this.explosionRemains.forEach(stack -> InventoryHelper.dropItemStack(world, getX(), getY(), getZ(), stack.copy()));
+		this.explosionRemains.forEach(stack -> InventoryHelper.dropItemStack(level, getX(), getY(), getZ(), stack.copy()));
 		this.remove();
 	}
 
 	private void tryExplode() {
-		world.createExplosion(this, getX(), getY(), getZ(), getTank().getAmount().floatValue() + 3f, Explosion.Mode.BREAK);
+		level.explode(this, getX(), getY(), getZ(), (getTank().getAmount() / 1000f) + 3f, Explosion.Mode.BREAK);
 	}
 
 	public net.minecraft.util.math.vector.Vector3d updatePassengerForDismount(LivingEntity passenger) {

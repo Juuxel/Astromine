@@ -24,26 +24,27 @@
 
 package com.github.chainmailstudios.astromine.common.multiblock;
 
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import nerdhub.cardinal.components.api.ComponentType;
-import nerdhub.cardinal.components.api.component.Component;
-import nerdhub.cardinal.components.api.component.ComponentProvider;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class MultiblockControllerBlockEntity extends TileEntity implements ComponentProvider, BlockEntityClientSerializable {
+public abstract class MultiblockControllerBlockEntity extends TileEntity {
 	private final MultiblockType multiblockType;
 
-	private final ImmutableMap<ComponentType<?>, Component> components;
+	private final ImmutableMap<Capability<?>, Object> components;
 
 	private final Map<BlockPos, MultiblockMemberBlockEntity> members = Maps.newHashMap();
 
@@ -77,37 +78,31 @@ public abstract class MultiblockControllerBlockEntity extends TileEntity impleme
 		});
 	}
 
+	@NotNull
 	@Override
-	public boolean hasComponent(ComponentType<?> componentType) {
-		return components.containsKey(componentType);
+	public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+		Object o = components.get(cap);
+		if (o != null)
+			return LazyOptional.of(() -> o).cast();
+		return super.getCapability(cap, side);
 	}
 
-	@Override
-	public <C extends Component> C getComponent(ComponentType<C> componentType) {
-		return (C) components.get(componentType);
-	}
-
-	@Override
-	public Set<ComponentType<?>> getComponentTypes() {
-		return Sets.newHashSet(multiblockType.getComponents().values());
-	}
-
-	public boolean hasComponent(BlockPos blockPos, ComponentType<?> type) {
+	public boolean hasComponent(BlockPos blockPos, Capability<?> type) {
 		return multiblockType.getComponents().get(blockPos).stream().anyMatch(mapType -> mapType == type);
 	}
 
-	public <C extends Component> C getComponent(BlockPos blockPos, ComponentType<?> componentType) {
+	public <C> C getComponent(BlockPos blockPos, Capability<?> componentType) {
 		return hasComponent(blockPos, componentType) ? (C) components.get(componentType) : null;
 	}
 
-	public Set<ComponentType<?>> getComponentTypes(BlockPos blockPos) {
+	public Set<Capability<?>> getComponentTypes(BlockPos blockPos) {
 		return Sets.newHashSet(multiblockType.getComponents().get(blockPos));
 	}
 
 	@Override
 	public CompoundNBT save(CompoundNBT tag) {
 		components.forEach((key, value) -> {
-			tag.put(key.getId().toString(), value.toTag(new CompoundNBT()));
+			tag.put(key.getName(), ((Capability<Object>) key).writeNBT(value, null));
 		});
 
 		return super.save(tag);
@@ -116,20 +111,14 @@ public abstract class MultiblockControllerBlockEntity extends TileEntity impleme
 	@Override
 	public void load(BlockState state, CompoundNBT tag) {
 		components.forEach((key, value) -> {
-			value.fromTag(tag.getCompound(key.getId().toString()));
+			((Capability<Object>) key).readNBT(value, null, tag.get(key.getName()));
 		});
 
 		super.load(state, tag);
 	}
 
 	@Override
-	public CompoundNBT toClientTag(CompoundNBT tag) {
-		save(tag);
-		return tag;
-	}
-
-	@Override
-	public void fromClientTag(CompoundNBT tag) {
-		load(null, tag);
+	public CompoundNBT getUpdateTag() {
+		return save(new CompoundNBT());
 	}
 }

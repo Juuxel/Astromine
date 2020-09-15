@@ -26,12 +26,10 @@ package com.github.chainmailstudios.astromine.technologies.common.block.entity;
 
 import com.github.chainmailstudios.astromine.common.block.entity.base.ComponentEnergyInventoryBlockEntity;
 import com.github.chainmailstudios.astromine.common.component.inventory.EnergyInventoryComponent;
-import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleEnergyInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.utilities.StackUtilities;
 import com.github.chainmailstudios.astromine.common.volume.energy.EnergyVolume;
-import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
 import com.github.chainmailstudios.astromine.common.volume.handler.ItemHandler;
 import com.github.chainmailstudios.astromine.registry.AstromineConfig;
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.EnergyConsumedProvider;
@@ -40,30 +38,31 @@ import com.github.chainmailstudios.astromine.technologies.common.block.entity.ma
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlockEntityTypes;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalBlock;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
 
 public class BlockBreakerBlockEntity extends ComponentEnergyInventoryBlockEntity implements EnergySizeProvider, SpeedProvider, EnergyConsumedProvider {
-	private Fraction cooldown = Fraction.empty();
+	private int cooldown = 0;
 
 	public BlockBreakerBlockEntity() {
-		super(AstromineTechnologiesBlocks.BLOCK_BREAKER, AstromineTechnologiesBlockEntityTypes.BLOCK_BREAKER);
+		super(AstromineTechnologiesBlocks.BLOCK_BREAKER.get(), AstromineTechnologiesBlockEntityTypes.BLOCK_BREAKER);
 	}
 
 	@Override
-	protected ItemInventoryComponent createItemComponent() {
+	protected IItemHandler createItemComponent() {
 		return new SimpleItemInventoryComponent(1);
 	}
 
@@ -97,16 +96,16 @@ public class BlockBreakerBlockEntity extends ComponentEnergyInventoryBlockEntity
 		ItemHandler.ofOptional(this).ifPresent(items -> {
 			EnergyVolume energyVolume = getEnergyComponent().getVolume();
 			if (energyVolume.getAmount() < getEnergyConsumed()) {
-				cooldown = Fraction.empty();
+				cooldown = 0;
 
 				tickInactive();
 			} else {
 				tickActive();
 
-				cooldown = cooldown.add(Fraction.ofDecimal(1.0D / getMachineSpeed()));
+				cooldown++;
 
-				cooldown.ifBiggerOrEqualThan(Fraction.of(1), () -> {
-					cooldown = Fraction.empty();
+				if (cooldown > getMachineSpeed()) {
+					cooldown = 0;
 
 					ItemStack stored = items.getFirst();
 
@@ -144,20 +143,20 @@ public class BlockBreakerBlockEntity extends ComponentEnergyInventoryBlockEntity
 
 						energyVolume.minus(getEnergyConsumed());
 					}
-				});
+				}
 			}
 		});
 	}
 
 	@Override
 	public CompoundNBT save(CompoundNBT tag) {
-		tag.put("cooldown", cooldown.toTag());
+		tag.putInt("cooldown", cooldown);
 		return super.save(tag);
 	}
 
 	@Override
 	public void load(BlockState state, @NotNull CompoundNBT tag) {
-		cooldown = Fraction.fromTag(tag.getCompound("cooldown"));
+		cooldown = tag.getInt("cooldown");
 		super.load(state, tag);
 	}
 }

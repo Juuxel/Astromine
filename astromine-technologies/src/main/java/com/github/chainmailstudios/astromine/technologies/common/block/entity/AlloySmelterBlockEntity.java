@@ -26,7 +26,6 @@ package com.github.chainmailstudios.astromine.technologies.common.block.entity;
 
 import com.github.chainmailstudios.astromine.common.block.entity.base.ComponentEnergyInventoryBlockEntity;
 import com.github.chainmailstudios.astromine.common.component.inventory.EnergyInventoryComponent;
-import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleEnergyInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.inventory.BaseInventory;
@@ -44,6 +43,7 @@ import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.ints.IntSets;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -64,7 +64,7 @@ public abstract class AlloySmelterBlockEntity extends ComponentEnergyInventoryBl
 	}
 
 	@Override
-	protected ItemInventoryComponent createItemComponent() {
+	protected IItemHandler createItemComponent() {
 		return new SimpleItemInventoryComponent(3).withInsertPredicate((direction, stack, slot) -> {
 			return slot == 0 || slot == 1;
 		}).withExtractPredicate(((direction, stack, slot) -> {

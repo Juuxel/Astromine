@@ -26,7 +26,6 @@ package com.github.chainmailstudios.astromine.technologies.common.block.entity;
 
 import com.github.chainmailstudios.astromine.common.block.entity.base.ComponentFluidInventoryBlockEntity;
 import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
-import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleFluidInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.SimpleItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.utilities.tier.MachineTier;
@@ -44,6 +43,8 @@ import net.minecraft.item.Items;
 import net.minecraft.tileentity.TileEntityType;
 import com.github.chainmailstudios.astromine.registry.AstromineConfig;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.items.IItemHandler;
 
 public abstract class TankBlockEntity extends ComponentFluidInventoryBlockEntity implements TierProvider, FluidSizeProvider, SpeedProvider {
 	public TankBlockEntity(TileEntityType<?> type) {
@@ -51,14 +52,14 @@ public abstract class TankBlockEntity extends ComponentFluidInventoryBlockEntity
 	}
 
 	@Override
-	protected FluidInventoryComponent createFluidComponent() {
+	protected IFluidHandler createFluidComponent() {
 		FluidInventoryComponent fluidComponent = new SimpleFluidInventoryComponent(1);
 		FluidHandler.of(fluidComponent).getFirst().setSize(getFluidSize());
 		return fluidComponent;
 	}
 
 	@Override
-	protected ItemInventoryComponent createItemComponent() {
+	protected IItemHandler createItemComponent() {
 		return new SimpleItemInventoryComponent(2);
 	}
 

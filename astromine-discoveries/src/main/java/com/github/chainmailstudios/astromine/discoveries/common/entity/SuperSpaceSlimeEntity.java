@@ -169,7 +169,7 @@ public class SuperSpaceSlimeEntity extends MobEntity implements IMob {
 	}
 
 	protected IParticleData getParticles() {
-		return AstromineDiscoveriesParticles.SPACE_SLIME;
+		return AstromineDiscoveriesParticles.SPACE_SLIME.get();
 	}
 
 	protected SoundEvent getSquishSound() {
