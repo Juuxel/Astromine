@@ -27,13 +27,23 @@ package com.github.chainmailstudios.astromine;
 import com.github.chainmailstudios.astromine.registry.*;
 import com.google.gson.Gson;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.function.Supplier;
+
+@Mod("astrominecore")
 public class AstromineCommon {
+	interface SidedInit {
+		void onSidedInit(IEventBus modBus, IEventBus forgeBus);
+	}
+
 	public static final String LOG_ID = "Astromine";
 	public static final String MOD_ID = "astromine";
 
@@ -47,16 +57,23 @@ public class AstromineCommon {
 		return new ResourceLocation(MOD_ID, name);
 	}
 
-	public void onInitialize() {
-		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+	public AstromineCommon() {
+		final IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+		final IEventBus forgeBus = MinecraftForge.EVENT_BUS;
 
+		this.onInitialize(modBus, forgeBus);
+		// TODO Check whether this is actually safe
+		DistExecutor.unsafeRunForDist(() -> this::getClientInitializer, () -> this::getServerInitializer).get().onSidedInit(modBus, forgeBus);
+	}
+
+	public void onInitialize(IEventBus modBus, IEventBus forgeBus) {
 		AstromineIdentifierFixes.initialize();
 		AstromineDimensions.initialize();
 		AstromineFeatures.initialize();
-		AstromineItems.initialize(bus);
-		AstromineBlocks.initialize(bus);
+		AstromineItems.initialize(modBus);
+		AstromineBlocks.initialize(modBus);
 		AstromineScreenHandlers.initialize();
-		AstromineEntityTypes.initialize(bus);
+		AstromineEntityTypes.initialize(modBus);
 		AstromineComponentTypes.initialize();
 		AstromineNetworkTypes.initialize();
 		AstrominePotions.initialize();
@@ -72,8 +89,8 @@ public class AstromineCommon {
 		AstromineRecipeSerializers.initialize();
 		AstromineCommands.initialize();
 		AstromineAtmospheres.initialize();
-		AstromineBlockEntityTypes.initialize(bus);
-		AstromineSoundEvents.initialize(bus);
+		AstromineBlockEntityTypes.initialize(modBus);
+		AstromineSoundEvents.initialize(modBus);
 		AstromineNetworkMembers.initialize();
 		AstromineCriteria.initialize();
 		AstromineFluidEffects.initialize();
@@ -85,5 +102,13 @@ public class AstromineCommon {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public Supplier<? extends AstromineClient> getClientInitializer() {
+		return AstromineClient::new;
+	}
+
+	public Supplier<? extends AstromineDedicated> getServerInitializer() {
+		return AstromineDedicated::new;
 	}
 }

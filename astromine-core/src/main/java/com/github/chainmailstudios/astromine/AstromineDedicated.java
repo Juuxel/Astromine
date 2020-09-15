@@ -24,8 +24,11 @@
 
 package com.github.chainmailstudios.astromine;
 
-public class AstromineDedicated {
-	public void onInitializeServer() {
+import net.minecraftforge.eventbus.api.IEventBus;
+
+public class AstromineDedicated implements AstromineCommon.SidedInit {
+	@Override
+	public void onSidedInit(IEventBus modBus, IEventBus forgeBus) {
 
 	}
 }

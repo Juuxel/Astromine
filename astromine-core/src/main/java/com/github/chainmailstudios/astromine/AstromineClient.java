@@ -29,14 +29,13 @@ import com.github.chainmailstudios.astromine.registry.AstromineKeybinds;
 import com.github.chainmailstudios.astromine.registry.client.*;
 import me.shedaniel.autoconfig1u.AutoConfig;
 import me.shedaniel.autoconfig1u.gui.ConfigScreenProvider;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 
-@OnlyIn(Dist.CLIENT)
-public class AstromineClient {
-	public void onInitializeClient() {
+public class AstromineClient implements AstromineCommon.SidedInit {
+	@Override
+	public void onSidedInit(IEventBus modBus, IEventBus forgeBus) {
 		AstromineEntityRenderers.initialize();
 		AstromineBlockEntityRenderers.initialize();
 		AstromineClientModels.initialize();

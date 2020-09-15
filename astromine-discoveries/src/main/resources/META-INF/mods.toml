@@ -1,0 +1,45 @@
+modLoader="javafml"
+loaderVersion="[34,)"
+license="MIT"
+issueTrackerURL="https://github.com/Mixinors/Astromine/issues"
+[[mods]]
+    modId="astrominediscoveries"
+    version="${version}"
+    displayName="Astromine: Discoveries"
+    displayURL="https://www.curseforge.com/minecraft/mc-mods/astromine-discoveries"
+    logoFile="icon.png"
+    credits=""
+    authors="vini2003, Shnupbups, Zundrel, shedaniel, MoonlitLamps, SuperCoder79, Draylar, HalfOf2, Martmists, AK9"
+    description='''The exploration module of Astromine.'''
+[[dependencies.astrominediscoveries]]
+    modId="forge"
+    mandatory=true
+    versionRange="[34,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.astrominediscoveries]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.3]"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.astrominediscoveries]]
+    modId="astromine"
+    mandatory=false
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.astrominediscoveries]]
+    modId="astrominecore"
+    mandatory=true
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.astrominediscoveries]]
+    modId="astrominefoundations"
+    mandatory=true
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.astrominediscoveries]]
+    modId="astrominetechnologies"
+    mandatory=true
+    ordering="NONE"
+    side="BOTH"

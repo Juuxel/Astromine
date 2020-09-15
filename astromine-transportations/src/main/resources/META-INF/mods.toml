@@ -1,0 +1,40 @@
+modLoader="javafml"
+loaderVersion="[34,)"
+license="MIT"
+issueTrackerURL="https://github.com/Mixinors/Astromine/issues"
+[[mods]]
+    modId="astrominetransportations"
+    version="${version}"
+    displayName="Astromine: Transportations"
+    displayURL="https://www.curseforge.com/minecraft/mc-mods/astromine-transportations"
+    logoFile="icon.png"
+    credits=""
+    authors="vini2003, Shnupbups, Zundrel, shedaniel, MoonlitLamps, SuperCoder79, Draylar, HalfOf2, Martmists, AK9"
+    description='''The item, fluid and energy transport module of Astromine.'''
+[[dependencies.astrominetransportations]]
+    modId="forge"
+    mandatory=true
+    versionRange="[34,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.astrominetransportations]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.3]"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.astrominetransportations]]
+    modId="astromine"
+    mandatory=false
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.astrominetransportations]]
+    modId="astrominecore"
+    mandatory=true
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.astrominetransportations]]
+    modId="astrominefoundations"
+    mandatory=true
+    ordering="NONE"
+    side="BOTH"
