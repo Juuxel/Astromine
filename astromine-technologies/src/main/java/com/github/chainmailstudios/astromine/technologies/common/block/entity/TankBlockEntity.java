@@ -43,6 +43,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.tileentity.TileEntityType;
 import com.github.chainmailstudios.astromine.registry.AstromineConfig;
+import net.minecraftforge.fluids.FluidStack;
 
 public abstract class TankBlockEntity extends ComponentFluidInventoryBlockEntity implements TierProvider, FluidSizeProvider, SpeedProvider {
 	public TankBlockEntity(TileEntityType<?> type) {
@@ -71,10 +72,10 @@ public abstract class TankBlockEntity extends ComponentFluidInventoryBlockEntity
 		FluidHandler.ofOptional(this).ifPresent(fluids -> {
 			ItemHandler.ofOptional(this).ifPresent(items -> {
 				FluidHandler.ofOptional(items.getFirst()).ifPresent(stackFluids -> {
-					FluidVolume ourVolume = fluids.getFirst();
-					FluidVolume stackVolume = stackFluids.getFirst();
+					FluidStack ourVolume = fluids.getFirst();
+					FluidStack stackVolume = stackFluids.getFirst();
 					
-					if (ourVolume.canAccept(stackVolume.getFluid())) {
+					if (ourVolume.getFluid().isSame(stackVolume.getFluid())) {
 						if (items.getFirst().getItem() instanceof BucketItem) {
 							if (items.getFirst().getItem() != Items.BUCKET && items.getFirst().getCount() == 1) {
 								if (ourVolume.hasAvailable(Fraction.bucket())) {
@@ -90,10 +91,10 @@ public abstract class TankBlockEntity extends ComponentFluidInventoryBlockEntity
 				});
 
 				FluidHandler.ofOptional(items.getSecond()).ifPresent(stackFluids -> {
-					FluidVolume ourVolume = fluids.getFirst();
-					FluidVolume stackVolume = stackFluids.getFirst();
+					FluidStack ourVolume = fluids.getFirst();
+					FluidStack stackVolume = stackFluids.getFirst();
 
-					if (ourVolume.canAccept(stackVolume.getFluid())) {
+					if (ourVolume.getFluid().isSame(stackVolume.getFluid())) {
 						if (items.getSecond().getItem() instanceof BucketItem) {
 							if (items.getSecond().getItem() == Items.BUCKET && items.getSecond().getCount() == 1) {
 								if (ourVolume.hasStored(Fraction.bucket())) {
@@ -122,8 +123,8 @@ public abstract class TankBlockEntity extends ComponentFluidInventoryBlockEntity
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(AstromineConfig.get().primitiveTankFluid, 1);
+		public int getFluidSize() {
+			return AstromineConfig.get().primitiveTankFluid;
 		}
 
 		@Override
@@ -143,8 +144,8 @@ public abstract class TankBlockEntity extends ComponentFluidInventoryBlockEntity
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(AstromineConfig.get().basicTankFluid, 1);
+		public int getFluidSize() {
+			return AstromineConfig.get().basicTankFluid;
 		}
 
 		@Override
@@ -164,8 +165,8 @@ public abstract class TankBlockEntity extends ComponentFluidInventoryBlockEntity
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(AstromineConfig.get().advancedTankFluid, 1);
+		public int getFluidSize() {
+			return AstromineConfig.get().advancedTankFluid;
 		}
 
 		@Override
@@ -185,8 +186,8 @@ public abstract class TankBlockEntity extends ComponentFluidInventoryBlockEntity
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(AstromineConfig.get().eliteTankFluid, 1);
+		public int getFluidSize() {
+			return AstromineConfig.get().eliteTankFluid;
 		}
 
 		@Override
@@ -206,8 +207,8 @@ public abstract class TankBlockEntity extends ComponentFluidInventoryBlockEntity
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(Long.MAX_VALUE);
+		public int getFluidSize() {
+			return Integer.MAX_VALUE;
 		}
 
 		@Override
@@ -220,8 +221,7 @@ public abstract class TankBlockEntity extends ComponentFluidInventoryBlockEntity
 			super.tick();
 
 			FluidHandler.ofOptional(fluidComponent).ifPresent(fluids -> {
-				fluids.getFirst().setAmount(Fraction.of(Long.MAX_VALUE));
-				fluids.getFirst().setSize(Fraction.of(Long.MAX_VALUE));
+				fluids.getFirst().setAmount(Integer.MAX_VALUE);
 			});
 		}
 	}

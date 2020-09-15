@@ -24,18 +24,12 @@
 
 package com.github.chainmailstudios.astromine.technologies.common.recipe;
 
+import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.recipe.AstromineRecipeType;
+import com.github.chainmailstudios.astromine.common.recipe.base.EnergyConsumingRecipe;
+import com.github.chainmailstudios.astromine.common.utilities.ParsingUtilities;
 import com.github.chainmailstudios.astromine.common.volume.handler.FluidHandler;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
-import com.github.chainmailstudios.astromine.AstromineCommon;
-import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
-import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
-import com.github.chainmailstudios.astromine.common.recipe.base.EnergyConsumingRecipe;
-import com.github.chainmailstudios.astromine.common.utilities.EnergyUtilities;
-import com.github.chainmailstudios.astromine.common.utilities.FractionUtilities;
-import com.github.chainmailstudios.astromine.common.utilities.PacketUtilities;
-import com.github.chainmailstudios.astromine.common.utilities.ParsingUtilities;
-import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -52,23 +46,26 @@ import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.registries.ForgeRegistryEntry;
 
 public class ElectrolyzingRecipe implements IRecipe<IInventory>, EnergyConsumingRecipe<IInventory> {
 	final ResourceLocation identifier;
 	final RegistryKey<Fluid> inputFluidKey;
 	final LazyValue<Fluid> inputFluid;
-	final Fraction inputAmount;
+	final int inputAmount;
 	final RegistryKey<Fluid> firstOutputFluidKey;
 	final LazyValue<Fluid> firstOutputFluid;
-	final Fraction firstOutputAmount;
+	final int firstOutputAmount;
 	final RegistryKey<Fluid> secondOutputFluidKey;
 	final LazyValue<Fluid> secondOutputFluid;
-	final Fraction secondOutputAmount;
-	final double energyConsumed;
+	final int secondOutputAmount;
+	final int energyConsumed;
 	final int time;
 
-	public ElectrolyzingRecipe(ResourceLocation identifier, RegistryKey<Fluid> inputFluidKey, Fraction inputAmount, RegistryKey<Fluid> firstOutputFluidKey, Fraction firstOutputAmount, RegistryKey<Fluid> secondOutputFluidKey, Fraction secondOutputAmount, double energyConsumed,
-		int time) {
+	public ElectrolyzingRecipe(ResourceLocation identifier, RegistryKey<Fluid> inputFluidKey, int inputAmount, RegistryKey<Fluid> firstOutputFluidKey, int firstOutputAmount, RegistryKey<Fluid> secondOutputFluidKey, int secondOutputAmount, int energyConsumed,
+			int time) {
 		this.identifier = identifier;
 		this.inputFluidKey = inputFluidKey;
 		this.inputFluid = new LazyValue<>(() -> Registry.FLUID.get(this.inputFluidKey));
@@ -83,30 +80,30 @@ public class ElectrolyzingRecipe implements IRecipe<IInventory>, EnergyConsuming
 		this.time = time;
 	}
 
-	public boolean matches(FluidInventoryComponent fluidComponent) {
+	public boolean matches(IFluidHandler fluidComponent) {
 		FluidHandler fluidHandler = FluidHandler.of(fluidComponent);
 
-		FluidVolume inputVolume = fluidHandler.getFirst();
-		FluidVolume firstOutputVolume = fluidHandler.getSecond();
-		FluidVolume secondOutputVolume = fluidHandler.getThird();
+		FluidStack inputVolume = fluidHandler.getFirst();
+		FluidStack firstOutputVolume = fluidHandler.getSecond();
+		FluidStack secondOutputVolume = fluidHandler.getThird();
 
-		if (!inputVolume.getFluid().matchesType(inputFluid.get())) {
+		if (!inputVolume.getFluid().isSame(inputFluid.get())) {
 			return false;
 		}
-		if (!inputVolume.hasStored(inputAmount)) {
+		if (inputVolume.getAmount() < inputAmount) {
 			return false;
 		}
-		if (!firstOutputVolume.getFluid().matchesType(firstOutputFluid.get()) && !firstOutputVolume.isEmpty()) {
+		if (!firstOutputVolume.getFluid().isSame(firstOutputFluid.get()) && !firstOutputVolume.isEmpty()) {
 			return false;
 		}
-		if (!firstOutputVolume.hasAvailable(firstOutputAmount)) {
+		if (!(fluidComponent.getTankCapacity(1) - fluidComponent.getFluidInTank(1).getAmount() >= firstOutputAmount)) {
 			return false;
 		}
-		if (!secondOutputVolume.getFluid().matchesType(secondOutputFluid.get()) && !secondOutputVolume.isEmpty()) {
+		if (!secondOutputVolume.getFluid().isSame(secondOutputFluid.get()) && !secondOutputVolume.isEmpty()) {
 			return false;
 		}
 
-		return secondOutputVolume.hasAvailable(secondOutputAmount);
+		return fluidComponent.getTankCapacity(2) - fluidComponent.getFluidInTank(2).getAmount() >= secondOutputAmount;
 	}
 
 	@Override
@@ -157,27 +154,27 @@ public class ElectrolyzingRecipe implements IRecipe<IInventory>, EnergyConsuming
 		return inputFluid.get();
 	}
 
-	public Fraction getInputAmount() {
-		return inputAmount.copy();
+	public int getInputAmount() {
+		return inputAmount;
 	}
 
 	public Fluid getFirstOutputFluid() {
 		return firstOutputFluid.get();
 	}
 
-	public Fraction getFirstOutputAmount() {
-		return firstOutputAmount.copy();
+	public int getFirstOutputAmount() {
+		return firstOutputAmount;
 	}
 
 	public Fluid getSecondOutputFluid() {
 		return secondOutputFluid.get();
 	}
 
-	public Fraction getSecondOutputAmount() {
-		return secondOutputAmount.copy();
+	public int getSecondOutputAmount() {
+		return secondOutputAmount;
 	}
 
-	public double getEnergyConsumed() {
+	public int getEnergyConsumed() {
 		return energyConsumed;
 	}
 
@@ -185,7 +182,7 @@ public class ElectrolyzingRecipe implements IRecipe<IInventory>, EnergyConsuming
 		return time;
 	}
 
-	public static final class Serializer implements IRecipeSerializer<ElectrolyzingRecipe> {
+	public static final class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<ElectrolyzingRecipe> {
 		public static final ResourceLocation ID = AstromineCommon.identifier("electrolyzing");
 
 		public static final Serializer INSTANCE = new Serializer();
@@ -198,25 +195,25 @@ public class ElectrolyzingRecipe implements IRecipe<IInventory>, EnergyConsuming
 		public ElectrolyzingRecipe fromJson(ResourceLocation identifier, JsonObject object) {
 			ElectrolyzingRecipe.Format format = new Gson().fromJson(object, ElectrolyzingRecipe.Format.class);
 
-			return new ElectrolyzingRecipe(identifier, RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.input)), FractionUtilities.fromJson(format.inputAmount), RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.firstOutput)), FractionUtilities.fromJson(
-				format.firstOutputAmount), RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.secondOutput)), FractionUtilities.fromJson(format.secondOutputAmount), EnergyUtilities.fromJson(format.energyGenerated), ParsingUtilities.fromJson(format.time, Integer.class));
+			return new ElectrolyzingRecipe(identifier, RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.input)), format.inputAmount, RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.firstOutput)),
+					format.firstOutputAmount, RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.secondOutput)), format.secondOutputAmount, format.energyGenerated, ParsingUtilities.fromJson(format.time, Integer.class));
 		}
 
 		@Override
 		public ElectrolyzingRecipe fromNetwork(ResourceLocation identifier, PacketBuffer buffer) {
-			return new ElectrolyzingRecipe(identifier, RegistryKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), RegistryKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), RegistryKey.create(
-				Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), EnergyUtilities.fromPacket(buffer), PacketUtilities.fromPacket(buffer, Integer.class));
+			return new ElectrolyzingRecipe(identifier, RegistryKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), buffer.readInt(), RegistryKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), buffer.readInt(), RegistryKey.create(
+					Registry.FLUID_REGISTRY, buffer.readResourceLocation()), buffer.readInt(), buffer.readInt(), buffer.readInt());
 		}
 
 		@Override
-		public void write(PacketBuffer buffer, ElectrolyzingRecipe recipe) {
+		public void toNetwork(PacketBuffer buffer, ElectrolyzingRecipe recipe) {
 			buffer.writeResourceLocation(recipe.inputFluidKey.location());
-			FractionUtilities.toPacket(buffer, recipe.inputAmount);
+			buffer.writeInt(recipe.inputAmount);
 			buffer.writeResourceLocation(recipe.firstOutputFluidKey.location());
-			FractionUtilities.toPacket(buffer, recipe.firstOutputAmount);
+			buffer.writeInt(recipe.firstOutputAmount);
 			buffer.writeResourceLocation(recipe.secondOutputFluidKey.location());
-			FractionUtilities.toPacket(buffer, recipe.secondOutputAmount);
-			EnergyUtilities.toPacket(buffer, recipe.energyConsumed);
+			buffer.writeInt(recipe.secondOutputAmount);
+			buffer.writeInt(recipe.energyConsumed);
 			buffer.writeInt(recipe.getTime());
 		}
 	}
@@ -232,29 +229,29 @@ public class ElectrolyzingRecipe implements IRecipe<IInventory>, EnergyConsuming
 	public static final class Format {
 		String input;
 		@SerializedName("input_amount")
-		JsonElement inputAmount;
+		int inputAmount;
 
 		@SerializedName("first_output")
 		String firstOutput;
 
 		@SerializedName("first_output_amount")
-		JsonElement firstOutputAmount;
+		int firstOutputAmount;
 
 		@SerializedName("second_output")
 		String secondOutput;
 
 		@SerializedName("second_output_amount")
-		JsonElement secondOutputAmount;
+		int secondOutputAmount;
 
 		@SerializedName("energy_consumed")
-		JsonElement energyGenerated;
+		int energyGenerated;
 
 		JsonElement time;
 
 		@Override
 		public String toString() {
 			return "Format{" + "input='" + input + '\'' + ", inputAmount=" + inputAmount + ", firstOutput='" + firstOutput + '\'' + ", firstOutputAmount=" + firstOutputAmount + ", secondOutput='" + secondOutput + '\'' + ", secondOutputAmount=" + secondOutputAmount +
-				", energyGenerated=" + energyGenerated + ", time=" + time + '}';
+			       ", energyGenerated=" + energyGenerated + ", time=" + time + '}';
 		}
 	}
 }

@@ -161,16 +161,16 @@ public class AstromineConfig implements ConfigData {
 	public double eliteLiquidGeneratorEnergy = 65535D;
 
 	@Comment("Fluid for the Primitive Liquid Generator.")
-	public long primitiveLiquidGeneratorFluid = 4L;
+	public int primitiveLiquidGeneratorFluid = 4096;
 
 	@Comment("Fluid for the Basic Liquid Generator.")
-	public long basicLiquidGeneratorFluid = 8L;
+	public int basicLiquidGeneratorFluid = 8192;
 
 	@Comment("Fluid for the Advanced Liquid Generator.")
-	public long advancedLiquidGeneratorFluid = 16L;
+	public int advancedLiquidGeneratorFluid = 16384;
 
 	@Comment("Fluid for the Elite Liquid Generator.")
-	public long eliteLiquidGeneratorFluid = 64L;
+	public int eliteLiquidGeneratorFluid = 65536;
 
 	@Comment("Speed for the Primitive Fluid Mixer.")
 	public double primitiveFluidMixerSpeed = 0.5D;
@@ -197,16 +197,16 @@ public class AstromineConfig implements ConfigData {
 	public double eliteFluidMixerEnergy = 65535D;
 
 	@Comment("Fluid for the Primitive Fluid Mixer.")
-	public long primitiveFluidMixerFluid = 4L;
+	public int primitiveFluidMixerFluid = 4096;
 
 	@Comment("Fluid for the Basic Fluid Mixer.")
-	public long basicFluidMixerFluid = 8L;
+	public int basicFluidMixerFluid = 8192;
 
 	@Comment("Fluid for the Advanced Fluid Mixer.")
-	public long advancedFluidMixerFluid = 16L;
+	public int advancedFluidMixerFluid = 16384;
 
 	@Comment("Fluid for the Elite Fluid Mixer.")
-	public long eliteFluidMixerFluid = 64L;
+	public int eliteFluidMixerFluid = 65536;
 
 	@Comment("Speed for the Primitive Electrolyzer.")
 	public double primitiveElectrolyzerSpeed = 0.5D;
@@ -233,16 +233,16 @@ public class AstromineConfig implements ConfigData {
 	public double eliteElectrolyzerEnergy = 65535D;
 
 	@Comment("Fluid for the Primitive Electrolyzer.")
-	public long primitiveElectrolyzerFluid = 4L;
+	public int primitiveElectrolyzerFluid = 4096;
 
 	@Comment("Fluid for the Basic Electrolyzer.")
-	public long basicElectrolyzerFluid = 8L;
+	public int basicElectrolyzerFluid = 8192;
 
 	@Comment("Fluid for the Advanced Electrolyzer.")
-	public long advancedElectrolyzerFluid = 16L;
+	public int advancedElectrolyzerFluid = 16384;
 
 	@Comment("Fluid for the Elite Electrolyzer.")
-	public long eliteElectrolyzerFluid = 64L;
+	public int eliteElectrolyzerFluid = 65536;
 
 	@Comment("Speed for the Primitive Electric Smelter.")
 	public double primitiveElectricSmelterSpeed = 0.5D;
@@ -311,28 +311,28 @@ public class AstromineConfig implements ConfigData {
 	public double ventEnergy = 16384D;
 
 	@Comment("Fluid for the Vent.")
-	public long ventFluid = 16L;
+	public int ventFluid = 16384;
 
 	@Comment("Fluid for the Primitive Tank.")
-	public long primitiveTankFluid = 16L;
+	public int primitiveTankFluid = 16384;
 
 	@Comment("Speed for the Primitive Tank.")
 	public double primitiveTankSpeed = 0.5D;
 
 	@Comment("Fluid for the Basic Tank.")
-	public long basicTankFluid = 32L;
+	public int basicTankFluid = 32768;
 
 	@Comment("Speed for the Basic Tank.")
 	public double basicTankSpeed = 1D;
 
 	@Comment("Fluid for the Advanced Tank.")
-	public long advancedTankFluid = 128L;
+	public int advancedTankFluid = 131072;
 
 	@Comment("Speed for the Advanced Tank.")
 	public double advancedTankSpeed = 2D;
 
 	@Comment("Fluid for the Elite Tank.")
-	public long eliteTankFluid = 256L;
+	public int eliteTankFluid = 262144;
 
 	@Comment("Speed for the Elite Tank.")
 	public double eliteTankSpeed = 4D;

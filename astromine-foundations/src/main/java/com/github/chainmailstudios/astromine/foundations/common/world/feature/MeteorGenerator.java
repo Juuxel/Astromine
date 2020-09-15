@@ -34,12 +34,6 @@ import com.terraformersmc.shapes.api.Shape;
 import com.terraformersmc.shapes.impl.Shapes;
 import com.terraformersmc.shapes.impl.layer.transform.RotateLayer;
 import com.terraformersmc.shapes.impl.layer.transform.TranslateLayer;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -58,6 +52,12 @@ import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.gen.feature.structure.ScatteredStructurePiece;
 import net.minecraft.world.gen.feature.structure.StructureManager;
 import net.minecraft.world.gen.feature.template.TemplateManager;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 public class MeteorGenerator extends ScatteredStructurePiece {
 
@@ -105,12 +105,12 @@ public class MeteorGenerator extends ScatteredStructurePiece {
 		}, state -> Blocks.COBBLESTONE.defaultBlockState());
 		buildSphere(world, originPos, 8, AstromineFoundationsBlocks.METEOR_STONE.defaultBlockState());
 
-		Shape vein = Shapes.ellipsoid((float) 4, (float) 4, (float) 4).applyLayer(RotateLayer.of(Quaternion.of(random.nextDouble() * 360, random.nextDouble() * 360, random.nextDouble() * 360, true))).applyLayer(TranslateLayer.of(Position.of(originPos)));
+		Shape vein = Shapes.ellipsoid((float) 4, (float) 4, (float) 4).applyLayer(RotateLayer.of(Quaternion.of(random.nextDouble() * 360, random.nextDouble() * 360, random.nextDouble() * 360, true))).applyLayer(TranslateLayer.of(Position.of(originPos.getX(), originPos.getY(), originPos.getZ())));
 
 		Block metiteOre = Registry.BLOCK.getOptional(AstromineCommon.identifier("meteor_metite_ore")).orElse(null);
 		if (metiteOre != null) {
 			for (Position streamPosition : vein.stream().collect(Collectors.toSet())) {
-				BlockPos orePosition = streamPosition.toBlockPos();
+				BlockPos orePosition = new BlockPos(streamPosition.getX(), streamPosition.getY(), streamPosition.getZ());
 
 				if (world.getBlockState(orePosition).getBlock() == AstromineFoundationsBlocks.METEOR_STONE) {
 					world.setBlock(orePosition, metiteOre.defaultBlockState(), 0b0110100);

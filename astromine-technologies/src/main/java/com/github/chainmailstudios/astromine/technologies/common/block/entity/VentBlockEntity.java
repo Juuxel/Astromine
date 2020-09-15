@@ -47,8 +47,8 @@ import net.minecraft.block.DirectionalBlock;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.chunk.IChunk;
 import net.minecraftforge.common.capabilities.CapabilityProvider;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 
 public class VentBlockEntity extends ComponentEnergyFluidBlockEntity implements FluidSizeProvider, EnergySizeProvider, SpeedProvider, EnergyConsumedProvider {
 	public VentBlockEntity() {
@@ -58,7 +58,7 @@ public class VentBlockEntity extends ComponentEnergyFluidBlockEntity implements 
 	}
 
 	@Override
-	protected FluidInventoryComponent createFluidComponent() {
+	protected IFluidHandler createFluidComponent() {
 		FluidInventoryComponent fluidComponent = new SimpleFluidInventoryComponent(1);
 		FluidHandler.of(fluidComponent).getFirst().setSize(getFluidSize());
 		return fluidComponent;
@@ -75,8 +75,8 @@ public class VentBlockEntity extends ComponentEnergyFluidBlockEntity implements 
 	}
 
 	@Override
-	public Fraction getFluidSize() {
-		return Fraction.of(AstromineConfig.get().ventFluid, 1);
+	public int getFluidSize() {
+		return AstromineConfig.get().ventFluid;
 	}
 
 	@Override

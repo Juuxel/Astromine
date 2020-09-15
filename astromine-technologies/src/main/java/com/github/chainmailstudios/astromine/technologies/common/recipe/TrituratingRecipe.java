@@ -53,15 +53,16 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.registries.ForgeRegistryEntry;
 
 public class TrituratingRecipe implements EnergyConsumingRecipe<IInventory> {
 	final ResourceLocation identifier;
 	final Ingredient input;
 	final ItemStack output;
-	final double energyConsumed;
+	final int energyConsumed;
 	final int time;
 
-	public TrituratingRecipe(ResourceLocation identifier, Ingredient input, ItemStack output, double energyConsumed, int time) {
+	public TrituratingRecipe(ResourceLocation identifier, Ingredient input, ItemStack output, int energyConsumed, int time) {
 		this.identifier = identifier;
 		this.input = input;
 		this.output = output;
@@ -133,11 +134,11 @@ public class TrituratingRecipe implements EnergyConsumingRecipe<IInventory> {
 		return time;
 	}
 
-	public double getEnergyConsumed() {
+	public int getEnergyConsumed() {
 		return energyConsumed;
 	}
 
-	public static final class Serializer implements IRecipeSerializer<TrituratingRecipe> {
+	public static final class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<TrituratingRecipe> {
 		public static final ResourceLocation ID = AstromineCommon.identifier("triturating");
 
 		public static final Serializer INSTANCE = new Serializer();
@@ -147,19 +148,19 @@ public class TrituratingRecipe implements EnergyConsumingRecipe<IInventory> {
 		}
 
 		@Override
-		public TrituratingRecipe read(ResourceLocation identifier, JsonObject object) {
+		public TrituratingRecipe fromJson(ResourceLocation identifier, JsonObject object) {
 			TrituratingRecipe.Format format = new Gson().fromJson(object, TrituratingRecipe.Format.class);
 
-			return new TrituratingRecipe(identifier, IngredientUtilities.fromJson(format.input), StackUtilities.fromJson(format.output), EnergyUtilities.fromJson(format.energyConsumed), ParsingUtilities.fromJson(format.time, Integer.class));
+			return new TrituratingRecipe(identifier, IngredientUtilities.fromJson(format.input), StackUtilities.fromJson(format.output), format.energyConsumed, format.time);
 		}
 
 		@Override
-		public TrituratingRecipe read(ResourceLocation identifier, PacketBuffer buffer) {
-			return new TrituratingRecipe(identifier, IngredientUtilities.fromPacket(buffer), StackUtilities.fromPacket(buffer), EnergyUtilities.fromPacket(buffer), PacketUtilities.fromPacket(buffer, Integer.class));
+		public TrituratingRecipe fromNetwork(ResourceLocation identifier, PacketBuffer buffer) {
+			return new TrituratingRecipe(identifier, IngredientUtilities.fromPacket(buffer), StackUtilities.fromPacket(buffer), buffer.readInt(), buffer.readInt());
 		}
 
 		@Override
-		public void write(PacketBuffer buffer, TrituratingRecipe recipe) {
+		public void toNetwork(PacketBuffer buffer, TrituratingRecipe recipe) {
 			IngredientUtilities.toPacket(buffer, recipe.input);
 			StackUtilities.toPacket(buffer, recipe.output);
 			EnergyUtilities.toPacket(buffer, recipe.energyConsumed);
@@ -179,9 +180,9 @@ public class TrituratingRecipe implements EnergyConsumingRecipe<IInventory> {
 		JsonObject input;
 		JsonObject output;
 		@SerializedName("time")
-		JsonPrimitive time;
+		int time;
 		@SerializedName("energy_consumed")
-		JsonElement energyConsumed;
+		int energyConsumed;
 
 		@Override
 		public String toString() {

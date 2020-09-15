@@ -40,9 +40,9 @@ import com.github.chainmailstudios.astromine.technologies.common.block.entity.ma
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.SpeedProvider;
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.TierProvider;
 import com.github.chainmailstudios.astromine.technologies.common.recipe.ElectrolyzingRecipe;
-import com.github.chainmailstudios.astromine.technologies.common.recipe.FluidMixingRecipe;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlockEntityTypes;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -68,7 +68,7 @@ public abstract class ElectrolyzerBlockEntity extends ComponentEnergyFluidBlockE
 	}
 
 	@Override
-	protected FluidInventoryComponent createFluidComponent() {
+	protected IFluidHandler createFluidComponent() {
 		FluidInventoryComponent fluidComponent = new SimpleFluidInventoryComponent(3)
 				.withInsertPredicate((direction, volume, slot) -> {
 					if (slot != 0) {
@@ -179,8 +179,8 @@ public abstract class ElectrolyzerBlockEntity extends ComponentEnergyFluidBlockE
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(AstromineConfig.get().primitiveElectrolyzerFluid, 1);
+		public int getFluidSize() {
+			return AstromineConfig.get().primitiveElectrolyzerFluid;
 		}
 
 		@Override
@@ -205,8 +205,8 @@ public abstract class ElectrolyzerBlockEntity extends ComponentEnergyFluidBlockE
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(AstromineConfig.get().basicElectrolyzerFluid, 1);
+		public int getFluidSize() {
+			return AstromineConfig.get().basicElectrolyzerFluid;
 		}
 
 		@Override
@@ -231,8 +231,8 @@ public abstract class ElectrolyzerBlockEntity extends ComponentEnergyFluidBlockE
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(AstromineConfig.get().advancedElectrolyzerFluid, 1);
+		public int getFluidSize() {
+			return AstromineConfig.get().advancedElectrolyzerFluid;
 		}
 
 		@Override
@@ -257,8 +257,8 @@ public abstract class ElectrolyzerBlockEntity extends ComponentEnergyFluidBlockE
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(AstromineConfig.get().eliteElectrolyzerFluid, 1);
+		public int getFluidSize() {
+			return AstromineConfig.get().eliteElectrolyzerFluid;
 		}
 
 		@Override

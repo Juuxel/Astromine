@@ -45,6 +45,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 
 public class FluidInserterBlockEntity extends ComponentEnergyFluidBlockEntity implements EnergySizeProvider, SpeedProvider, EnergyConsumedProvider {
 	private Fraction cooldown = Fraction.empty();
@@ -54,7 +55,7 @@ public class FluidInserterBlockEntity extends ComponentEnergyFluidBlockEntity im
 	}
 
 	@Override
-	protected FluidInventoryComponent createFluidComponent() {
+	protected IFluidHandler createFluidComponent() {
 		FluidInventoryComponent fluidComponent = new SimpleFluidInventoryComponent(1);
 		FluidHandler.of(fluidComponent).getFirst().setSize(Fraction.of(8));
 		return fluidComponent;

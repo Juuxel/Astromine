@@ -151,6 +151,9 @@ allprojects {
         minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
         compile("org.jetbrains:annotations:19.0.0")
 
+        compile("com.terraformersmc:shapes:${shapes_version}") {
+            transitive = false
+        }
         runtimeOnly(fg.deobf("me.shedaniel:autoconfig1u-forge:${auto_config_version}")) {
             transitive = false
         }

@@ -27,7 +27,6 @@ package com.github.chainmailstudios.astromine.technologies.common.recipe;
 import com.github.chainmailstudios.astromine.common.recipe.AstromineRecipeType;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
 import com.github.chainmailstudios.astromine.AstromineCommon;
-import com.github.chainmailstudios.astromine.common.component.inventory.ItemInventoryComponent;
 import com.github.chainmailstudios.astromine.common.component.inventory.compatibility.ItemInventoryComponentFromItemInventory;
 import com.github.chainmailstudios.astromine.common.recipe.base.EnergyConsumingRecipe;
 import com.github.chainmailstudios.astromine.common.utilities.EnergyUtilities;
@@ -36,14 +35,11 @@ import com.github.chainmailstudios.astromine.common.utilities.PacketUtilities;
 import com.github.chainmailstudios.astromine.common.utilities.ParsingUtilities;
 import com.github.chainmailstudios.astromine.common.utilities.StackUtilities;
 
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
-import java.util.List;
-import java.util.Map;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
@@ -53,15 +49,16 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.registries.ForgeRegistryEntry;
 
 public class PressingRecipe implements EnergyConsumingRecipe<IInventory> {
 	final ResourceLocation identifier;
 	final Ingredient input;
 	final ItemStack output;
-	final double energyConsumed;
+	final int energyConsumed;
 	final int time;
 
-	public PressingRecipe(ResourceLocation identifier, Ingredient input, ItemStack output, double energyConsumed, int time) {
+	public PressingRecipe(ResourceLocation identifier, Ingredient input, ItemStack output, int energyConsumed, int time) {
 		this.identifier = identifier;
 		this.input = input;
 		this.output = output;
@@ -120,11 +117,11 @@ public class PressingRecipe implements EnergyConsumingRecipe<IInventory> {
 		return time;
 	}
 
-	public double getEnergyConsumed() {
+	public int getEnergyConsumed() {
 		return energyConsumed;
 	}
 
-	public static final class Serializer implements IRecipeSerializer<PressingRecipe> {
+	public static final class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<PressingRecipe> {
 		public static final ResourceLocation ID = AstromineCommon.identifier("pressing");
 
 		public static final Serializer INSTANCE = new Serializer();
@@ -134,19 +131,19 @@ public class PressingRecipe implements EnergyConsumingRecipe<IInventory> {
 		}
 
 		@Override
-		public PressingRecipe read(ResourceLocation identifier, JsonObject object) {
+		public PressingRecipe fromJson(ResourceLocation identifier, JsonObject object) {
 			PressingRecipe.Format format = new Gson().fromJson(object, PressingRecipe.Format.class);
 
-			return new PressingRecipe(identifier, IngredientUtilities.fromJson(format.input), StackUtilities.fromJson(format.output), EnergyUtilities.fromJson(format.energyConsumed), ParsingUtilities.fromJson(format.time, Integer.class));
+			return new PressingRecipe(identifier, IngredientUtilities.fromJson(format.input), StackUtilities.fromJson(format.output), format.energyConsumed, format.time);
 		}
 
 		@Override
-		public PressingRecipe read(ResourceLocation identifier, PacketBuffer buffer) {
-			return new PressingRecipe(identifier, IngredientUtilities.fromPacket(buffer), StackUtilities.fromPacket(buffer), EnergyUtilities.fromPacket(buffer), PacketUtilities.fromPacket(buffer, Integer.class));
+		public PressingRecipe fromNetwork(ResourceLocation identifier, PacketBuffer buffer) {
+			return new PressingRecipe(identifier, IngredientUtilities.fromPacket(buffer), StackUtilities.fromPacket(buffer), buffer.readInt(), buffer.readInt());
 		}
 
 		@Override
-		public void write(PacketBuffer buffer, PressingRecipe recipe) {
+		public void toNetwork(PacketBuffer buffer, PressingRecipe recipe) {
 			IngredientUtilities.toPacket(buffer, recipe.input);
 			StackUtilities.toPacket(buffer, recipe.output);
 			EnergyUtilities.toPacket(buffer, recipe.energyConsumed);
@@ -166,9 +163,9 @@ public class PressingRecipe implements EnergyConsumingRecipe<IInventory> {
 		JsonObject input;
 		JsonObject output;
 		@SerializedName("time")
-		JsonPrimitive time;
+		int time;
 		@SerializedName("energy_consumed")
-		JsonElement energyConsumed;
+		int energyConsumed;
 
 		@Override
 		public String toString() {

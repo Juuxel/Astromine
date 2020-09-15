@@ -26,7 +26,8 @@ package com.github.chainmailstudios.astromine.common.component.inventory;
 
 import com.github.chainmailstudios.astromine.common.utilities.data.predicate.TriPredicate;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
+import com.github.chainmailstudios.astromine.common.volume.fluid.FluidStack;
+import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -38,12 +39,12 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 
 public class SimpleFluidInventoryComponent implements FluidInventoryComponent {
-	private final Map<Integer, FluidVolume> contents = new Int2ObjectOpenHashMap<>();
+	private final Map<Integer, FluidStack> contents = new Int2ObjectOpenHashMap<>();
 
 	private final List<Runnable> listeners = new ArrayList<>();
 
-	private TriPredicate<@Nullable Direction, FluidVolume, Integer> insertPredicate = (direction, volume, slot) -> true;
-	private TriPredicate<@Nullable Direction, FluidVolume, Integer> extractPredicate = (direction, volume, integer) -> true;
+	private TriPredicate<@Nullable Direction, FluidStack, Integer> insertPredicate = (direction, volume, slot) -> true;
+	private TriPredicate<@Nullable Direction, FluidStack, Integer> extractPredicate = (direction, volume, integer) -> true;
 
 	private final int size;
 
@@ -54,34 +55,34 @@ public class SimpleFluidInventoryComponent implements FluidInventoryComponent {
 	public SimpleFluidInventoryComponent(int size) {
 		this.size = size;
 		for (int i = 0; i < size; ++i) {
-			contents.put(i, FluidVolume.attached(this));
+			contents.put(i, FluidStack.EMPTY);
 		}
 	}
 
 	@Override
-	public boolean canInsert(@Nullable Direction direction, FluidVolume volume, int slot) {
+	public boolean canInsert(@Nullable Direction direction, FluidStack volume, int slot) {
 		return insertPredicate.test(direction, volume, slot);
 	}
 
 	@Override
-	public boolean canExtract(@Nullable Direction direction, FluidVolume volume, int slot) {
+	public boolean canExtract(@Nullable Direction direction, FluidStack volume, int slot) {
 		return extractPredicate.test(direction, volume, slot);
 	}
 
-	public SimpleFluidInventoryComponent withInsertPredicate(TriPredicate<@Nullable Direction, FluidVolume, Integer> predicate) {
-		TriPredicate<Direction, FluidVolume, Integer> triPredicate = this.insertPredicate;
+	public SimpleFluidInventoryComponent withInsertPredicate(TriPredicate<@Nullable Direction, FluidStack, Integer> predicate) {
+		TriPredicate<Direction, FluidStack, Integer> triPredicate = this.insertPredicate;
 		this.insertPredicate = (direction, volume, integer) -> triPredicate.test(direction, volume, integer) && predicate.test(direction, volume, integer);
 		return this;
 	}
 
-	public SimpleFluidInventoryComponent withExtractPredicate(TriPredicate<@Nullable Direction, FluidVolume, Integer> predicate) {
-		TriPredicate<Direction, FluidVolume, Integer> triPredicate = this.extractPredicate;
+	public SimpleFluidInventoryComponent withExtractPredicate(TriPredicate<@Nullable Direction, FluidStack, Integer> predicate) {
+		TriPredicate<Direction, FluidStack, Integer> triPredicate = this.extractPredicate;
 		this.extractPredicate = (direction, volume, integer) -> triPredicate.test(direction, volume, integer) && predicate.test(direction, volume, integer);
 		return this;
 	}
 
 	@Override
-	public Map<Integer, FluidVolume> getContents() {
+	public Map<Integer, FluidStack> getContents() {
 		return contents;
 	}
 

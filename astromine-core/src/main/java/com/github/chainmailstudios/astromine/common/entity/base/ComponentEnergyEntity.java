@@ -29,6 +29,7 @@ import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import nerdhub.cardinal.components.api.component.ComponentProvider;
 import net.minecraft.entity.EntityType;
 import net.minecraft.world.World;
+import net.minecraftforge.energy.CapabilityEnergy;
 
 public abstract class ComponentEnergyEntity extends ComponentEntity {
 	public ComponentEnergyEntity(EntityType<?> type, World world) {
@@ -38,6 +39,6 @@ public abstract class ComponentEnergyEntity extends ComponentEntity {
 	public abstract EnergyInventoryComponent createEnergyComponent();
 
 	public EnergyInventoryComponent getEnergyComponent() {
-		return ComponentProvider.fromEntity(this).getComponent(AstromineComponentTypes.ENERGY_INVENTORY_COMPONENT);
+		return getCapability(CapabilityEnergy.ENERGY).orElse(null);
 	}
 }

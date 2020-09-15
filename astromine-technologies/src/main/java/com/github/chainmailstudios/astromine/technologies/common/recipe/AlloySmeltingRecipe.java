@@ -33,14 +33,10 @@ import com.github.chainmailstudios.astromine.common.recipe.ingredient.ArrayIngre
 import com.github.chainmailstudios.astromine.common.utilities.EnergyUtilities;
 import com.github.chainmailstudios.astromine.common.utilities.IngredientUtilities;
 import com.github.chainmailstudios.astromine.common.utilities.PacketUtilities;
-import com.github.chainmailstudios.astromine.common.utilities.ParsingUtilities;
 import com.github.chainmailstudios.astromine.common.utilities.StackUtilities;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
-
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -51,16 +47,17 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.registries.ForgeRegistryEntry;
 
 public class AlloySmeltingRecipe implements EnergyConsumingRecipe<IInventory> {
 	final ResourceLocation identifier;
 	final ArrayIngredient firstInput;
 	final ArrayIngredient secondInput;
 	final ItemStack output;
-	final double energyConsumed;
+	final int energyConsumed;
 	final int time;
 
-	public AlloySmeltingRecipe(ResourceLocation identifier, ArrayIngredient firstInput, ArrayIngredient secondInput, ItemStack output, double energyConsumed, int time) {
+	public AlloySmeltingRecipe(ResourceLocation identifier, ArrayIngredient firstInput, ArrayIngredient secondInput, ItemStack output, int energyConsumed, int time) {
 		this.identifier = identifier;
 		this.firstInput = firstInput;
 		this.secondInput = secondInput;
@@ -84,17 +81,17 @@ public class AlloySmeltingRecipe implements EnergyConsumingRecipe<IInventory> {
 	}
 
 	@Override
-	public ItemStack craft(IInventory inventory) {
+	public ItemStack assemble(IInventory inventory) {
 		return output.copy();
 	}
 
 	@Override
-	public boolean fits(int width, int height) {
+	public boolean canCraftInDimensions(int width, int height) {
 		return true;
 	}
 
 	@Override
-	public ItemStack getOutput() {
+	public ItemStack getResultItem() {
 		return output.copy();
 	}
 
@@ -114,7 +111,7 @@ public class AlloySmeltingRecipe implements EnergyConsumingRecipe<IInventory> {
 	}
 
 	@Override
-	public NonNullList<Ingredient> getPreviewInputs() {
+	public NonNullList<Ingredient> getIngredients() {
 		NonNullList<Ingredient> defaultedList = NonNullList.create();
 		defaultedList.add(this.firstInput.asIngredient());
 		defaultedList.add(this.secondInput.asIngredient());
@@ -130,7 +127,7 @@ public class AlloySmeltingRecipe implements EnergyConsumingRecipe<IInventory> {
 	}
 
 	@Override
-	public ItemStack getRecipeKindIcon() {
+	public ItemStack getToastSymbol() {
 		return new ItemStack(AstromineTechnologiesBlocks.ADVANCED_ALLOY_SMELTER);
 	}
 
@@ -138,11 +135,11 @@ public class AlloySmeltingRecipe implements EnergyConsumingRecipe<IInventory> {
 		return time;
 	}
 
-	public double getEnergyConsumed() {
+	public int getEnergyConsumed() {
 		return energyConsumed;
 	}
 
-	public static final class Serializer implements IRecipeSerializer<AlloySmeltingRecipe> {
+	public static final class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<AlloySmeltingRecipe> {
 		public static final ResourceLocation ID = AstromineCommon.identifier("alloy_smelting");
 
 		public static final Serializer INSTANCE = new Serializer();
@@ -152,20 +149,20 @@ public class AlloySmeltingRecipe implements EnergyConsumingRecipe<IInventory> {
 		}
 
 		@Override
-		public AlloySmeltingRecipe read(ResourceLocation identifier, JsonObject object) {
+		public AlloySmeltingRecipe fromJson(ResourceLocation identifier, JsonObject object) {
 			AlloySmeltingRecipe.Format format = new Gson().fromJson(object, AlloySmeltingRecipe.Format.class);
 
-			return new AlloySmeltingRecipe(identifier, IngredientUtilities.fromBetterJson(format.firstInput), IngredientUtilities.fromBetterJson(format.secondInput), StackUtilities.fromJson(format.output), EnergyUtilities.fromJson(format.energyConsumed), ParsingUtilities
-				.fromJson(format.time, Integer.class));
+			return new AlloySmeltingRecipe(identifier, IngredientUtilities.fromBetterJson(format.firstInput), IngredientUtilities.fromBetterJson(format.secondInput), StackUtilities.fromJson(format.output), format.energyConsumed,
+					format.time);
 		}
 
 		@Override
-		public AlloySmeltingRecipe read(ResourceLocation identifier, PacketBuffer buffer) {
-			return new AlloySmeltingRecipe(identifier, IngredientUtilities.fromBetterPacket(buffer), IngredientUtilities.fromBetterPacket(buffer), StackUtilities.fromPacket(buffer), EnergyUtilities.fromPacket(buffer), PacketUtilities.fromPacket(buffer, Integer.class));
+		public AlloySmeltingRecipe fromNetwork(ResourceLocation identifier, PacketBuffer buffer) {
+			return new AlloySmeltingRecipe(identifier, IngredientUtilities.fromBetterPacket(buffer), IngredientUtilities.fromBetterPacket(buffer), StackUtilities.fromPacket(buffer), buffer.readInt(), buffer.readInt());
 		}
 
 		@Override
-		public void write(PacketBuffer buffer, AlloySmeltingRecipe recipe) {
+		public void toNetwork(PacketBuffer buffer, AlloySmeltingRecipe recipe) {
 			IngredientUtilities.toBetterPacket(buffer, recipe.firstInput);
 			IngredientUtilities.toBetterPacket(buffer, recipe.secondInput);
 			StackUtilities.toPacket(buffer, recipe.output);
@@ -187,9 +184,9 @@ public class AlloySmeltingRecipe implements EnergyConsumingRecipe<IInventory> {
 		JsonObject secondInput;
 		JsonObject output;
 		@SerializedName("time")
-		JsonPrimitive time;
+		int time;
 		@SerializedName("energy_consumed")
-		JsonElement energyConsumed;
+		int energyConsumed;
 
 		@Override
 		public String toString() {

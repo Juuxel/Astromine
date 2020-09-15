@@ -38,10 +38,10 @@ import com.github.chainmailstudios.astromine.technologies.common.block.entity.ma
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.FluidSizeProvider;
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.SpeedProvider;
 import com.github.chainmailstudios.astromine.technologies.common.block.entity.machine.TierProvider;
-import com.github.chainmailstudios.astromine.technologies.common.recipe.ElectrolyzingRecipe;
 import com.github.chainmailstudios.astromine.technologies.common.recipe.LiquidGeneratingRecipe;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlockEntityTypes;
 import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -67,7 +67,7 @@ public abstract class LiquidGeneratorBlockEntity extends ComponentEnergyFluidBlo
 	}
 
 	@Override
-	protected FluidInventoryComponent createFluidComponent() {
+	protected IFluidHandler createFluidComponent() {
 		FluidInventoryComponent fluidComponent = new SimpleFluidInventoryComponent(1)
 				.withInsertPredicate((direction, volume, slot) -> {
 					if (slot != 0) {
@@ -129,9 +129,9 @@ public abstract class LiquidGeneratorBlockEntity extends ComponentEnergyFluidBlo
 						if (progress + speed >= limit) {
 							optionalRecipe = Optional.empty();
 
-							fluids.getFirst().minus(recipe.getAmount());
+							fluids.getFirst().shrink(recipe.getAmount());
 
-							energyVolume.add(generated);
+							energyVolume.add((int) generated);
 						} else {
 							progress += speed;
 						}
@@ -169,8 +169,8 @@ public abstract class LiquidGeneratorBlockEntity extends ComponentEnergyFluidBlo
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(AstromineConfig.get().primitiveLiquidGeneratorFluid, 1);
+		public int getFluidSize() {
+			return AstromineConfig.get().primitiveLiquidGeneratorFluid;
 		}
 
 		@Override
@@ -195,8 +195,8 @@ public abstract class LiquidGeneratorBlockEntity extends ComponentEnergyFluidBlo
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(AstromineConfig.get().basicLiquidGeneratorFluid, 1);
+		public int getFluidSize() {
+			return AstromineConfig.get().basicLiquidGeneratorFluid;
 		}
 
 		@Override
@@ -221,8 +221,8 @@ public abstract class LiquidGeneratorBlockEntity extends ComponentEnergyFluidBlo
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(AstromineConfig.get().advancedLiquidGeneratorFluid, 1);
+		public int getFluidSize() {
+			return AstromineConfig.get().advancedLiquidGeneratorFluid;
 		}
 
 		@Override
@@ -247,8 +247,8 @@ public abstract class LiquidGeneratorBlockEntity extends ComponentEnergyFluidBlo
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(AstromineConfig.get().eliteLiquidGeneratorFluid, 1);
+		public int getFluidSize() {
+			return AstromineConfig.get().eliteLiquidGeneratorFluid;
 		}
 
 		@Override

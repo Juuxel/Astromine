@@ -24,16 +24,13 @@
 
 package com.github.chainmailstudios.astromine.common.callback;
 
-import net.fabricmc.fabric.api.event.Event;
-import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.world.server.ServerChunkProvider;
+import net.minecraftforge.eventbus.api.Event;
 
-public interface ServerChunkManagerCallback {
-	Event<ServerChunkManagerCallback> EVENT = EventFactory.createArrayBacked(ServerChunkManagerCallback.class, (listeners) -> (manager) -> {
-		for (ServerChunkManagerCallback listener : listeners) {
-			listener.handle(manager);
-		}
-	});
+public class ServerChunkManagerCallback extends Event {
+	public ServerChunkProvider chunkProvider;
 
-	void handle(ServerChunkProvider manager);
+	public ServerChunkManagerCallback(ServerChunkProvider chunkProvider) {
+		this.chunkProvider = chunkProvider;
+	}
 }

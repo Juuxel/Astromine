@@ -27,9 +27,23 @@ package com.github.chainmailstudios.astromine.discoveries.common.item;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.IArmorMaterial;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.extensions.IForgeItem;
+import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
+import org.jetbrains.annotations.Nullable;
 
 public class SpaceSuitItem extends ArmorItem {
 	public SpaceSuitItem(IArmorMaterial material, EquipmentSlotType slot, Properties settings) {
 		super(material, slot, settings);
+	}
+
+	@Nullable
+	@Override
+	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
+		if (slot == EquipmentSlotType.CHEST)
+			return new FluidHandlerItemStack(stack, 65536);
+		return super.initCapabilities(stack, nbt);
 	}
 }

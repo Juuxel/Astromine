@@ -28,20 +28,21 @@ import com.github.chainmailstudios.astromine.common.component.inventory.FluidInv
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 
 public abstract class ComponentEnergyFluidBlockEntity extends ComponentEnergyBlockEntity {
-	protected final FluidInventoryComponent fluidComponent = createFluidComponent();
+	protected final IFluidHandler fluidComponent = createFluidComponent();
 
-	protected abstract FluidInventoryComponent createFluidComponent();
+	protected abstract IFluidHandler createFluidComponent();
 
 	public ComponentEnergyFluidBlockEntity(Block energyBlock, TileEntityType<?> type) {
 		super(energyBlock, type);
 
-		addComponent(AstromineComponentTypes.FLUID_INVENTORY_COMPONENT, fluidComponent);
-		fluidComponent.dispatchConsumers();
+		addComponent(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, fluidComponent);
 	}
 
-	public FluidInventoryComponent getFluidComponent() {
+	public IFluidHandler getFluidComponent() {
 		return fluidComponent;
 	}
 }

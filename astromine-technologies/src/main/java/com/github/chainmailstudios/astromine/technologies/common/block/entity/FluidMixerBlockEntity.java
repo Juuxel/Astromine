@@ -25,10 +25,7 @@
 package com.github.chainmailstudios.astromine.technologies.common.block.entity;
 
 import com.github.chainmailstudios.astromine.common.block.entity.base.ComponentEnergyFluidBlockEntity;
-import com.github.chainmailstudios.astromine.common.component.inventory.EnergyInventoryComponent;
-import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
-import com.github.chainmailstudios.astromine.common.component.inventory.SimpleEnergyInventoryComponent;
-import com.github.chainmailstudios.astromine.common.component.inventory.SimpleFluidInventoryComponent;
+import com.github.chainmailstudios.astromine.common.component.inventory.*;
 import com.github.chainmailstudios.astromine.common.utilities.tier.MachineTier;
 import com.github.chainmailstudios.astromine.common.volume.energy.EnergyVolume;
 import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
@@ -46,6 +43,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -68,9 +67,9 @@ public abstract class FluidMixerBlockEntity extends ComponentEnergyFluidBlockEnt
 	}
 
 	@Override
-	protected FluidInventoryComponent createFluidComponent() {
-		FluidInventoryComponent fluidComponent = new SimpleFluidInventoryComponent(3)
-				.withInsertPredicate((direction, volume, slot) -> {
+	protected IFluidHandler createFluidComponent() {
+		return new SimpleFluidTank(3)
+				.withInsertSlots(slot -> {
 					if (slot != 0 && slot != 1) {
 						return false;
 					}
@@ -87,20 +86,17 @@ public abstract class FluidMixerBlockEntity extends ComponentEnergyFluidBlockEnt
 					}
 
 					return false;
-				}).withExtractPredicate((direction, volume, slot) -> {
-					return slot == 2;
-				}).withListener((inventory) -> {
+				})
+				.withExtractSlots(slot -> slot == 2)
+				.withCapacity(0, getFluidSize())
+				.withCapacity(1, getFluidSize())
+				.withCapacity(2, getFluidSize())
+				.withListener((inventory) -> {
 					shouldTry = true;
 					progress = 0;
 					limit = 100;
 					optionalRecipe = Optional.empty();
 				});
-
-		FluidHandler.of(fluidComponent).getFirst().setSize(getFluidSize());
-		FluidHandler.of(fluidComponent).getSecond().setSize(getFluidSize());
-		FluidHandler.of(fluidComponent).getThird().setSize(getFluidSize());
-
-		return fluidComponent;
 	}
 
 	@Override
@@ -133,13 +129,13 @@ public abstract class FluidMixerBlockEntity extends ComponentEnergyFluidBlockEnt
 							optionalRecipe = Optional.empty();
 
 							if (energyVolume.hasAvailable(consumed)) {
-								FluidVolume firstInputFluidVolume = fluids.getFirst();
-								FluidVolume secondInputFluidVolume = fluids.getSecond();
-								FluidVolume outputVolume = fluids.getThird();
+								FluidStack firstInputFluidVolume = fluids.getFirst();
+								FluidStack secondInputFluidVolume = fluids.getSecond();
+								FluidStack outputVolume = fluids.getThird();
 
-								firstInputFluidVolume.minus(recipe.getFirstInputAmount());
-								secondInputFluidVolume.minus(recipe.getSecondInputAmount());
-								outputVolume.moveFrom(FluidVolume.of(recipe.getOutputAmount(), recipe.getOutputFluid()), recipe.getOutputAmount());
+								firstInputFluidVolume.shrink(recipe.getFirstInputAmount());
+								secondInputFluidVolume.shrink(recipe.getSecondInputAmount());
+								outputVolume.shrink(FluidVolume.of(recipe.getOutputAmount(), recipe.getOutputFluid()), recipe.getOutputAmount());
 							}
 
 							progress = 0;
@@ -180,8 +176,8 @@ public abstract class FluidMixerBlockEntity extends ComponentEnergyFluidBlockEnt
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(AstromineConfig.get().primitiveFluidMixerFluid, 1);
+		public int getFluidSize() {
+			return AstromineConfig.get().primitiveFluidMixerFluid;
 		}
 
 		@Override
@@ -206,8 +202,8 @@ public abstract class FluidMixerBlockEntity extends ComponentEnergyFluidBlockEnt
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(AstromineConfig.get().basicFluidMixerFluid, 1);
+		public int getFluidSize() {
+			return AstromineConfig.get().basicFluidMixerFluid;
 		}
 
 		@Override
@@ -232,8 +228,8 @@ public abstract class FluidMixerBlockEntity extends ComponentEnergyFluidBlockEnt
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(AstromineConfig.get().advancedFluidMixerFluid, 1);
+		public int getFluidSize() {
+			return AstromineConfig.get().advancedFluidMixerFluid;
 		}
 
 		@Override
@@ -258,8 +254,8 @@ public abstract class FluidMixerBlockEntity extends ComponentEnergyFluidBlockEnt
 		}
 
 		@Override
-		public Fraction getFluidSize() {
-			return Fraction.of(AstromineConfig.get().eliteFluidMixerFluid, 1);
+		public int getFluidSize() {
+			return AstromineConfig.get().eliteFluidMixerFluid;
 		}
 
 		@Override

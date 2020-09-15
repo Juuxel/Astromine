@@ -27,5 +27,5 @@ package com.github.chainmailstudios.astromine.common.recipe.base;
 import net.minecraft.inventory.IInventory;
 
 public interface EnergyConsumingRecipe<C extends IInventory> extends AstromineRecipe<C> {
-	double getEnergyConsumed();
+	int getEnergyConsumed();
 }

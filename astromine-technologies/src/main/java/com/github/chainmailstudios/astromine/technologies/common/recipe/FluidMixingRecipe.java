@@ -24,18 +24,16 @@
 
 package com.github.chainmailstudios.astromine.technologies.common.recipe;
 
-import com.github.chainmailstudios.astromine.common.recipe.AstromineRecipeType;
-import com.github.chainmailstudios.astromine.common.volume.handler.FluidHandler;
-import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
 import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.component.inventory.FluidInventoryComponent;
-import com.github.chainmailstudios.astromine.common.volume.fraction.Fraction;
+import com.github.chainmailstudios.astromine.common.recipe.AstromineRecipeType;
 import com.github.chainmailstudios.astromine.common.recipe.base.EnergyConsumingRecipe;
 import com.github.chainmailstudios.astromine.common.utilities.EnergyUtilities;
 import com.github.chainmailstudios.astromine.common.utilities.FractionUtilities;
 import com.github.chainmailstudios.astromine.common.utilities.PacketUtilities;
 import com.github.chainmailstudios.astromine.common.utilities.ParsingUtilities;
-import com.github.chainmailstudios.astromine.common.volume.fluid.FluidVolume;
+import com.github.chainmailstudios.astromine.common.volume.handler.FluidHandler;
+import com.github.chainmailstudios.astromine.technologies.registry.AstromineTechnologiesBlocks;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -54,22 +52,24 @@ import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.registries.ForgeRegistryEntry;
 
 public class FluidMixingRecipe implements IRecipe<IInventory>, EnergyConsumingRecipe<IInventory> {
 	final ResourceLocation identifier;
 	final RegistryKey<Fluid> firstInputFluidKey;
 	final LazyValue<Fluid> firstInputFluid;
-	final Fraction firstInputAmount;
+	final int firstInputAmount;
 	final RegistryKey<Fluid> secondInputFluidKey;
 	final LazyValue<Fluid> secondInputFluid;
-	final Fraction secondInputAmount;
+	final int secondInputAmount;
 	final RegistryKey<Fluid> outputFluidKey;
 	final LazyValue<Fluid> outputFluid;
-	final Fraction outputAmount;
+	final int outputAmount;
 	final double energyConsumed;
 	final int time;
 
-	public FluidMixingRecipe(ResourceLocation identifier, RegistryKey<Fluid> firstInputFluidKey, Fraction firstInputAmount, RegistryKey<Fluid> secondInputFluidKey, Fraction secondInputAmount, RegistryKey<Fluid> outputFluidKey, Fraction outputAmount, double energyConsumed, int time) {
+	public FluidMixingRecipe(ResourceLocation identifier, RegistryKey<Fluid> firstInputFluidKey, int firstInputAmount, RegistryKey<Fluid> secondInputFluidKey, int secondInputAmount, RegistryKey<Fluid> outputFluidKey, int outputAmount, double energyConsumed, int time) {
 		this.identifier = identifier;
 		this.firstInputFluidKey = firstInputFluidKey;
 		this.firstInputFluid = new LazyValue<>(() -> Registry.FLUID.get(this.firstInputFluidKey));
@@ -87,11 +87,11 @@ public class FluidMixingRecipe implements IRecipe<IInventory>, EnergyConsumingRe
 	public boolean matches(FluidInventoryComponent fluidComponent) {
 		FluidHandler fluidHandler = FluidHandler.of(fluidComponent);
 
-		FluidVolume firstInputVolume = fluidHandler.getFirst();
-		FluidVolume secondInputVolume = fluidHandler.getSecond();
-		FluidVolume outputVolume = fluidHandler.getThird();
+		FluidStack firstInputVolume = fluidHandler.getFirst();
+		FluidStack secondInputVolume = fluidHandler.getSecond();
+		FluidStack outputVolume = fluidHandler.getThird();
 
-		if (!firstInputVolume.getFluid().matchesType(firstInputFluid.get()) && !secondInputVolume.getFluid().matchesType(firstInputFluid.get())) {
+		if (!firstInputVolume.getFluid().isSame(firstInputFluid.get()) && !secondInputVolume.getFluid().isSame(firstInputFluid.get())) {
 			return false;
 		}
 
@@ -99,7 +99,7 @@ public class FluidMixingRecipe implements IRecipe<IInventory>, EnergyConsumingRe
 			return false;
 		}
 
-		if (!secondInputVolume.getFluid().matchesType(secondInputFluid.get()) && !firstInputVolume.getFluid().matchesType(secondInputFluid.get())) {
+		if (!secondInputVolume.getFluid().isSame(secondInputFluid.get()) && !firstInputVolume.getFluid().isSame(secondInputFluid.get())) {
 			return false;
 		}
 
@@ -107,7 +107,7 @@ public class FluidMixingRecipe implements IRecipe<IInventory>, EnergyConsumingRe
 			return false;
 		}
 
-		if (!outputVolume.getFluid().matchesType(outputFluid.get()) && !outputVolume.isEmpty()) {
+		if (!outputVolume.getFluid().isSame(outputFluid.get()) && !outputVolume.isEmpty()) {
 			return false;
 		}
 
@@ -167,7 +167,7 @@ public class FluidMixingRecipe implements IRecipe<IInventory>, EnergyConsumingRe
 		return firstInputFluid.get();
 	}
 
-	public Fraction getFirstInputAmount() {
+	public int getFirstInputAmount() {
 		return firstInputAmount;
 	}
 
@@ -175,7 +175,7 @@ public class FluidMixingRecipe implements IRecipe<IInventory>, EnergyConsumingRe
 		return secondInputFluid.get();
 	}
 
-	public Fraction getSecondInputAmount() {
+	public int getSecondInputAmount() {
 		return secondInputAmount;
 	}
 
@@ -183,11 +183,11 @@ public class FluidMixingRecipe implements IRecipe<IInventory>, EnergyConsumingRe
 		return outputFluid.get();
 	}
 
-	public Fraction getOutputAmount() {
+	public int getOutputAmount() {
 		return outputAmount;
 	}
 
-	public double getEnergyConsumed() {
+	public int getEnergyConsumed() {
 		return energyConsumed;
 	}
 
@@ -195,7 +195,7 @@ public class FluidMixingRecipe implements IRecipe<IInventory>, EnergyConsumingRe
 		return time;
 	}
 
-	public static final class Serializer implements IRecipeSerializer<FluidMixingRecipe> {
+	public static final class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>>  implements IRecipeSerializer<FluidMixingRecipe> {
 		public static final ResourceLocation ID = AstromineCommon.identifier("fluid_mixing");
 
 		public static final Serializer INSTANCE = new Serializer();
@@ -209,23 +209,23 @@ public class FluidMixingRecipe implements IRecipe<IInventory>, EnergyConsumingRe
 			FluidMixingRecipe.Format format = new Gson().fromJson(object, FluidMixingRecipe.Format.class);
 
 			return new FluidMixingRecipe(identifier, RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.firstInput)), FractionUtilities.fromJson(format.firstInputAmount), RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.secondInput)), FractionUtilities.fromJson(
-				format.secondInputAmount), RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.output)), FractionUtilities.fromJson(format.outputAmount), EnergyUtilities.fromJson(format.energyGenerated), ParsingUtilities.fromJson(format.time, Integer.class));
+					format.secondInputAmount), RegistryKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(format.output)), FractionUtilities.fromJson(format.outputAmount), EnergyUtilities.fromJson(format.energyGenerated), ParsingUtilities.fromJson(format.time, Integer.class));
 		}
 
 		@Override
 		public FluidMixingRecipe fromNetwork(ResourceLocation identifier, PacketBuffer buffer) {
 			return new FluidMixingRecipe(identifier, RegistryKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), RegistryKey.create(Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), RegistryKey.create(
-				Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), EnergyUtilities.fromPacket(buffer), PacketUtilities.fromPacket(buffer, Integer.class));
+					Registry.FLUID_REGISTRY, buffer.readResourceLocation()), FractionUtilities.fromPacket(buffer), EnergyUtilities.fromPacket(buffer), PacketUtilities.fromPacket(buffer, Integer.class));
 		}
 
 		@Override
 		public void write(PacketBuffer buffer, FluidMixingRecipe recipe) {
 			buffer.writeResourceLocation(recipe.firstInputFluidKey.location());
-			FractionUtilities.toPacket(buffer, recipe.firstInputAmount);
+			buffer.writeInt(recipe.firstInputAmount);
 			buffer.writeResourceLocation(recipe.secondInputFluidKey.location());
-			FractionUtilities.toPacket(buffer, recipe.secondInputAmount);
+			buffer.writeInt(recipe.secondInputAmount);
 			buffer.writeResourceLocation(recipe.outputFluidKey.location());
-			FractionUtilities.toPacket(buffer, recipe.outputAmount);
+			buffer.writeInt(recipe.outputAmount);
 			EnergyUtilities.toPacket(buffer, recipe.energyConsumed);
 			buffer.writeInt(recipe.getTime());
 		}
@@ -265,7 +265,7 @@ public class FluidMixingRecipe implements IRecipe<IInventory>, EnergyConsumingRe
 		@Override
 		public String toString() {
 			return "Format{" + "firstInput='" + firstInput + '\'' + ", firstInputAmount=" + firstInputAmount + ", secondInput='" + secondInput + '\'' + ", secondInputAmount=" + secondInputAmount + ", output='" + output + '\'' + ", outputAmount=" + outputAmount +
-				", energyGenerated=" + energyGenerated + '}';
+			       ", energyGenerated=" + energyGenerated + '}';
 		}
 	}
 }

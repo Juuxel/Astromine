@@ -54,16 +54,18 @@ import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.registries.ForgeRegistryEntry;
 
 public class LiquidGeneratingRecipe implements IRecipe<IInventory>, EnergyGeneratingRecipe<IInventory> {
 	final ResourceLocation identifier;
 	final RegistryKey<Fluid> fluidKey;
 	final LazyValue<Fluid> fluid;
-	final Fraction amount;
+	final int amount;
 	final double energyGenerated;
 	final int time;
 
-	public LiquidGeneratingRecipe(ResourceLocation identifier, RegistryKey<Fluid> fluidKey, Fraction amount, double energyGenerated, int time) {
+	public LiquidGeneratingRecipe(ResourceLocation identifier, RegistryKey<Fluid> fluidKey, int amount, double energyGenerated, int time) {
 		this.identifier = identifier;
 		this.fluidKey = fluidKey;
 		this.fluid = new LazyValue<>(() -> Registry.FLUID.get(this.fluidKey));
@@ -75,9 +77,9 @@ public class LiquidGeneratingRecipe implements IRecipe<IInventory>, EnergyGenera
 	public boolean matches(FluidInventoryComponent fluidComponent) {
 		FluidHandler handler = FluidHandler.of(fluidComponent);
 
-		FluidVolume fluidVolume = handler.getFirst();
+		FluidStack fluidVolume = handler.getFirst();
 
-		if (!fluidVolume.getFluid().matchesType(fluid.get())) {
+		if (!fluidVolume.getFluid().isSame(fluid.get())) {
 			return false;
 		}
 
@@ -133,7 +135,7 @@ public class LiquidGeneratingRecipe implements IRecipe<IInventory>, EnergyGenera
 		return fluid.get();
 	}
 
-	public Fraction getAmount() {
+	public int getAmount() {
 		return amount;
 	}
 
@@ -145,7 +147,7 @@ public class LiquidGeneratingRecipe implements IRecipe<IInventory>, EnergyGenera
 		return time;
 	}
 
-	public static final class Serializer implements IRecipeSerializer<LiquidGeneratingRecipe> {
+	public static final class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>>  implements IRecipeSerializer<LiquidGeneratingRecipe> {
 		public static final ResourceLocation ID = AstromineCommon.identifier("liquid_generating");
 
 		public static final Serializer INSTANCE = new Serializer();
