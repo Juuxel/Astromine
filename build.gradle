@@ -52,16 +52,20 @@ sourceSets {
     }
     foundations {
         makeSourceSet(sourceSets.foundations, 'foundations')
+        compileClasspath += sourceSets.core.output
     }
     transportations {
         makeSourceSet(sourceSets.transportations, 'transportations')
+        compileClasspath += sourceSets.core.output
     }
     technologies {
         makeSourceSet(sourceSets.technologies, 'technologies')
+        compileClasspath += sourceSets.core.output
         compileClasspath += sourceSets.foundations.output
     }
     discoveries {
         makeSourceSet(sourceSets.discoveries, 'discoveries')
+        compileClasspath += sourceSets.core.output
         compileClasspath += sourceSets.foundations.output
         compileClasspath += sourceSets.technologies.output
     }
