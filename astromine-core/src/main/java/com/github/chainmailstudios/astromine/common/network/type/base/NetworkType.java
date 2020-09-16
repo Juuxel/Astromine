@@ -24,18 +24,15 @@
 
 package com.github.chainmailstudios.astromine.common.network.type.base;
 
-import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.network.NetworkInstance;
 import com.github.chainmailstudios.astromine.common.registry.NetworkTypeRegistry;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.ForgeRegistryEntry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 
-public abstract class NetworkType {
-	public static final NetworkType EMPTY = NetworkTypeRegistry.INSTANCE.register(AstromineCommon.identifier("empty_network"), new NetworkType() {
-		@Override
-		public void tick(World world, NetworkInstance instance) {
-
-		}
-	});
+public abstract class NetworkType extends ForgeRegistryEntry<NetworkType> implements IForgeRegistryEntry<NetworkType> {
+	public static final RegistryObject<NetworkType> EMPTY = NetworkTypeRegistry.INSTANCE.registerLambda("empty_network", () -> (world, instance) -> {});
 
 	public abstract void tick(World world, NetworkInstance instance);
 }

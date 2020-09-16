@@ -24,29 +24,35 @@
 
 package com.github.chainmailstudios.astromine.registry;
 
-import com.github.chainmailstudios.astromine.AstromineCommon;
 import com.github.chainmailstudios.astromine.common.network.NetworkInstance;
 import com.github.chainmailstudios.astromine.common.network.type.EnergyNetworkType;
 import com.github.chainmailstudios.astromine.common.network.type.FluidNetworkType;
 import com.github.chainmailstudios.astromine.common.network.type.base.NetworkType;
 import com.github.chainmailstudios.astromine.common.registry.NetworkTypeRegistry;
+import net.minecraft.world.World;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.RegistryObject;
+
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 public class AstromineNetworkTypes {
-	public static final NetworkType ENERGY = register("energy_network", new EnergyNetworkType());
-	public static final NetworkType FLUID = register("fluid_network", new FluidNetworkType());
-	public static final NetworkType ITEM = register("item_network", new NetworkType() {
-		@Override
-		public void tick(World world, NetworkInstance instance) {
-			// TODO: item network
-			// TODO: still todo two months later
-		}
+	public static final RegistryObject<NetworkType> ENERGY = register("energy_network", EnergyNetworkType::new);
+	public static final RegistryObject<NetworkType> FLUID = register("fluid_network", FluidNetworkType::new);
+	public static final RegistryObject<NetworkType> ITEM = registerLambda("item_network", () -> (world, instance) -> {
+		// TODO: item network
+		// TODO: still todo two months later
 	});
 
-	public static void initialize() {
-
+	public static void initialize(IEventBus modBus) {
+		NetworkTypeRegistry.subscribe(modBus);
 	}
 
-	public static <T extends NetworkType> T register(String name, T type) {
-		return (T) NetworkTypeRegistry.INSTANCE.register(AstromineCommon.identifier(name), type);
+	private static RegistryObject<NetworkType> register(String name, Supplier<NetworkType> type) {
+		return NetworkTypeRegistry.INSTANCE.register(name, type);
+	}
+
+	private static RegistryObject<NetworkType> registerLambda(String name, Supplier<BiConsumer<World, NetworkInstance>> supplier) {
+		return NetworkTypeRegistry.INSTANCE.registerLambda(name, supplier);
 	}
 }

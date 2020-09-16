@@ -32,7 +32,6 @@ import com.github.chainmailstudios.astromine.common.registry.NetworkMemberRegist
 import com.github.chainmailstudios.astromine.common.utilities.capability.block.CableWrenchable;
 import com.github.chainmailstudios.astromine.common.utilities.data.position.WorldPos;
 import com.github.chainmailstudios.astromine.registry.AstromineComponentTypes;
-import nerdhub.cardinal.components.api.component.ComponentProvider;
 import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.fluid.FluidState;

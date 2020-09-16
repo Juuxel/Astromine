@@ -26,12 +26,13 @@ package com.github.chainmailstudios.astromine.discoveries.registry;
 
 import com.github.chainmailstudios.astromine.registry.AstromineSoundEvents;
 import net.minecraft.util.SoundEvent;
+import net.minecraftforge.fml.RegistryObject;
 
 public class AstromineDiscoveriesSoundEvents extends AstromineSoundEvents {
-	public static final SoundEvent SPACE_SUIT_EQUIPPED = register("item.armor.equip_space_suit");
+	public static final RegistryObject<SoundEvent> SPACE_SUIT_EQUIPPED = register("item.armor.equip_space_suit");
 
-	public static final SoundEvent ALTAR_START = register("block.altar.start");
-	public static final SoundEvent ALTAR_FINISH = register("block.altar.finish");
+	public static final RegistryObject<SoundEvent> ALTAR_START = register("block.altar.start");
+	public static final RegistryObject<SoundEvent> ALTAR_FINISH = register("block.altar.finish");
 
 	public static void initialize() {
 

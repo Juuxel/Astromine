@@ -75,7 +75,7 @@ public class AstromineCommon {
 		AstromineScreenHandlers.initialize();
 		AstromineEntityTypes.initialize(modBus);
 		AstromineComponentTypes.initialize();
-		AstromineNetworkTypes.initialize();
+		AstromineNetworkTypes.initialize(modBus);
 		AstrominePotions.initialize();
 		AstromineBiomeSources.initialize();
 		AstromineBiomes.initialize();
