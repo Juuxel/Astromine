@@ -26,5 +26,5 @@ issueTrackerURL="https://github.com/Mixinors/Astromine/issues"
 [[dependencies.astrominecore]]
     modId="astromine"
     mandatory=false
-    ordering="NONE"
+    ordering="AFTER"
     side="BOTH"
